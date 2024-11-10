@@ -165,5 +165,4 @@ Dotted lines means that the nodes are not directly controlled by each other.
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/doc/media/concurrency-architecture-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="/doc/media/concurrency-architecture-light.svg">
-  <img alt="Shows a diagram describing an example of the concurrency architecture" src="/doc/media/concurrency-architecture-light.svg">
 </picture>
