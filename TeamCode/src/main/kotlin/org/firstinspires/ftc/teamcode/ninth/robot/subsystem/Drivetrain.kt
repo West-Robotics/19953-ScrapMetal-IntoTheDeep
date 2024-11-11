@@ -1,13 +1,12 @@
-package ninth.robot.subsystem
+package org.firstinspires.ftc.teamcode.ninth.robot.subsystem
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
 import kotlin.math.abs
 import kotlin.math.max
 
-class DriveSubsystem(hardwareMap: HardwareMap) {
+class Drivetrain(hardwareMap: HardwareMap) {
     private val frontLeft = hardwareMap.get(DcMotor::class.java, "frontLeft")
     private val backLeft = hardwareMap.get(DcMotor::class.java, "backLeft")
     private val backRight = hardwareMap.get(DcMotor::class.java, "backRight")
@@ -31,13 +30,13 @@ class DriveSubsystem(hardwareMap: HardwareMap) {
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
     }
 
-    fun setVelocity(leftY:Double, leftX:Double, rightX:Double) {
-        val leftXModified: Double = leftX * 1.1
-        val denominator = max(((leftY) + abs(leftX) + abs(rightX)), 1.0)
+    fun setVelocity(x: Double, y: Double, turn: Double) {
+        val yModified: Double = y * 1.1
+        val denominator = max(abs(x) + abs(y) + abs(turn), 1.0)
 
-        frontLeft.setPower((-leftY + leftXModified + rightX)/denominator)
-        backLeft.setPower((-leftY - leftXModified + rightX)/denominator)
-        backRight.setPower((-leftY + leftXModified - rightX)/denominator)
-        frontRight.setPower((-leftY - leftXModified - rightX)/denominator)
+        frontLeft.setPower((x - yModified - turn) / denominator)
+        backLeft.setPower((x + yModified - turn) / denominator)
+        backRight.setPower((x - yModified + turn) / denominator)
+        frontRight.setPower((x + yModified + turn) / denominator)
     }
 }
