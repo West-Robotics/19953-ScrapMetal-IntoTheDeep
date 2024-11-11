@@ -12,7 +12,8 @@ A typical hardware access coroutine might look like
 launch {
     while (opModeIsActive()) {
         hub.clearBulkCache()
-        state.update() // internally reads sensors and updates a StateFlow
+        // internally reads sensors and updates a StateFlow
+        state.update()
         // receive input control efforts from Channels and write them to hardware
         // these terms are explained farther below
         drivetrain.drive(inputs.drive.receive()) 
@@ -29,7 +30,8 @@ A subsystem is a class that only exists to conveniently command ≥ 1 actuators 
 Example claw subsystem class:
 ```kotlin
 class Claw(hardwareMap: HardwareMap) {
-    private val pinch = hardwareMap.servo.get("pinch") // in our actual code we use our own servo wrappers
+    // in our actual code we use our own servo wrappers
+    private val pinch = hardwareMap.servo.get("pinch")
     private val wrist = hardwareMap.servo.get("wrist")
 
     init {
@@ -88,11 +90,13 @@ fun unjam() = action {
         action(Action.INTAKE) { inputs.intake.send(Intake.State.EXTEND) }
         action(Action.LIFT) {
             while (state.height.collectLatest { height -> abs(height-10.0) > 0.01 }) {
-                setPidReference(10.0) // assume the pid is always being run by another coroutine
+                // assume the pid is always being run by another coroutine
+                setPidReference(10.0)
             }
         }
     }
-    delay(1000L) // wait for 1 sec
+    // wait for 1 sec
+    delay(1000L)
     // assume the stow action is already defined somewhere
     // join() will wait for the job to complete before allowing unjam to finish
     stow().join()
@@ -165,5 +169,5 @@ Dotted lines means that the nodes are not directly controlled by each other.
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/doc/media/concurrency-architecture-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="/doc/media/concurrency-architecture-light.svg">
-  <img alt="Shows a diagram describing an example of the concurrency architecture" src="/doc/media/concurrency-architecture-light.svg">
+  <img alt="Shows a diagram describing an example of the concurrency architecture" src="/doc/media/concurrency-architecture.svg">
 </picture>
