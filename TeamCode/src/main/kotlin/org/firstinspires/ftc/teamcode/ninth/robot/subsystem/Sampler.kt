@@ -28,8 +28,10 @@ class Sampler(hardwareMap: HardwareMap) {
         STOW(0.0, 0.0, 0.0),
         RETRACT(0.0, 0.0, 0.0),
         SCORE(0.0, 0.0, 0.0),
+        RELEASE(0.0, 0.0, 0.0),
     }
 
+    // have continuous power (but less than intake) going during stow
     fun setState(state: State) {
         intake.setPower(state.grabber)
         pivot.setPosition(state.pivot)
@@ -42,5 +44,6 @@ class Sampler(hardwareMap: HardwareMap) {
     fun stow() = setState(State.STOW)
     fun retract() = setState(State.RETRACT)
     fun score() = setState(State.SCORE)
+    fun release() = setState(State.RELEASE)
 
 }
