@@ -48,4 +48,6 @@ class Lift(hardwareMap: HardwareMap) {
         }
         return speedForLoop
     }
+
+    fun controlEffort(preset: Double, currentHeight: Double, k: Double) = k*(currentHeight-preset)
 }
