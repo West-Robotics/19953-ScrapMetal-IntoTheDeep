@@ -1,11 +1,9 @@
+import java.text.SimpleDateFormat
+
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
 }
-
-apply from: '../build.common.gradle'
-apply from: '../build.dependencies.gradle'
-apply plugin: 'kotlin-android'
 
 android {
     namespace 'com.scrapmetal.util'
@@ -17,8 +15,23 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 28
+        buildConfigField "String", "APP_BUILD_TIME", '"' + (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ROOT).format(new Date())) + '"'
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    compileSdkVersion 30
 }
 
 dependencies {
     implementation project(':FtcRobotController')
 }
+
+apply from: '../build.dependencies.gradle'
+apply plugin: 'kotlin-android'
