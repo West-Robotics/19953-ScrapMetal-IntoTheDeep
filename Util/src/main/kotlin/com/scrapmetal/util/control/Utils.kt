@@ -71,7 +71,7 @@ fun motionProfile(constraints: MPConstraints, t: Double): MPState {
                    v * min(max(t-tA, 0.0), tV) +
                    v * min(max(t-tA-tV, 0.0), tD) -
                        0.5 * d * min(max(t-tA-tV, 0.0), tD).pow(2),
-            v = listOf(a * t, v, v - d * (t-tA-tV)).minBy { abs(it) },
+            v = doubleArrayOf(a * t, v, v - d * (t-tA-tV)).minBy { abs(it) },
             a = when (t) {
                 in 0.0..tA -> a
                 in tA..tA+tV -> 0.0
