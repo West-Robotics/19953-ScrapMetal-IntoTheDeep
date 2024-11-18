@@ -14,20 +14,24 @@ import kotlin.math.abs
 class SMMotor(
     hardwareMap: HardwareMap,
     name: String,
-    val eps: Double = 0.005,
     dir: Direction,
     zpb: ZeroPowerBehavior,
+    val eps: Double = 0.005,
     currentThresh: Double = 9.0,
 ) {
     private val motor = hardwareMap.dcMotor.get(name) as DcMotorEx
-    private var previousEffort = 0.0
+    private var _effort = 0.0
 
     var effort
-        get() = previousEffort
-        set(value) = if (abs(effort - previousEffort) > eps) {
-            motor.power = value
-            previousEffort = value
+        get() = _effort
+        set(value) = if (abs(effort - _effort) > eps) {
+            _effort = value
         } else Unit
+
+    /**
+     * Perform hardware write
+     */
+    fun write() { motor.power = effort }
 
     val isOverCurrent
         get() = motor.isOverCurrent

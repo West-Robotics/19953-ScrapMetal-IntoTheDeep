@@ -2,9 +2,6 @@ package com.scrapmetal.util.architecture
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 fun CoroutineScope.action(block: suspend CoroutineScope.() -> Unit): Action
