@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlin.math.PI
 
 class Lift(hardwareMap: HardwareMap) {
-    // remember to plug the encoder into the left port!
     private val left = hardwareMap.dcMotor.get("leftLift")
     private val right = hardwareMap.dcMotor.get("rightLift")
+    // TODO: rename encoder to drive motor
     private val encoder = hardwareMap.dcMotor.get("encoder")
 
     init {

@@ -28,8 +28,6 @@ class Teleop: LinearOpMode() {
         var rBumperState = 0.0
 
         waitForStart()
-        val timeSinceInit = ElapsedTime()
-
         while (opModeIsActive()) {
             previousGamepad1.copy(gamepad1)
             previousGamepad2.copy(gamepad2)
@@ -50,7 +48,7 @@ class Teleop: LinearOpMode() {
             }
 
             val liftHeight = lift.getHeight()
-            val liftK = 0.0
+            val k = 0.0
 
 //            val liftPower = 0.7
 //            if ((gamepad2.a) or (gamepad2.b)) {
@@ -60,10 +58,14 @@ class Teleop: LinearOpMode() {
 //                lift.setPower((-gamepad2.right_stick_y).toDouble())
 //            }
 
-            if ((gamepad2.a && previousGamepad2.a) or (gamepad2.b && previousGamepad2.b))
-                lift.setPower(lift.controlEffort(desiredPos, liftHeight, liftK))
+            if ((gamepad2.a && previousGamepad2.a) or (gamepad2.b && previousGamepad2.b)) {
+                lift.setPower(lift.controlEffort(desiredPos, liftHeight, k))
+            } else {
+                lift.setPower(gamepad2.left_stick_y.toDouble())
+            }
 
             // sampler
+            // TODO: impliment finite state machines
             if (gamepad1.left_bumper && !previousGamepad1.left_bumper) {
                 sampler.extend()
                 l1BumperTime.reset()
