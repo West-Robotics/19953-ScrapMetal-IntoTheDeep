@@ -110,6 +110,12 @@ android {
         pickFirst '**/*.so'
     }
     ndkVersion '21.3.6528147'
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 repositories {
