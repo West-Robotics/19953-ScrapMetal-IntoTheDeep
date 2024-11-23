@@ -48,7 +48,8 @@ class Teleop: LinearOpMode() {
             }
 
             val liftHeight = lift.getHeight()
-            val k = 0.0
+            val p = 1.0
+            val f = 0.0
 
 //            val liftPower = 0.7
 //            if ((gamepad2.a) or (gamepad2.b)) {
@@ -59,7 +60,7 @@ class Teleop: LinearOpMode() {
 //            }
 
             if ((gamepad2.a && previousGamepad2.a) or (gamepad2.b && previousGamepad2.b)) {
-                lift.setPower(lift.controlEffort(desiredPos, liftHeight, k))
+                lift.setPower(lift.controlEffort(desiredPos, liftHeight, p, f))
             } else {
                 lift.setPower(gamepad2.left_stick_y.toDouble())
             }

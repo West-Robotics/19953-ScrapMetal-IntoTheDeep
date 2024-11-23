@@ -9,7 +9,7 @@ class Lift(hardwareMap: HardwareMap) {
     private val left = hardwareMap.dcMotor.get("leftLift")
     private val right = hardwareMap.dcMotor.get("rightLift")
     // TODO: rename encoder to drive motor
-    private val encoder = hardwareMap.dcMotor.get("encoder")
+    private val encoder = hardwareMap.dcMotor.get("frontRight")
 
     init {
         left.setDirection(DcMotorSimple.Direction.FORWARD)
@@ -49,5 +49,5 @@ class Lift(hardwareMap: HardwareMap) {
         return speedForLoop
     }
 
-    fun controlEffort(preset: Double, currentHeight: Double, k: Double) = k*(currentHeight-preset)
+    fun controlEffort(preset: Double, currentHeight: Double, k: Double, f: Double) = k*(currentHeight-preset) + f
 }
