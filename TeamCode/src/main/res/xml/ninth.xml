@@ -6,10 +6,10 @@
             <goBILDA5202SeriesMotor name="backRight" port="1" />
             <goBILDA5202SeriesMotor name="backLeft" port="2" />
             <goBILDA5202SeriesMotor name="frontLeft" port="3" />
-            <Servo name="extOne" port="0" />
-            <Servo name="extTwo" port="1" />
+            <Servo name="frontExt" port="0" />
+            <Servo name="backExt" port="1" />
             <Servo name="pivot" port="2" />
-            <CRServo name="intake" port="3" />
+            <ContinuousRotationServo name="intake" port="3" />
         </LynxModule>
         <LynxModule name="Expansion Hub 1" port="1">
             <goBILDA5202SeriesMotor name="rightLeft" port="0" />
