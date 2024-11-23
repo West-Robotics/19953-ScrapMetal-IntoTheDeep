@@ -24,7 +24,7 @@ class SMMotor(
 
     var effort
         get() = _effort
-        set(value) = if (abs(effort - _effort) > eps) {
+        set(value) = if (abs(value - _effort) > eps) {
             _effort = value
         } else Unit
 
