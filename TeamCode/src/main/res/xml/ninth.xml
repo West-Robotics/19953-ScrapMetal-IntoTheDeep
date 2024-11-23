@@ -12,7 +12,7 @@
             <ContinuousRotationServo name="intake" port="3" />
         </LynxModule>
         <LynxModule name="Expansion Hub 1" port="1">
-            <goBILDA5202SeriesMotor name="rightLeft" port="0" />
+            <goBILDA5202SeriesMotor name="rightLift" port="0" />
             <goBILDA5202SeriesMotor name="leftLift" port="1" />
         </LynxModule>
     </LynxUsbDevice>

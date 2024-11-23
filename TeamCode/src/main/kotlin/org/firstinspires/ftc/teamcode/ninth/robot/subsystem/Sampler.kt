@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo
 import kotlin.enums.enumEntries
 
 class Sampler(hardwareMap: HardwareMap) {
-    private val extensionOne = hardwareMap.get(Servo::class.java, "extOne")
-    private val extensionTwo = hardwareMap.get(Servo::class.java, "extTwo")
+    private val extensionOne = hardwareMap.get(Servo::class.java, "leftExt")
+    private val extensionTwo = hardwareMap.get(Servo::class.java, "rightEXt")
 
     private val pivot = hardwareMap.get(Servo::class.java, "pivot")
     private val intake = hardwareMap.get(CRServo::class.java, "intake")
