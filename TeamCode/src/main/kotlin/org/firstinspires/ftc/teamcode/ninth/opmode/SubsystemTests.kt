@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.ninth.opmode
 
+import com.acmerobotics.dashboard.config.Config
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
@@ -9,23 +10,29 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
 @TeleOp(name = "SubsystemTests")
 class SubsystemTests : LinearOpMode() {
+    @Config
+    companion object {
+        @JvmField var amount = 0.0
+    }
     override fun runOpMode() {
         val previousGamepad1 = Gamepad()
 
         val drivetrain = Drivetrain(hardwareMap)
+        var desiredPos = 0.0
         val lift = Lift(hardwareMap)
-//        val sampler = Sampler(hardwareMap)
+        val sampler = Sampler(hardwareMap)
 
         waitForStart()
         while (opModeIsActive()) {
             previousGamepad1.copy(gamepad1)
 
             // drive
-//            drivetrain.setVelocity(
-//                -gamepad1.left_stick_y.toDouble(),
-//                -gamepad1.left_stick_x.toDouble(),
-//                -gamepad1.right_stick_x.toDouble(),
-//            )
+            drivetrain.setVelocity(
+                -gamepad1.left_stick_y.toDouble(),
+                -gamepad1.left_stick_x.toDouble(),
+                -gamepad1.right_stick_x.toDouble(),
+            )
+            drivetrain.writeDtEffort()
 
             // lift
             lift.setPower(gamepad1.left_trigger-gamepad1.right_trigger.toDouble())
@@ -37,11 +44,16 @@ class SubsystemTests : LinearOpMode() {
 //            } else {
 //                lift.setPower(0.0)
 //            }
+            lift.writeLiftEffort()
 
-            val desiredPos = when {
-                (gamepad1.a && !previousGamepad1.a) -> 24.0
-                (gamepad1.b && !previousGamepad1.b) -> 36.0
-                else -> 0.0
+            if (gamepad1.a && previousGamepad1.a) {
+                desiredPos = 0.0
+            }
+            if (gamepad1.b && previousGamepad1.b) {
+                desiredPos = 24.0
+            }
+            if (gamepad1.y && previousGamepad1.y) {
+                desiredPos = 36.0
             }
 
             val liftHeight = lift.getHeight()
@@ -54,7 +66,8 @@ class SubsystemTests : LinearOpMode() {
 //                lift.setPower(gamepad2.left_stick_y.toDouble())
 //            }
 //
-//            // intake
+//            // sampler
+                sampler.setExtensionAmount(amount)
 //            if (gamepad1.a && !previousGamepad1.a) {
 //                sampler.extend()
 //            }
@@ -71,9 +84,9 @@ class SubsystemTests : LinearOpMode() {
 //                sampler.score()
 //            }
 
-//            val liftHeight = lift.getHeight()
             telemetry.addLine("Raise lift - hold left trigger")
             telemetry.addLine("Lower lift - hold right trigger")
+
             telemetry.addLine("Extend sampler - press a")
             telemetry.addLine("Retract sampler - press a")
             telemetry.addLine("Intake sample - press b")

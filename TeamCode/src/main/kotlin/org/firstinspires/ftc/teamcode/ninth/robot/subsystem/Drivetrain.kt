@@ -11,7 +11,7 @@ class Drivetrain(hardwareMap: HardwareMap) {
     private val frontLeft = SMMotor(hardwareMap, "frontLeft", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE)
     private val backLeft = SMMotor(hardwareMap, "backLeft", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
     private val backRight = SMMotor(hardwareMap, "backRight", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE)
-    private val frontRight = SMMotor(hardwareMap, "FrontRight", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
+    private val frontRight = SMMotor(hardwareMap, "frontRight", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
 
     fun setVelocity(x: Double, y: Double, turn: Double) {
         val yModified: Double = y * 1.1
@@ -21,5 +21,12 @@ class Drivetrain(hardwareMap: HardwareMap) {
         backLeft.effort = (x + yModified - turn) / denominator
         backRight.effort = (x - yModified + turn) / denominator
         frontRight.effort = (x + yModified + turn) / denominator
+    }
+
+    fun writeDtEffort() {
+        frontLeft.write()
+        backLeft.write()
+        backRight.write()
+        frontRight.write()
     }
 }

@@ -39,6 +39,10 @@ class Sampler(hardwareMap: HardwareMap) {
         extensionTwo.setPosition(state.linkage)
     }
 
+    fun setExtensionAmount(extension: Double) {
+        extensionOne.setPosition(extension.coerceIn(0.0..0.5))
+    }
+
     fun extend() = setState(State.EXTEND)
     fun grab() = setState(State.GRAB)
     fun stow() = setState(State.STOW)

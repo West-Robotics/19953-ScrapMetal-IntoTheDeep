@@ -29,6 +29,11 @@ class Lift(hardwareMap: HardwareMap) {
         right.effort = power
     }
 
+    fun writeLiftEffort() {
+        left.write()
+        right.write()
+    }
+
     fun getHeight() = encoder.dist
 
     fun runToPreset(preset: Double, currentHeight: Double, power: Double): Double {
