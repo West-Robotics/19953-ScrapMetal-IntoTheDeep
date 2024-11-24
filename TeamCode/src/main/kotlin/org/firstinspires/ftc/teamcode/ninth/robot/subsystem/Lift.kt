@@ -5,14 +5,18 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.scrapmetal.util.hardware.SMMotor
 import com.scrapmetal.util.hardware.SMQuadrature
+import org.firstinspires.ftc.teamcode.ninth.controlEffort
 import kotlin.math.PI
 
 class Lift(hardwareMap: HardwareMap) {
+    val feedforward = 0.1
+    val kp = 1.5
+
     val cpr = 8192.0
     val spoolCircumference = 0.7874016 * PI
 
-    private val left = SMMotor(hardwareMap, "leftLift", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE)
-    private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
+    private val left = SMMotor(hardwareMap, "leftLift", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
+    private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
 
     private val encoder = SMQuadrature(hardwareMap, "frontRight", spoolCircumference/cpr, 1.0/cpr, DcMotorSimple.Direction.REVERSE)
 
@@ -20,30 +24,21 @@ class Lift(hardwareMap: HardwareMap) {
         encoder.reset()
     }
 
-    fun inchesToTicks(inches: Double) = (inches * cpr/spoolCircumference).toInt()
-
-    fun ticksToInches(ticks: Int) = ticks * spoolCircumference / cpr
-
-    fun setPower(power: Double) {
+    fun setEffort(power: Double) {
         left.effort = power
         right.effort = power
     }
 
-    fun writeLiftEffort() {
+    fun write() {
         left.write()
         right.write()
     }
 
     fun getHeight() = encoder.dist
 
-    fun runToPreset(preset: Double, currentHeight: Double, power: Double): Double {
-        val speedForLoop = when {
-            currentHeight < preset -> power
-            currentHeight > preset -> -power
-            else -> 0.0
-        }
-        return speedForLoop
-    }
+    fun getEffort() = left.effort
 
-    fun controlEffort(preset: Double, currentHeight: Double, k: Double, f: Double) = k*(currentHeight-preset) + f
+    fun runToPos(preset: Double, currentHeight: Double) {
+        setEffort(controlEffort(preset, currentHeight, kp, feedforward))
+    }
 }
