@@ -23,7 +23,7 @@ class Drivetrain(hardwareMap: HardwareMap) {
         frontRight.effort = (x + yModified + turn) / denominator
     }
 
-    fun writeDtEffort() {
+    fun write() {
         frontLeft.write()
         backLeft.write()
         backRight.write()
