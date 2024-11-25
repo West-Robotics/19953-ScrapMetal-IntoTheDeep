@@ -28,29 +28,10 @@ class Spline(
     /**
      * Return a point ([Vector2d]) given a parameter [t]
      */
-    fun invoke(t: Double) = coef[3]*t.pow(3) + coef[2]*t.pow(2) + coef[1]*t + coef[0]
+    operator fun invoke(t: Double) = coef[3]*t.pow(3) + coef[2]*t.pow(2) + coef[1]*t + coef[0]
 
     /**
      * Return the derivative of the path at a parameter [t]
      */
     fun dpdt(t: Double) = coef[3]*3.0*t.pow(2) + coef[2]*2.0*t + coef[1]
-
-    // WARNING: this might have really bad performance
-    /**
-     * Approximate closest point through an algorithm similar to binary search, but denary
-     */
-    fun closestPoint(pos: Vector2d): Vector2d {
-        tailrec fun closestOf10(lower: Double, upper: Double): Vector2d {
-            val range = upper - lower
-            fun iToT(i: Int) = lower + range*(0.05 + 0.1*i)
-            val distances = DoubleArray(10) { i -> (invoke(iToT(i)) - pos).norm() }
-            val closestT = iToT(distances.indices.minBy { distances[it] })
-            return if (range >= 0.01) {
-                closestOf10(closestT - 0.5*range/10.0, closestT + 0.5*range/10.0)
-            } else {
-                invoke(closestT)
-            }
-        }
-        return closestOf10(0.0, 1.0)
-    }
 }
