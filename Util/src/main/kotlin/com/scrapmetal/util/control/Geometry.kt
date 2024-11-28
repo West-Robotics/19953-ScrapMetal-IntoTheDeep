@@ -22,7 +22,9 @@ data class Vector2d(val x: Double = 0.0, val y: Double = 0.0) {
 }
 
 /**
- * A rotation matrix that can rotate a [Vector2d] by [theta] in degrees
+ * A rotation matrix for rotating a [Vector2d] by [theta] in degrees
+ *
+ * This can also be used for representing headings
  */
 data class Rotation2d(val theta: Degrees = 0.0) {
     operator fun times(v: Vector2d) = Vector2d(
