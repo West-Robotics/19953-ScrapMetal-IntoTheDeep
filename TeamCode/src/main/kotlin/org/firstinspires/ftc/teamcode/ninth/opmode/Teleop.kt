@@ -4,11 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.ninth.controlEffort
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
-import kotlin.math.E
-import kotlin.time.Duration.Companion.seconds
 
 @TeleOp(name = "NinthTele")
 class Teleop: LinearOpMode() {
@@ -19,6 +18,10 @@ class Teleop: LinearOpMode() {
         val drivetrain = Drivetrain(hardwareMap)
         val lift = Lift(hardwareMap)
         val sampler = Sampler(hardwareMap)
+
+        val liftHeight = lift.getHeight()
+        var desiredPos = 0.0
+        var manual = false
 
         val l1BumperTime = ElapsedTime()
         var l1BumperState = 0.0
@@ -41,28 +44,25 @@ class Teleop: LinearOpMode() {
 
             // lift
             // TODO: implement hardstop for lift
-            val desiredPos = when {
-                (gamepad2.a && !previousGamepad2.a) -> 24.0
-                (gamepad2.b && !previousGamepad2.b) -> 36.0
-                else -> 0.0
+
+            if (gamepad1.a && previousGamepad1.a) {
+                desiredPos = 0.0
+            }
+            if (gamepad1.b && previousGamepad1.b) {
+                desiredPos = 25.75 - 9
+            }
+            if (gamepad1.y && previousGamepad1.y) {
+                desiredPos = 43.0 - 9
             }
 
-            val liftHeight = lift.getHeight()
-            val p = 1.0
-            val f = 0.0
+            if (gamepad1.start && !previousGamepad1.start) {
+                manual = !manual
+            }
 
-//            val liftPower = 0.7
-//            if ((gamepad2.a) or (gamepad2.b)) {
-//                lift.setPower(lift.runToPreset(desiredPos, liftHeight, liftPower))
-//                sampler.score()
-//            } else {
-//                lift.setPower((-gamepad2.right_stick_y).toDouble())
-//            }
-
-            if ((gamepad2.a && previousGamepad2.a) or (gamepad2.b && previousGamepad2.b)) {
-                lift.setPower(lift.controlEffort(desiredPos, liftHeight, p, f))
+            if (!manual) {
+                lift.runToPos(desiredPos, liftHeight)
             } else {
-                lift.setPower(gamepad2.left_stick_y.toDouble())
+                lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.1)
             }
 
             // sampler
