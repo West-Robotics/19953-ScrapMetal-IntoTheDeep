@@ -17,50 +17,50 @@ class SubsystemTests : LinearOpMode() {
 
         val drivetrain = Drivetrain(hardwareMap)
         var desiredPos = 0.0
-        val lift = Lift(hardwareMap)
+//        val lift = Lift(hardwareMap)
         var manual = false
-        var extensionAmount = 0.0
+        val extensionAmount = 0.0
         val sampler = Sampler(hardwareMap)
 
         waitForStart()
         while (opModeIsActive()) {
             previousGamepad1.copy(gamepad1)
 
-            if (gamepad1.a && previousGamepad1.a) {
-                desiredPos = 0.0
-            }
-            if (gamepad1.b && previousGamepad1.b) {
-                desiredPos = 25.75 - 9
-            }
-            if (gamepad1.y && previousGamepad1.y) {
-                desiredPos = 43.0 - 9
-            }
-
-            if (gamepad1.start && !previousGamepad1.start) {
-                manual = !manual
-            }
+//            if (gamepad1.a && previousGamepad1.a) {
+//                desiredPos = 0.0
+//            }
+//            if (gamepad1.b && previousGamepad1.b) {
+//                desiredPos = 25.75 - 9
+//            }
+//            if (gamepad1.y && previousGamepad1.y) {
+//                desiredPos = 43.0 - 9
+//            }
+//
+//            if (gamepad1.start && !previousGamepad1.start) {
+//                manual = !manual
+//            }
 
             // drive
-            drivetrain.setVelocity(
-                -gamepad1.left_stick_y.toDouble(),
-                -gamepad1.left_stick_x.toDouble(),
-                -gamepad1.right_stick_x.toDouble(),
-            )
-            drivetrain.write()
+//            drivetrain.setVelocity(
+//                -gamepad1.left_stick_y.toDouble(),
+//                -gamepad1.left_stick_x.toDouble(),
+//                -gamepad1.right_stick_x.toDouble(),
+//            )
+//            drivetrain.write()
 
             // lift
-            val liftHeight = lift.getHeight()
+//            val liftHeight = lift.getHeight()
 
-            if (!manual) {
-                lift.runToPos(desiredPos, liftHeight)
-            } else {
-                lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.1)
-            }
-
-            lift.write()
+//            if (!manual) {
+//                lift.runToPos(desiredPos, liftHeight)
+//            } else {
+//                lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.1)
+//            }
+//
+//            lift.write()
 
             // sampler
-            sampler.setExtensionAmount(extensionAmount)
+//            sampler.setExtensionAmount(extensionAmount)
 
 //            if (gamepad1.a && !previousGamepad1.a) {
 //                sampler.extend()
@@ -87,9 +87,9 @@ class SubsystemTests : LinearOpMode() {
             telemetry.addLine("Stow intake - press b")
             telemetry.addLine("Score - hold x")
             telemetry.addLine("           ")
-            telemetry.addData("Lift height", liftHeight)
-            telemetry.addData("Control Effort", lift.getEffort())
-            telemetry.addData("Desired position", desiredPos)
+//            telemetry.addData("Lift height", liftHeight)
+//            telemetry.addData("Control Effort", lift.getEffort())
+//            telemetry.addData("Desired position", desiredPos)
             telemetry.update()
         }
     }
