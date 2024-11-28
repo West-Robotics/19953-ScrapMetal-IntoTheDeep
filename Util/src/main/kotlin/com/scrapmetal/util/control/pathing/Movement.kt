@@ -3,6 +3,11 @@ package com.scrapmetal.util.control.pathing
 import com.scrapmetal.util.control.Pose2d
 import com.scrapmetal.util.control.Vector2d
 
+/**
+ * A list of C0 and C1 (position and velocity) continuous splines, with associated heading
+ * interpolations and maximum efforts. A single [Movement] starts and stops once: it continually
+ * moves through all submovements in succession.
+ */
 data class Movement(val submovements: List<SubMovement>) {
     private var index = 0
 
@@ -27,6 +32,9 @@ infix fun SplinePoint.to(p: SplinePoint) = Movement(listOf(SubMovement(Spline(
     endTangent = p.tangent,
 ))))
 
+/**
+ * Create a [Movement] between two [SplinePoint]s
+ */
 infix fun Movement.to(p: SplinePoint) = Movement(
     this.submovements + SubMovement(
         Spline(

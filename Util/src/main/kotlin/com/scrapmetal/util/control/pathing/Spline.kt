@@ -72,6 +72,9 @@ data class Spline(
             = invoke((1..1_000_000).minBy { i -> (invoke(i/1_000_000.0) - pos).norm() } / 1_000_000.0)
 }
 
+/**
+ * A convenience class that wraps a spline position and tangent vector
+ */
 data class SplinePoint(val position: Vector2d, val tangent: Vector2d) {
     constructor(x: Double, y: Double, vx: Double, vy: Double) : this(Vector2d(x, y), Vector2d(vx, vy))
 }
