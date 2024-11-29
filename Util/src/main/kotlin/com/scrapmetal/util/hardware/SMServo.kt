@@ -3,7 +3,6 @@ package com.scrapmetal.util.hardware
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.Servo
-import com.qualcomm.robotcore.hardware.ServoImpl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import kotlin.math.abs
 
