@@ -1,5 +1,6 @@
 package com.scrapmetal.util.control.pathing
 
+import com.scrapmetal.util.control.Rotation2d
 import com.scrapmetal.util.control.Vector2d
 import kotlin.math.pow
 
@@ -73,8 +74,14 @@ data class Spline(
 }
 
 /**
- * A convenience class that wraps a spline position and tangent vector
+ * A convenience class that wraps a spline position and tangent vector, allowing the tangent vector
+ * to be specified in polar form
  */
 data class SplinePoint(val position: Vector2d, val tangent: Vector2d) {
-    constructor(x: Double, y: Double, vx: Double, vy: Double) : this(Vector2d(x, y), Vector2d(vx, vy))
+    constructor(
+        x: Double,
+        y: Double,
+        velocity: Double,
+        theta: Double,
+    ) : this(Vector2d(x, y), Rotation2d(theta)*Vector2d(velocity, 0.0))
 }
