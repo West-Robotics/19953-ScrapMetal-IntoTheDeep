@@ -20,5 +20,5 @@ data class Tangent(private val spline: Spline) : HeadingInterpolation {
 
 data class Linear(val start: Rotation2d, private val end: Rotation2d) : HeadingInterpolation {
     constructor(theta0: Double, theta1: Double) : this(Rotation2d(theta0), Rotation2d(theta1))
-    override fun invoke(t: Double) = Rotation2d((end.theta-start.theta)*t)*start
+    override fun invoke(t: Double) = Rotation2d((end.theta - start.theta) * t) * start
 }

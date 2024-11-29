@@ -24,7 +24,7 @@ data class Spline(
             else -> Vector2d()
         }
     }
-    private val positions: Array<Vector2d> = Array(1001) { t -> invoke(t/1000.0)}
+    private val positions: Array<Vector2d> = Array(1001) { t -> invoke(t / 1000.0)}
 
     /**
      * Return a point ([Vector2d]) given a parameter [t]
@@ -32,7 +32,7 @@ data class Spline(
     operator fun invoke(t: Double) = coef[3]*t.pow(3) + coef[2]*t.pow(2) + coef[1]*t + coef[0]
 
     /**
-     * Return the tangent vector (unit derivative) of the path at a parameter [t]
+     * Return the unit tangent vector (normalized derivative) of the path at a parameter [t]
      */
     fun tangentAt(t: Double) = (coef[3]*3.0*t.pow(2) + coef[2]*2.0*t + coef[1]).unit()
 
@@ -43,13 +43,14 @@ data class Spline(
      * This is done to reduce the chance of not finding a global minimum.
      */
     fun closestT(pos: Vector2d): Double {
-        fun iToT(i: Int, n: Int, lower: Double, upper: Double) = lower + (upper-lower)*(1.0/n*(0.5 + i))
+        fun iToT(i: Int, n: Int, lower: Double, upper: Double) =
+            lower + (upper - lower) * (1.0 / n * (0.5+i))
         tailrec fun closestTOfN(n: Int, lower: Double, upper: Double): Double {
             val range = upper - lower
             val distances = DoubleArray(n) { i -> (invoke(iToT(i, n, lower, upper)) - pos).norm() }
             val closestT = iToT(distances.indices.minBy { distances[it] }, n, lower, upper)
             return if (range > n.toDouble().pow(-1)) {
-                closestTOfN(n, closestT - 0.5*range/n, closestT + 0.5*range/n)
+                closestTOfN(n, closestT - 0.5 * range / n, closestT + 0.5 * range / n)
             } else {
                 closestT
             }
@@ -70,7 +71,7 @@ data class Spline(
      * Brute force closest point with a million samples, only use for testing
      */
     fun closestPointBruteforce(pos: Vector2d)
-            = invoke((1..1_000_000).minBy { i -> (invoke(i/1_000_000.0) - pos).norm() } / 1_000_000.0)
+            = invoke((1..1_000_000).minBy { i -> (invoke(i / 1_000_000.0) - pos).norm() } / 1_000_000.0)
 }
 
 /**

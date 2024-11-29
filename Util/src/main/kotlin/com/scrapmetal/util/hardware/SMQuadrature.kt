@@ -26,10 +26,12 @@ class SMQuadrature(
 
     val linearV
         get() = tickV * distPerTick
+    // TODO: verify units
     val angularV
         get() = tickV * revsPerTick
     // TODO: add velocity overflow correction
     // TODO: apply filter/use different estimate
+    // TODO: verify units
     val tickV
         get() = motor.velocity
 
