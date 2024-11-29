@@ -7,35 +7,6 @@ import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.math.sqrt
 
-/**
- * Simple P controller
- */
-fun pControl(gain: Double, reference: Double, state: Double) = gain * (reference - state)
-
-/**
- * Return feedforward given a lambda [ff] and the current [state]
- */
-fun feedforward(ff: (Double) -> Double, state: Double) = ff(state)
-
-/**
- * Linearly constrain the [input] effort between the minimum [min] and the maximum [max] once
- * outside the [deadzone]. Below [deadzone], effort scales linearly between 0 and [min].
- */
-fun constrainEffort(
-    input: Double,
-    min: Double,
-    max: Double,
-    deadzone: Double,
-): Double {
-    return when {
-        abs(input) > deadzone
-            -> (max - min) / (max - deadzone) *
-               (input - sign(input) * deadzone) +
-               sign(input) * min
-        else -> input * min / deadzone
-    }.coerceIn(-max, max)
-}
-
 // WARNING: untested
 // TODO: test that it works
 // TODO: measure performance on chub
@@ -67,10 +38,10 @@ fun motionProfile(constraints: MPConstraints, t: Double): MPState {
 
         return MPState(
             s = start +
-                   0.5 * a * min(max(t, 0.0), tA).pow(2) +
-                   v * min(max(t-tA, 0.0), tV) +
-                   v * min(max(t-tA-tV, 0.0), tD) -
-                       0.5 * d * min(max(t-tA-tV, 0.0), tD).pow(2),
+                    0.5 * a * min(max(t, 0.0), tA).pow(2) +
+                    v * min(max(t-tA, 0.0), tV) +
+                    v * min(max(t-tA-tV, 0.0), tD) -
+                    0.5 * d * min(max(t-tA-tV, 0.0), tD).pow(2),
             v = doubleArrayOf(a * t, v, v - d * (t-tA-tV)).minBy { abs(it) },
             a = when (t) {
                 in 0.0..tA -> a
