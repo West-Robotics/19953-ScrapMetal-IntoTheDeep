@@ -4,13 +4,13 @@ import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.launch
 
-fun CoroutineScope.action(block: suspend CoroutineScope.() -> Unit): Action
-    = launch(start = CoroutineStart.LAZY, block = block)
+fun CoroutineScope.action(block: suspend CoroutineScope.() -> Unit): Action =
+    launch(start = CoroutineStart.LAZY, block = block)
 
-fun CoroutineScope.action(pipeline: Pipeline, block: suspend CoroutineScope.() -> Unit): Action
-    = launch(start = CoroutineStart.LAZY) {
+fun CoroutineScope.action(pipeline: Pipeline, block: suspend CoroutineScope.() -> Unit): Action =
+    launch(start = CoroutineStart.LAZY) {
         pipeline.send(action(block))
-      }
+    }
 
 class Pipeline {
     private val channel = Channel<Action>(CONFLATED)

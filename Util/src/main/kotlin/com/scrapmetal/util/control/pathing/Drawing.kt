@@ -32,15 +32,18 @@ fun Canvas.drawPath(spline: Spline): Canvas {
     return this
 }
 
+/**
+ * Draws the path along with interspersed heading markers
+ */
 fun Canvas.drawSubMovement(subMovement: SubMovement): Canvas {
-    val points = Array(POINT_COUNT) { subMovement.spline(it/POINT_COUNT.toDouble()) }
+    val points = Array(POINT_COUNT) { subMovement.spline(it / POINT_COUNT.toDouble()) }
     val xPoints = DoubleArray(POINT_COUNT) { points[it].x }
     val yPoints = DoubleArray(POINT_COUNT) { points[it].y }
     val headingTipPoints = Array(HEADING_COUNT) {
         Pair(
-            points[it*POINT_COUNT/HEADING_COUNT],
-            points[it*POINT_COUNT/HEADING_COUNT] +
-                subMovement.heading(it/HEADING_COUNT.toDouble())*Vector2d(ROBOT_RADIUS/4, 0.0)
+            points[it * POINT_COUNT / HEADING_COUNT],
+            points[it * POINT_COUNT / HEADING_COUNT] +
+                subMovement.heading(it / HEADING_COUNT.toDouble()) * Vector2d(ROBOT_RADIUS / 4, 0.0)
         )
     }
     this.setStroke(PATH_COLOR)

@@ -6,22 +6,22 @@ import com.scrapmetal.util.control.Vector2d
 data class SubMovement(
     val spline: Spline,
     val heading: HeadingInterpolation = Tangent(spline),
-    val effort: Double = 1.0,
+    val pathEffort: Double = 1.0,
 ) {
     /**
-     * Return drivetrain vector, reference heading and closest T
+     * Return closest pose, derivative, and t
      */
-    fun update(pos: Vector2d): MovementState {
-        return spline.closestT(pos).let {
-            MovementState(
-                Pose2d(spline(it)*effort, heading(it)),
-                it
-            )
-        }
+    operator fun invoke(pos: Vector2d) = spline.closestT(pos).let {
+        ClosestState(
+            Pose2d(spline(it), heading(it)),
+            Pose2d(spline.tangentAt(it) * pathEffort, heading.derivative(it)),
+            it,
+        )
     }
 }
 
-data class MovementState(
-    val motion: Pose2d,
-    val closestT: Double,
+data class ClosestState(
+    val pose: Pose2d,
+    val derivative: Pose2d,
+    val t: Double,
 )

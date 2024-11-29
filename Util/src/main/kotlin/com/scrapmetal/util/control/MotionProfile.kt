@@ -24,7 +24,7 @@ fun motionProfile(constraints: MPConstraints, t: Double): MPState {
         // signed
         val s = end - start
         // unsigned
-        val vMax = min(vLimit, accel * sqrt( abs(s) / (0.5 * accel * (1 + accel/decel))))
+        val vMax = min(vLimit, accel * sqrt(abs(s) / (0.5 * accel * (1 + accel/decel))))
         val tA = vMax / accel
         val tD = tA * accel / decel
         val tV = if (vMax != 0.0) {

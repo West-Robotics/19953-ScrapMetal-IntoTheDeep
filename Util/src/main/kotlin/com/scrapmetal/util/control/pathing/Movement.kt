@@ -1,6 +1,5 @@
 package com.scrapmetal.util.control.pathing
 
-import com.scrapmetal.util.control.Pose2d
 import com.scrapmetal.util.control.Vector2d
 
 /**
@@ -11,12 +10,13 @@ import com.scrapmetal.util.control.Vector2d
 data class Movement(val submovements: List<SubMovement>) {
     private var index = 0
 
-    fun update(pos: Vector2d): Pose2d {
-        val state = submovements[index].update(pos)
-        if (state.closestT == 1.0 && index < submovements.size - 1) {
+    // TODO: pick a better name for this function
+    operator fun invoke(pos: Vector2d): ClosestState {
+        val closest = submovements[index](pos)
+        if (closest.t == 1.0 && index < submovements.size - 1) {
             index++
         }
-        return state.motion
+        return closest
     }
 
     fun isLast() = index == submovements.size - 1
@@ -47,14 +47,14 @@ infix fun Movement.to(p: SplinePoint) = Movement(
 )
 
 infix fun Movement.withHeading(h: HeadingInterpolation) = Movement(
-    this.submovements.subList(0, this.submovements.size-1) + SubMovement(
+    this.submovements.subList(0, this.submovements.size - 1) + SubMovement(
         this.submovements.last().spline,
         h,
     )
 )
 
 infix fun Movement.withEffort(e: Double) = Movement(
-    this.submovements.subList(0, this.submovements.size-1) + SubMovement(
+    this.submovements.subList(0, this.submovements.size - 1) + SubMovement(
         this.submovements.last().spline,
         this.submovements.last().heading,
         e,

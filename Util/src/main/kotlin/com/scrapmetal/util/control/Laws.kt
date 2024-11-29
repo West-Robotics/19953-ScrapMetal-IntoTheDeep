@@ -4,9 +4,13 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 /**
- * Simple P controller
+ * Simple P controller that can also handle wraparound logic for heading etc., in degrees
  */
-fun pControl(gain: Double, reference: Double, state: Double) = gain * (reference - state)
+// TODO: add wraparound logic
+fun pControl(gain: Double, reference: Double, state: Double, wraparound: Boolean = false): Double =
+    gain * (reference - state).let {
+        if (!wraparound || abs(it) < 180.0) it else it - sign(it) * 360.0
+    }
 
 /**
  * Return feedforward given a lambda [ff] and the current [state]
