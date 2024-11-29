@@ -38,6 +38,8 @@ class Follower(val kN: Double, val kTheta: Double, val kOmega: Double) {
             )
         )
         TODO("Deal with units of closest derivative heading and velocity heading")
+        TODO("Deal with heading derivative being a function of the translational velocity " +
+                "projection onto the tangent, as well as path length")
         TODO("Implement coast to stop at endpoint")
 
         return Pose2d(translationEffort, rotationEffort)
