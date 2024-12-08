@@ -12,7 +12,8 @@ class Sampler(hardwareMap: HardwareMap) {
     private val extensionOne = hardwareMap.get(Servo::class.java, "frontExt")
     private val extensionTwo = hardwareMap.get(Servo::class.java, "backExt")
 
-    private val pivot = hardwareMap.get(Servo::class.java, "pivot")
+    // TODO: Make hardware private again
+    val pivot = hardwareMap.get(Servo::class.java, "pivot")
     private val intake = hardwareMap.get(CRServo::class.java, "intake")
 
     init {
@@ -23,12 +24,12 @@ class Sampler(hardwareMap: HardwareMap) {
     }
 
     enum class State(val grabber: Double, val pivot: Double, val linkage: Double) {
-        EXTEND(0.0, 0.0, 0.68),
+        EXTEND(0.0, 0.43, 0.68),
         GRAB(0.0, 0.0, 0.68),
-        STOW(0.0, 0.0, 0.68),
-        RETRACT(0.0, 0.0, 0.0),
-        SCORE(0.0, 0.0, 0.0),
-        RELEASE(0.0, 0.0, 0.0),
+        STOW(0.0, 0.43, 0.68),
+        RETRACT(0.0, 0.43, 0.0),
+        SCORE(0.0, 0.60, 0.0),
+        RELEASE(0.0, 0.60, 0.0),
     }
 
     // have continuous power (but less than intake) going during stow
