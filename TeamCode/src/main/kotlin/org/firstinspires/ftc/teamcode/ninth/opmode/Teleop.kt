@@ -14,6 +14,8 @@ class Teleop: LinearOpMode() {
     override fun runOpMode() {
         val previousGamepad1 = Gamepad()
         val previousGamepad2 = Gamepad()
+        val currentGamepad1 = Gamepad()
+        val currentGamepad2 = Gamepad()
 
         val drivetrain = Drivetrain(hardwareMap)
         val lift = Lift(hardwareMap)
@@ -32,8 +34,11 @@ class Teleop: LinearOpMode() {
 
         waitForStart()
         while (opModeIsActive()) {
-            previousGamepad1.copy(gamepad1)
-            previousGamepad2.copy(gamepad2)
+            previousGamepad1.copy(currentGamepad1)
+            previousGamepad2.copy(currentGamepad2)
+
+            currentGamepad1.copy(gamepad1)
+            currentGamepad2.copy(gamepad1)
 
             // drive
             drivetrain.setVelocity(
