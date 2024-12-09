@@ -20,16 +20,16 @@ class Sampler(hardwareMap: HardwareMap) {
         pivot.setDirection(Servo.Direction.FORWARD)
         intake.setDirection(DcMotorSimple.Direction.FORWARD)
         extensionOne.setDirection(Servo.Direction.REVERSE)
-        extensionTwo.setDirection(Servo.Direction.FORWARD)
+        extensionTwo.setDirection(Servo.Direction.REVERSE)
     }
 
     enum class State(val grabber: Double, val pivot: Double, val linkage: Double) {
         EXTEND(0.0, 0.43, 0.68),
-        GRAB(0.0, 0.0, 0.68),
-        STOW(0.0, 0.43, 0.68),
-        RETRACT(0.0, 0.43, 0.0),
+        GRAB(1.0, 0.0, 0.68),
+        STOW(0.0, 0.43, 0.0),
+//        RETRACT(0.0, 0.43, 0.0),
+        HOLD(0.5,0.43,0.0),
         SCORE(0.0, 0.60, 0.0),
-        RELEASE(0.0, 0.60, 0.0),
     }
 
     // have continuous power (but less than intake) going during stow
@@ -47,9 +47,9 @@ class Sampler(hardwareMap: HardwareMap) {
     fun extend() = setState(State.EXTEND)
     fun grab() = setState(State.GRAB)
     fun stow() = setState(State.STOW)
-    fun retract() = setState(State.RETRACT)
+//    fun retract() = setState(State.RETRACT)
+    fun hold() = setState(State.HOLD)
     fun score() = setState(State.SCORE)
-    fun release() = setState(State.RELEASE)
 
     // TODO: Add time-based relationships between actions
 }
