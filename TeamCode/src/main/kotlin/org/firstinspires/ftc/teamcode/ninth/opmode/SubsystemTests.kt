@@ -69,23 +69,23 @@ class SubsystemTests : LinearOpMode() {
 
             // sampler
 
-            if (currentGamepad1.a && !previousGamepad1.a) {
-                if (extensionToggle) {
-                    sampler.extend()
-                } else {
-                    sampler.retract()
-                }
-                extensionToggle = !extensionToggle
-            }
-
-            if (currentGamepad1.b && !previousGamepad1.b) {
-                if (intakeToggle) {
-                    sampler.grab()
-                } else {
-                    sampler.stow()
-                }
-                intakeToggle = !intakeToggle
-            }
+//            if (currentGamepad1.a && !previousGamepad1.a) {
+//                if (extensionToggle) {
+//                    sampler.extend()
+//                } else {
+//                    sampler.retract()
+//                }
+//                extensionToggle = !extensionToggle
+//            }
+//
+//            if (currentGamepad1.b && !previousGamepad1.b) {
+//                if (intakeToggle) {
+//                    sampler.grab()
+//                } else {
+//                    sampler.stow()
+//                }
+//                intakeToggle = !intakeToggle
+//            }
 //
 //            if (currentGamepad1.x && !previousGamepad1.x) {
 //                sampler.score()

@@ -11,6 +11,16 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 
 @TeleOp(name = "NinthTele")
 class Teleop: LinearOpMode() {
+
+    enum class SamplerState {
+        SAMPLER_STOW,
+        SAMPLER_EXTEND,
+        SAMPLER_GRAB,
+        SAMPLER_HOLD,
+        SAMPLER_SCORE,
+    }
+    var samplerState = SamplerState.SAMPLER_STOW
+
     override fun runOpMode() {
         val previousGamepad1 = Gamepad()
         val previousGamepad2 = Gamepad()
@@ -25,20 +35,13 @@ class Teleop: LinearOpMode() {
         var desiredPos = 0.0
         var manual = false
 
-        val l1BumperTime = ElapsedTime()
-        var l1BumperState = 0.0
-        val l2BumperTime = ElapsedTime()
-        var l2BumperState = 0.0
-        val rBumperTime = ElapsedTime()
-        var rBumperState = 0.0
-
         waitForStart()
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
             previousGamepad2.copy(currentGamepad2)
 
             currentGamepad1.copy(gamepad1)
-            currentGamepad2.copy(gamepad1)
+            currentGamepad2.copy(gamepad2)
 
             // drive
             drivetrain.setVelocity(
@@ -50,17 +53,17 @@ class Teleop: LinearOpMode() {
             // lift
             // TODO: implement hardstop for lift
 
-            if (gamepad1.a && previousGamepad1.a) {
+            if (currentGamepad1.a && !previousGamepad1.a) {
                 desiredPos = 0.0
             }
-            if (gamepad1.b && previousGamepad1.b) {
+            if (currentGamepad1.b && !previousGamepad1.b) {
                 desiredPos = 25.75 - 9
             }
-            if (gamepad1.y && previousGamepad1.y) {
+            if (currentGamepad1.y && !previousGamepad1.y) {
                 desiredPos = 43.0 - 9
             }
 
-            if (gamepad1.start && !previousGamepad1.start) {
+            if (currentGamepad1.start && !previousGamepad1.start) {
                 manual = !manual
             }
 
@@ -71,36 +74,61 @@ class Teleop: LinearOpMode() {
             }
 
             // sampler
-            // TODO: impliment finite state machines
-            if (gamepad1.left_bumper && !previousGamepad1.left_bumper) {
-                sampler.extend()
-                l1BumperTime.reset()
-                l1BumperState = 1.0
-            }
-            if ((l1BumperTime.seconds() == 1.0) and (l1BumperState == 1.0)) {
-                sampler.grab()
-                l1BumperState = 0.0
+            when (samplerState) {
+                SamplerState.SAMPLER_STOW -> {
+                    sampler.stow()
+                    if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper) {
+                        samplerState = SamplerState.SAMPLER_EXTEND
+                    }
+                }
+                SamplerState.SAMPLER_EXTEND -> {
+                    sampler.extend()
+                    if (currentGamepad1.left_bumper && previousGamepad1.left_bumper) {
+                        samplerState = SamplerState.SAMPLER_GRAB
+                    }
+                    if (currentGamepad2.x && !previousGamepad2.x) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
+                }
+                SamplerState.SAMPLER_GRAB -> {
+                    sampler.grab()
+                    if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
+                        samplerState = SamplerState.SAMPLER_HOLD
+                    }
+                    if (currentGamepad2.x && !previousGamepad2.x) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
+                }
+                SamplerState.SAMPLER_HOLD -> {
+                    sampler.hold()
+                    if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
+                        samplerState = SamplerState.SAMPLER_SCORE
+                    }
+                    if (currentGamepad2.x && !previousGamepad2.x) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
+                }
+                SamplerState.SAMPLER_SCORE -> {
+                    sampler.score()
+                    if (currentGamepad2.x && !previousGamepad2.x) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
+                }
             }
 
-            if (gamepad1.left_bumper && previousGamepad1.left_bumper) {
-                sampler.retract()
-                l2BumperTime.reset()
-                l2BumperState = 1.0
-            }
-            if ((l2BumperTime.seconds() == 1.0) and (l2BumperState == 1.0)) {
-                sampler.stow()
-                l2BumperState = 0.0
-            }
+            telemetry.addLine("EXTEND - g2 left bumper")
+            telemetry.addLine("RETRACT - g2 left bumper")
+            telemetry.addLine("INTAKE sample - g1 left bumper")
+            telemetry.addLine("SCORE sample - g1 right bumper")
+            telemetry.addLine("               ")
+            telemetry.addLine("LIFT down - g2 a")
+            telemetry.addLine("lift pos 1 - g2 b")
+            telemetry.addLine("lift pos 2 - g2 y")
+            telemetry.addLine("stow intake - g2 x")
+            telemetry.addLine("               ")
+            telemetry.addData("state", samplerState)
+            telemetry.update()
 
-            if (gamepad1.right_bumper && !previousGamepad1.right_bumper) {
-                sampler.release()
-                rBumperTime.reset()
-                rBumperState = 1.0
-            }
-            if ((rBumperTime.seconds() == 1.0) and (rBumperState == 1.0)) {
-                sampler.stow()
-                rBumperState = 0.0
-            }
         }
     }
 }
