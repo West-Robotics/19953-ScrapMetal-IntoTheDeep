@@ -7,7 +7,7 @@ import com.scrapmetal.util.control.Vector2d
 import com.scrapmetal.util.hardware.SMMotor
 
 class Drivetrain(hardwareMap: HardwareMap) {
-    private val left = SMMotor(hardwareMap, "left", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
+    private val left = SMMotor(hardwareMap, "left", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
     private val right = SMMotor(hardwareMap, "right", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
 
     fun drive(v: Vector2d) {

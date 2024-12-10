@@ -4,7 +4,7 @@
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="left" port="0" />
             <goBILDA5202SeriesMotor name="right" port="1" />
-            <goBILDA5202SeriesMotor name="lift" port="2" />
+            <goBILDA5202SeriesMotor name="lift" port="3" />
             <Servo name="claw" port="0" />
         </LynxModule>
         <!-- <LynxModule name="Expansion Hub 1" port="1"></LynxModule> -->
