@@ -5,11 +5,11 @@ import com.qualcomm.robotcore.hardware.Servo
 import com.scrapmetal.util.architecture.Subsystem
 
 class Claw(hardwareMap: HardwareMap) : Subsystem {
-    private val pinch = hardwareMap.servo.get("pinch")
-    private var pinchPos = State.GRAB.pinch
+    private val pinch = hardwareMap.servo.get("claw")
+    private var pinchPos = State.CLOSE.pinch
 
     init {
-        pinch.direction = Servo.Direction.REVERSE
+        pinch.direction = Servo.Direction.FORWARD
     }
 
     fun setState(state: State) {
@@ -17,8 +17,8 @@ class Claw(hardwareMap: HardwareMap) : Subsystem {
     }
 
     enum class State(val pinch: Double) {
-        OPEN(1.0),
-        GRAB(0.0),
+        OPEN(0.4),
+        CLOSE(0.0),
     }
 
     override fun write() {
