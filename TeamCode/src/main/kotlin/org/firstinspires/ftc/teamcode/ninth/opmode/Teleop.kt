@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.ninth.opmode
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
@@ -20,8 +21,10 @@ class Teleop: LinearOpMode() {
         SAMPLER_SPIT,
         SAMPLER_HOLD,
         SAMPLER_SCORE,
+        SAMPLER_AUTOSCORE,
     }
     var samplerState = SamplerState.SAMPLER_STOW
+    val samplerTimer = ElapsedTime()
 
     override fun runOpMode() {
         val previousGamepad1 = Gamepad()
@@ -85,7 +88,7 @@ class Teleop: LinearOpMode() {
             when (samplerState) {
                 SamplerState.SAMPLER_STOW -> {
                     sampler.stow()
-                    if (currentGamepad2.left_trigger > 0.8) {
+                    if ((currentGamepad1.left_trigger > 0.8) && (desiredPos == 0.0)) {
                         samplerState = SamplerState.SAMPLER_EXTEND
                     }
                 }
@@ -100,7 +103,7 @@ class Teleop: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_GRAB -> {
                     sampler.grab()
-                    if (currentGamepad2.right_trigger > 0.8) {
+                    if (currentGamepad1.left_trigger > 0.8) {
                         samplerState = SamplerState.SAMPLER_HOLD
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
@@ -121,8 +124,13 @@ class Teleop: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_HOLD -> {
                     sampler.hold()
-                    if (currentGamepad1.right_trigger > 0.8) {
+                    if (currentGamepad1.left_trigger > 0.8) {
                         samplerState = SamplerState.SAMPLER_SCORE
+                    }
+                    if (currentGamepad1.right_trigger > 0.8) {
+                        if (desiredPos == 0.0) {
+                            samplerState = SamplerState.SAMPLER_AUTOSCORE
+                        }
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
@@ -134,15 +142,25 @@ class Teleop: LinearOpMode() {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
                 }
+                SamplerState.SAMPLER_AUTOSCORE -> {
+                    samplerTimer.reset()
+                    sampler.extend()
+                    if (samplerTimer.seconds() >= 0.5) {
+                        sampler.score_front()
+                    }
+                    if ((samplerTimer.seconds() > 1.0) or (currentGamepad2.x && !previousGamepad2.x)) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
+                }
             }
 
 //            telemetry.addLine("RETRACT - g2 left bumper")
-            telemetry.addLine("INTAKE sample - g1 left trig")
-            telemetry.addLine("SCORE sample - g1 right trig")
+            telemetry.addLine("EXTEND -> INTAKE -> HOLD -> SCORE (g1 left trigger)")
+//            telemetry.addLine("SCORE sample - g1 right trig")
             telemetry.addLine("               ")
-            telemetry.addLine("EXTEND - g2 left trig")
+//            telemetry.addLine("EXTEND - g2 left trig")
             telemetry.addLine("SPIT - g2 left trig")
-            telemetry.addLine("RETRACT/HOLD sample - g2 right trig")
+//            telemetry.addLine("RETRACT/HOLD sample - g2 right trig")
             telemetry.addLine("STOW - g2 x")
             telemetry.addLine("LIFT down - g2 a")
             telemetry.addLine("LIFT pos 1 - g2 b")
