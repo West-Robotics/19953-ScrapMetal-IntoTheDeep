@@ -28,6 +28,7 @@ class Sampler(hardwareMap: HardwareMap) {
 //        RETRACT(0.0, 0.43, 0.0),
         HOLD(0.10, 0.43, 0.00),
         SCORE(-0.30, 0.5, 0.00),
+        SCORE_FRONT(-1.0,0.2,0.68),
     }
 
     // have continuous power (but less than intake) going during stow
@@ -49,6 +50,7 @@ class Sampler(hardwareMap: HardwareMap) {
 //    fun retract() = setState(State.RETRACT)
     fun hold() = setState(State.HOLD)
     fun score() = setState(State.SCORE)
+    fun score_front() = setState(State.SCORE_FRONT)
 
     // TODO: Add time-based relationships between actions
 }
