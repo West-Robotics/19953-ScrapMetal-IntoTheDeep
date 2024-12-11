@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.ninth.robot.subsystem
 
-import androidx.core.app.NotificationCompat.GroupAlertBehavior
 import com.qualcomm.robotcore.hardware.CRServo
-import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
-import kotlin.enums.enumEntries
 
 class Sampler(hardwareMap: HardwareMap) {
     private val extensionOne = hardwareMap.get(Servo::class.java, "frontExt")
@@ -24,12 +21,13 @@ class Sampler(hardwareMap: HardwareMap) {
     }
 
     enum class State(val grabber: Double, val pivot: Double, val linkage: Double) {
-        EXTEND(0.0, 0.43, 0.68),
-        GRAB(1.0, 0.0, 0.68),
-        STOW(0.0, 0.43, 0.0),
+        EXTEND(0.00, 0.43, 0.68),
+        GRAB(1.00, 0.03, 0.68),
+        SPIT(-1.00, 0.03, 0.68),
+        STOW(0.00, 0.43, 0.00),
 //        RETRACT(0.0, 0.43, 0.0),
-        HOLD(0.5,0.43,0.0),
-        SCORE(0.0, 0.60, 0.0),
+        HOLD(0.10, 0.43, 0.00),
+        SCORE(-0.30, 0.5, 0.00),
     }
 
     // have continuous power (but less than intake) going during stow
@@ -46,6 +44,7 @@ class Sampler(hardwareMap: HardwareMap) {
 
     fun extend() = setState(State.EXTEND)
     fun grab() = setState(State.GRAB)
+    fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)
 //    fun retract() = setState(State.RETRACT)
     fun hold() = setState(State.HOLD)
