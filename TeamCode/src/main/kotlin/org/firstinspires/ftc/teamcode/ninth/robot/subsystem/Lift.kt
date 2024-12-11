@@ -39,6 +39,8 @@ class Lift(hardwareMap: HardwareMap) {
     fun getEffort() = left.effort
 
     fun runToPos(preset: Double, currentHeight: Double) {
-        setEffort(controlEffort(preset, currentHeight, kp, feedforward))
+        var effort = controlEffort(preset, currentHeight, kp, feedforward)
+        if (effort < 0) effort.coerceIn(-0.01, 0.0)
+        setEffort(effort)
     }
 }
