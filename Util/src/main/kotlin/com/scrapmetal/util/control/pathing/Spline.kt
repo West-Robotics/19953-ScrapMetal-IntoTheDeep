@@ -70,8 +70,8 @@ data class Spline(
     /**
      * Brute force closest point with a million samples, only use for testing
      */
-    fun closestPointBruteforce(pos: Vector2d)
-            = invoke((1..1_000_000).minBy { i -> (invoke(i / 1_000_000.0) - pos).norm() } / 1_000_000.0)
+    fun closestPointBruteforce(pos: Vector2d) =
+        invoke((1..1_000_000).minBy { i -> (invoke(i / 1_000_000.0) - pos).norm() } / 1_000_000.0)
 }
 
 /**

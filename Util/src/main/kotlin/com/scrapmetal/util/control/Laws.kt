@@ -26,12 +26,10 @@ fun constrainEffort(
     min: Double,
     max: Double,
     deadzone: Double,
-): Double {
-    return when {
-        abs(input) > deadzone
-            -> (max - min) / (max - deadzone) *
-               (input - sign(input) * deadzone) +
-               sign(input) * min
-        else -> input * min / deadzone
-    }.coerceIn(-max, max)
-}
+) = when {
+    abs(input) > deadzone
+        -> (max - min) / (max - deadzone) *
+           (input - sign(input) * deadzone) +
+           sign(input) * min
+    else -> input * min / deadzone
+}.coerceIn(-max, max)
