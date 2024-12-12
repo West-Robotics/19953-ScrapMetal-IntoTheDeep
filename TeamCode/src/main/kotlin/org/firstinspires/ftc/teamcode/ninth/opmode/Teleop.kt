@@ -94,7 +94,7 @@ class Teleop: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_EXTEND -> {
                     sampler.extend()
-                    if (currentGamepad1.left_trigger > 0.8) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_GRAB
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
