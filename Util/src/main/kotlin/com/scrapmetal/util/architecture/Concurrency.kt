@@ -7,10 +7,12 @@ import kotlinx.coroutines.launch
 fun CoroutineScope.task(block: suspend CoroutineScope.() -> Unit): Action =
     launch(start = CoroutineStart.LAZY, block = block)
 
-fun CoroutineScope.action(pipeline: Pipeline, block: suspend CoroutineScope.() -> Unit): Action =
-    launch(start = CoroutineStart.LAZY) {
-        pipeline.send(task(block))
-    }
+fun CoroutineScope.action(
+    pipeline: Pipeline,
+    block: suspend CoroutineScope.() -> Unit
+): Action = launch(start = CoroutineStart.LAZY) {
+    pipeline.send(task(block))
+}
 
 class Pipeline {
     private val channel = Channel<Action>(CONFLATED)
