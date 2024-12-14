@@ -52,7 +52,7 @@ class Teleop: LinearOpMode() {
             drivetrain.setVelocity(
                 -sign(gamepad1.left_stick_y.toDouble()) * gamepad1.left_stick_y.toDouble().pow(2),
                 -sign(gamepad1.left_stick_x.toDouble()) * gamepad1.left_stick_x.toDouble().pow(2),
-                -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2),
+                -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / 2,
             )
             drivetrain.write()
 
@@ -66,7 +66,7 @@ class Teleop: LinearOpMode() {
                 desiredPos = 25.75 - 7.5
             }
             if (currentGamepad2.y && !previousGamepad2.y) {
-                desiredPos = 43.0 - 6.75
+                desiredPos = 43.0 - 7.5
             }
 
             if (currentGamepad2.start && !previousGamepad2.start) {
@@ -88,7 +88,7 @@ class Teleop: LinearOpMode() {
             when (samplerState) {
                 SamplerState.SAMPLER_STOW -> {
                     sampler.stow()
-                    if ((currentGamepad1.left_trigger > 0.8) && (desiredPos == 0.0)) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && desiredPos == 0.0) {
                         samplerState = SamplerState.SAMPLER_EXTEND
                     }
                 }
@@ -103,19 +103,19 @@ class Teleop: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_GRAB -> {
                     sampler.grab()
-                    if (currentGamepad1.left_trigger > 0.8) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_HOLD
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
-                    if (currentGamepad2.left_trigger > 0.8) {
+                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_SPIT
                     }
                 }
                 SamplerState.SAMPLER_SPIT -> {
                     sampler.spit()
-                    if (currentGamepad1.left_trigger > 0.8) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_GRAB
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
@@ -124,20 +124,23 @@ class Teleop: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_HOLD -> {
                     sampler.hold()
-                    if (currentGamepad1.left_trigger > 0.8) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_SCORE
                     }
-                    if (currentGamepad1.right_trigger > 0.8) {
-                        if (desiredPos == 0.0) {
-                            samplerState = SamplerState.SAMPLER_AUTOSCORE
-                        }
-                    }
+                    // if (currentGamepad1.right_trigger > 0.8) {
+                    //     if (desiredPos == 0.0) {
+                    //         samplerState = SamplerState.SAMPLER_AUTOSCORE
+                    //     }
+                    // }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
                 }
                 SamplerState.SAMPLER_SCORE -> {
                     sampler.score()
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }

@@ -27,7 +27,7 @@ class Sampler(hardwareMap: HardwareMap) {
         STOW(0.00, 0.43, 0.00),
 //        RETRACT(0.0, 0.43, 0.0),
         HOLD(0.10, 0.43, 0.00),
-        SCORE(-0.30, 0.5, 0.00),
+        SCORE(-0.20, 0.55, 0.00),
         SCORE_FRONT(-1.0,0.2,0.68),
     }
 
