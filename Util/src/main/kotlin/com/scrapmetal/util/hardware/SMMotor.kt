@@ -36,6 +36,9 @@ class SMMotor(
     val isOverCurrent
         get() = motor.isOverCurrent
 
+    val current
+        get() = motor.getCurrent(CurrentUnit.AMPS)
+
     init {
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motor.direction = dir

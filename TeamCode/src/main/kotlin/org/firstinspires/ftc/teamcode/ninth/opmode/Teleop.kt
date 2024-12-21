@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.ninth.opmode
 
+import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
@@ -27,6 +28,7 @@ class Teleop: LinearOpMode() {
     val samplerTimer = ElapsedTime()
 
     override fun runOpMode() {
+        val dashboard = FtcDashboard.getInstance()
         val previousGamepad1 = Gamepad()
         val previousGamepad2 = Gamepad()
         val currentGamepad1 = Gamepad()
@@ -35,9 +37,10 @@ class Teleop: LinearOpMode() {
         val drivetrain = Drivetrain(hardwareMap)
         val lift = Lift(hardwareMap)
         val sampler = Sampler(hardwareMap)
+//        lift.setHeight(Lift.savedHeight)
 
 //        val liftHeight = lift.getHeight()
-        var desiredPos = 0.0
+        var desiredPos = 25.75 - 7.5
         var manual = false
 
         waitForStart()
@@ -174,6 +177,11 @@ class Teleop: LinearOpMode() {
             telemetry.addData("state", samplerState)
             telemetry.addData("height", lift.getHeight())
             telemetry.update()
+
+            dashboard.telemetry.addData("left current", lift.leftCurrent())
+            dashboard.telemetry.addData("right current", lift.rightCurrent())
+            dashboard.telemetry.addData("combined current", lift.leftCurrent() + lift.rightCurrent())
+            dashboard.telemetry.update()
         }
     }
 }
