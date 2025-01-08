@@ -1,5 +1,6 @@
 package com.scrapmetal.util.hardware
 
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.Servo
@@ -10,47 +11,27 @@ import kotlin.math.abs
  * Servo wrapper with cached writes, built in servo pwm ranges, and fewer functions
  */
 
-/**
- * @param pwm servo model, used to determine pwm range
- * @param pwm servo model, used to determine pwm range
- * @param usFrame framing rate in microseconds
- */
-
 // TODO: add direction and initial pos as part of constructor so they are explicitly stated
 
 class SMServo(
     hardwareMap: HardwareMap,
     name: String,
+    dir: Servo.Direction,
     pwm: ModelPWM,
-    private var eps: Double = 0.002,
+    val eps: Double = 0.005,
     usFrame: Double = 5000.0,
 ) {
-    /**
-     * PWM ranges for various servo models
-     *
-     * Axons are limited from 510-2490 to prevent accidental wraparound (may be adjusted) in the future
-     */
-
     private val servo = hardwareMap.get(ServoImplEx::class.java, name)
     private var _position = 0.0
 
     init {
         servo.pwmRange = PwmControl.PwmRange(pwm.min, pwm.max, usFrame)
+        servo.direction = dir
     }
 
     fun direction(direction: Servo.Direction) {
         servo.direction = direction
     }
-
-    fun eps(thresh: Double) {
-        this.eps = eps
-    }
-
-    /**
-     * @param convertToPosition convert position argument to servo's 0-1 range
-     */
-
-    fun getCommandPosition() = servo.position
 
     var position
         get() = _position
@@ -59,6 +40,10 @@ class SMServo(
         } else Unit
 
     fun write() { servo.position = position }
+
+    /**
+     * Axons are limited from 510-2490 to prevent accidental wraparound (may be adjusted) in the future
+     */
 
     enum class ModelPWM(val min: Double, val max: Double) {
         AXON(510.0, 2490.0),

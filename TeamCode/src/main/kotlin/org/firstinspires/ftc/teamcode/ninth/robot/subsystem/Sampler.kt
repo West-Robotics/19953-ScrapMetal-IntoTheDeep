@@ -4,14 +4,17 @@ import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.Servo
+import com.scrapmetal.util.hardware.SMCRServo
+import com.scrapmetal.util.hardware.SMServo
 
 class Sampler(hardwareMap: HardwareMap) {
-    private val extensionOne = hardwareMap.get(Servo::class.java, "frontExt")
-    private val extensionTwo = hardwareMap.get(Servo::class.java, "backExt")
+    private val extensionOne = SMServo(hardwareMap, "frontExt", SMServo.ModelPWM.AXON)
+    private val extensionTwo = SMServo(hardwareMap, "backExt", SMServo.ModelPWM.AXON)
 
     // TODO: Make hardware private again
-    val pivot = hardwareMap.get(Servo::class.java, "pivot")
-    private val intake = hardwareMap.get(CRServo::class.java, "intake")
+    val pivot = SMServo(hardwareMap, "pivot", SMServo.ModelPWM.AXON)
+    val wrist = SMServo(hardwareMap, "wrist", SMServo.ModelPWM.AXON)
+    private val intake = SMCRServo(hardwareMap, "intake", SMCRServo.ModelPWM.AXON, DcMotorSimple.Direction.FORWARD)
 
     init {
         pivot.setDirection(Servo.Direction.FORWARD)
@@ -52,5 +55,8 @@ class Sampler(hardwareMap: HardwareMap) {
     fun score() = setState(State.SCORE)
     fun score_front() = setState(State.SCORE_FRONT)
 
-    // TODO: Add time-based relationships between actions
+    fun write() {
+        extensionOne.write()
+        extensionTwo.write()
+    }
 }

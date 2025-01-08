@@ -6,11 +6,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
 import kotlin.math.abs
 
+/**
+ * CRServo wrapper with cached writes, built in servo pwm ranges, and fewer functions
+ */
+
 class SMCRServo(
     hardwareMap: HardwareMap,
     name: String,
-    pwm: ModelPWM,
     dir: DcMotorSimple.Direction,
+    pwm: ModelPWM,
     val eps: Double = 0.005,
 ) {
 
