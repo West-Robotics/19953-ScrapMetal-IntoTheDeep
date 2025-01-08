@@ -37,10 +37,8 @@ class Teleop: LinearOpMode() {
         val drivetrain = Drivetrain(hardwareMap)
         val lift = Lift(hardwareMap)
         val sampler = Sampler(hardwareMap)
-//        lift.setHeight(Lift.savedHeight)
 
-//        val liftHeight = lift.getHeight()
-        var desiredPos = 25.75 - 7.5
+        var desiredPos = Lift.Height.LOW
         var manual = false
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
@@ -48,7 +46,6 @@ class Teleop: LinearOpMode() {
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
             previousGamepad2.copy(currentGamepad2)
-
             currentGamepad1.copy(gamepad1)
             currentGamepad2.copy(gamepad2)
 
@@ -58,25 +55,12 @@ class Teleop: LinearOpMode() {
                 -sign(gamepad1.left_stick_x.toDouble()) * gamepad1.left_stick_x.toDouble().pow(2),
                 -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / 2,
             )
-            drivetrain.write()
 
             // lift
-            // TODO: implement hardstop for lift
-
-            if (currentGamepad2.a && !previousGamepad2.a) {
-                desiredPos = 0.0
-            }
-            if (currentGamepad2.b && !previousGamepad2.b) {
-                desiredPos = 25.75 - 7.5
-            }
-            if (currentGamepad2.y && !previousGamepad2.y) {
-                desiredPos = 43.0 - 7.5
-            }
-
-            if (currentGamepad2.start && !previousGamepad2.start) {
-                manual = !manual
-            }
-
+            if (currentGamepad2.a && !previousGamepad2.a) { desiredPos = Lift.Height.BOTTOM }
+            if (currentGamepad2.b && !previousGamepad2.b) { desiredPos = Lift.Height.LOW }
+            if (currentGamepad2.y && !previousGamepad2.y) { desiredPos = Lift.Height.HIGH }
+            if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
                 lift.runToPos(desiredPos, lift.getHeight())
             } else {
@@ -86,13 +70,11 @@ class Teleop: LinearOpMode() {
                 }
             }
 
-            lift.write()
-
             // sampler
             when (samplerState) {
                 SamplerState.SAMPLER_STOW -> {
                     sampler.stow()
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && desiredPos == 0.0) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && desiredPos == Lift.Height.BOTTOM) {
                         samplerState = SamplerState.SAMPLER_EXTEND
                     }
                 }
@@ -160,6 +142,9 @@ class Teleop: LinearOpMode() {
                     }
                 }
             }
+
+            drivetrain.write()
+            lift.write()
 
 //            telemetry.addLine("RETRACT - g2 left bumper")
             telemetry.addLine("EXTEND -> INTAKE -> HOLD -> SCORE (g1 left trigger)")

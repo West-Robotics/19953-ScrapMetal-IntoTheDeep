@@ -38,12 +38,18 @@ class Lift(hardwareMap: HardwareMap) {
 
     fun getEffort() = left.effort
 
-    fun runToPos(preset: Double, currentHeight: Double) {
-        val effort = controlEffort(preset, currentHeight, kp, feedforward).coerceAtLeast(0.0)
+    fun runToPos(preset: Height, currentHeight: Double) {
+        val effort = controlEffort(preset.height, currentHeight, kp, feedforward).coerceAtLeast(0.0)
         setEffort(effort)
     }
 
     fun leftCurrent() = left.current
 
     fun rightCurrent() = right.current
+
+    enum class Height(val height: Double) {
+        BOTTOM(0.0),
+        LOW(25.75 - 7.5),
+        HIGH(43.0 - 7.5),
+    }
 }
