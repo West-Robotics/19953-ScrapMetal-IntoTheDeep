@@ -22,6 +22,13 @@ class SMMotor(
     private val motor = hardwareMap.dcMotor.get(name) as DcMotorEx
     private var _effort = 0.0
 
+    init {
+        motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motor.direction = dir
+        motor.zeroPowerBehavior = zpb
+        motor.setCurrentAlert(currentThresh, CurrentUnit.AMPS)
+    }
+
     var effort
         get() = _effort
         set(value) = if (abs(value - _effort) > eps) {
@@ -38,11 +45,4 @@ class SMMotor(
 
     val current
         get() = motor.getCurrent(CurrentUnit.AMPS)
-
-    init {
-        motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        motor.direction = dir
-        motor.zeroPowerBehavior = zpb
-        motor.setCurrentAlert(currentThresh, CurrentUnit.AMPS)
-    }
 }
