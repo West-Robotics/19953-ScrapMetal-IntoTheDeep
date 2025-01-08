@@ -8,20 +8,13 @@ import com.scrapmetal.util.hardware.SMCRServo
 import com.scrapmetal.util.hardware.SMServo
 
 class Sampler(hardwareMap: HardwareMap) {
-    private val extensionOne = SMServo(hardwareMap, "frontExt", SMServo.ModelPWM.AXON)
-    private val extensionTwo = SMServo(hardwareMap, "backExt", SMServo.ModelPWM.AXON)
+    private val extensionOne = SMServo(hardwareMap, "frontExt",Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
+    private val extensionTwo = SMServo(hardwareMap, "backExt", Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
 
     // TODO: Make hardware private again
-    val pivot = SMServo(hardwareMap, "pivot", SMServo.ModelPWM.AXON)
-    val wrist = SMServo(hardwareMap, "wrist", SMServo.ModelPWM.AXON)
-    private val intake = SMCRServo(hardwareMap, "intake", SMCRServo.ModelPWM.AXON, DcMotorSimple.Direction.FORWARD)
-
-    init {
-        pivot.setDirection(Servo.Direction.FORWARD)
-        intake.setDirection(DcMotorSimple.Direction.FORWARD)
-        extensionOne.setDirection(Servo.Direction.REVERSE)
-        extensionTwo.setDirection(Servo.Direction.REVERSE)
-    }
+    val pivot = SMServo(hardwareMap, "pivot", Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    val wrist = SMServo(hardwareMap, "wrist", Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val intake = SMCRServo(hardwareMap, "intake", DcMotorSimple.Direction.FORWARD, SMCRServo.ModelPWM.AXON)
 
     enum class State(val grabber: Double, val pivot: Double, val linkage: Double) {
         EXTEND(0.00, 0.43, 0.68),
@@ -36,14 +29,14 @@ class Sampler(hardwareMap: HardwareMap) {
 
     // have continuous power (but less than intake) going during stow
     fun setState(state: State) {
-        intake.setPower(state.grabber)
-        pivot.setPosition(state.pivot)
-        extensionOne.setPosition(state.linkage)
-        extensionTwo.setPosition(state.linkage)
+        intake.effort = state.grabber
+        pivot.position = state.pivot
+        extensionOne.position = state.linkage
+        extensionTwo.position = state.linkage
     }
 
     fun setExtensionAmount(extension: Double) {
-        extensionOne.setPosition(extension.coerceIn(0.0..0.68))
+        extensionOne.position = extension.coerceIn(0.0..0.68)
     }
 
     fun extend() = setState(State.EXTEND)
