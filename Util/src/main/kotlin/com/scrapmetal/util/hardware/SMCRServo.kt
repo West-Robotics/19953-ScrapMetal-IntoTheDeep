@@ -7,24 +7,18 @@ import com.qualcomm.robotcore.hardware.PwmControl
 import kotlin.math.abs
 
 /**
- * CRServo wrapper with cached writes, built in servo pwm ranges, and fewer functions
+ * CRServo wrapper with pwm ranges, cached writes, and opinionated configuration
  */
-
 class SMCRServo(
     hardwareMap: HardwareMap,
     name: String,
     dir: DcMotorSimple.Direction,
     pwm: ModelPWM,
-    val eps: Double = 0.005,
+    private val eps: Double = 0.005,
+    usFrame: Double = 4000.0,
 ) {
-
     private val crServo = hardwareMap.crservo.get(name) as CRServoImplEx
     private var _effort = 0.0
-
-    init {
-        crServo.pwmRange = PwmControl.PwmRange(pwm.min, pwm.max)
-        crServo.direction = dir
-    }
 
     var effort
         get() = _effort
@@ -32,13 +26,15 @@ class SMCRServo(
             _effort = value
         } else Unit
 
-    /**
-     * Perform hardware write
-     */
+    init {
+        crServo.direction = dir
+        crServo.pwmRange = PwmControl.PwmRange(pwm.min, pwm.max, usFrame)
+    }
+
     fun write() { crServo.power = effort }
 
     enum class ModelPWM(val min: Double, val max: Double) {
-        AXON(510.0, 2490.0),
+        AXON(500.0, 2500.0),
         GOBILDA_TORQUE(900.0, 2100.0), GOBILDA_SPEED(1000.0, 2000.0), GOBILDA_SUPER(1000.0, 2000.0),
     }
 }

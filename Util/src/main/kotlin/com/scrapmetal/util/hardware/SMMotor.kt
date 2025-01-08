@@ -9,18 +9,30 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 import kotlin.math.abs
 
 /**
- * Motor wrapper with cached writes (with [eps]) and opinionated configuration
+ * Motor wrapper with cached writes and opinionated configuration
  */
 class SMMotor(
     hardwareMap: HardwareMap,
     name: String,
     dir: Direction,
     zpb: ZeroPowerBehavior,
-    val eps: Double = 0.005,
-    currentThresh: Double = 9.0,
+    private val eps: Double = 0.005,
+    currentThresh: Double = 8.0,
 ) {
     private val motor = hardwareMap.dcMotor.get(name) as DcMotorEx
     private var _effort = 0.0
+
+    var effort
+        get() = _effort
+        set(value) = if (abs(value - _effort) > eps) {
+            _effort = value
+        } else Unit
+
+    val isOverCurrent
+        get() = motor.isOverCurrent
+
+    val current
+        get() = motor.getCurrent(CurrentUnit.AMPS)
 
     init {
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
@@ -29,20 +41,9 @@ class SMMotor(
         motor.setCurrentAlert(currentThresh, CurrentUnit.AMPS)
     }
 
-    var effort
-        get() = _effort
-        set(value) = if (abs(value - _effort) > eps) {
-            _effort = value
-        } else Unit
-
     /**
      * Perform hardware write
      */
     fun write() { motor.power = effort }
 
-    val isOverCurrent
-        get() = motor.isOverCurrent
-
-    val current
-        get() = motor.getCurrent(CurrentUnit.AMPS)
 }
