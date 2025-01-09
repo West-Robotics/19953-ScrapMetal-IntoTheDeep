@@ -22,7 +22,7 @@ class Lift(hardwareMap: HardwareMap) {
     private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
     private val encoder = SMQuadrature(hardwareMap, "frontRight", spoolCircumference/cpr, 1.0/cpr, DcMotorSimple.Direction.REVERSE)
 
-    private var preset = Height.BOTTOM
+    private var preset = Preset.BOTTOM
     private var mpStart = getHeight()
     private val mpTimer = ElapsedTime()
 
@@ -44,7 +44,7 @@ class Lift(hardwareMap: HardwareMap) {
 
     fun getEffort() = left.effort
 
-    fun setPreset(preset: Height) {
+    fun setPreset(preset: Preset) {
         this.preset = preset
         mpStart = getHeight()
         mpTimer.reset()
@@ -71,7 +71,7 @@ class Lift(hardwareMap: HardwareMap) {
 
     fun rightCurrent() = right.current
 
-    enum class Height(val height: Double) {
+    enum class Preset(val height: Double) {
         BOTTOM(0.0),
         LOW(25.75 - 7.5),
         HIGH(43.0 - 7.5),

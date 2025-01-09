@@ -38,9 +38,9 @@ class Teleop: LinearOpMode() {
         val lift = Lift(hardwareMap)
         val sampler = Sampler(hardwareMap)
 
-        var desiredPos = Lift.Height.LOW
+        var desiredPos = Lift.Preset.LOW
         var manual = false
-        lift.setPreset(Lift.Height.LOW)
+        lift.setPreset(Lift.Preset.LOW)
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
@@ -58,9 +58,9 @@ class Teleop: LinearOpMode() {
             )
 
             // lift
-            if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Height.BOTTOM) }
-            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Height.LOW) }
-            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Height.HIGH) }
+            if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Preset.BOTTOM) }
+            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.LOW) }
+            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.HIGH) }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
                 lift.updateProfiled(lift.getHeight())
@@ -75,7 +75,7 @@ class Teleop: LinearOpMode() {
             when (samplerState) {
                 SamplerState.SAMPLER_STOW -> {
                     sampler.stow()
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Height.BOTTOM) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
                         samplerState = SamplerState.SAMPLER_EXTEND
                     }
                 }
