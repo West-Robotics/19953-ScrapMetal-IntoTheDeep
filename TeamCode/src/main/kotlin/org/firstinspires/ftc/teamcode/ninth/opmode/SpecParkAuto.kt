@@ -20,13 +20,13 @@ class SpecParkAuto: LinearOpMode() {
 
         while (opModeIsActive()) {
             if (timer.seconds() <= 3.0) {
-                drivetrain.setVelocity(0.2, 0.0, 0.0)
+                drivetrain.setEffort(0.2, 0.0, 0.0)
                 lift.runToPos(0.0, lift.getHeight())
                 sampler.stow() // stow on purpose, not hold
             }
             if (3.0 < timer.seconds()) {
 
-                drivetrain.setVelocity(0.0, 0.0, 0.0)
+                drivetrain.setEffort(0.0, 0.0, 0.0)
                 lift.runToPos(0.0, lift.getHeight())
                 sampler.stow() // stow on purpose, not hold
             }

@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.ninth.robot.subsystem
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.util.ElapsedTime
+import com.scrapmetal.util.control.MPConstraints
+import com.scrapmetal.util.control.motionProfile
 import com.scrapmetal.util.hardware.SMMotor
 import com.scrapmetal.util.hardware.SMQuadrature
 import org.firstinspires.ftc.teamcode.ninth.controlEffort
@@ -17,8 +20,11 @@ class Lift(hardwareMap: HardwareMap) {
 
     private val left = SMMotor(hardwareMap, "leftLift", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
     private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
-
     private val encoder = SMQuadrature(hardwareMap, "frontRight", spoolCircumference/cpr, 1.0/cpr, DcMotorSimple.Direction.REVERSE)
+
+    private var preset = Height.BOTTOM
+    private var mpStart = getHeight()
+    private val mpTimer = ElapsedTime()
 
     fun resetEncoder() {
         encoder.reset()
@@ -38,8 +44,26 @@ class Lift(hardwareMap: HardwareMap) {
 
     fun getEffort() = left.effort
 
-    fun runToPos(preset: Height, currentHeight: Double) {
-        val effort = controlEffort(preset.height, currentHeight, kp, feedforward).coerceAtLeast(0.0)
+    fun setPreset(preset: Height) {
+        this.preset = preset
+        mpStart = getHeight()
+        mpTimer.reset()
+    }
+
+    fun getPreset() = preset
+
+    fun updateProfiled(currentHeight: Double) {
+        val reference = motionProfile(
+            MPConstraints(
+                mpStart,
+                preset.height,
+                100.0,
+                10.0,
+                100.0
+            ),
+            mpTimer.seconds()
+        ).s
+        val effort = controlEffort(reference, currentHeight, kp, feedforward).coerceAtLeast(0.0)
         setEffort(effort)
     }
 

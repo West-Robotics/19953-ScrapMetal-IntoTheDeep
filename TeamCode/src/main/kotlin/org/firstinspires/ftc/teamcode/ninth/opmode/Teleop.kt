@@ -40,6 +40,7 @@ class Teleop: LinearOpMode() {
 
         var desiredPos = Lift.Height.LOW
         var manual = false
+        lift.setPreset(Lift.Height.LOW)
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
@@ -50,19 +51,19 @@ class Teleop: LinearOpMode() {
             currentGamepad2.copy(gamepad2)
 
             // drive
-            drivetrain.setVelocity(
+            drivetrain.setEffort(
                 -sign(gamepad1.left_stick_y.toDouble()) * gamepad1.left_stick_y.toDouble().pow(2),
                 -sign(gamepad1.left_stick_x.toDouble()) * gamepad1.left_stick_x.toDouble().pow(2),
                 -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / 2,
             )
 
             // lift
-            if (currentGamepad2.a && !previousGamepad2.a) { desiredPos = Lift.Height.BOTTOM }
-            if (currentGamepad2.b && !previousGamepad2.b) { desiredPos = Lift.Height.LOW }
-            if (currentGamepad2.y && !previousGamepad2.y) { desiredPos = Lift.Height.HIGH }
+            if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Height.BOTTOM) }
+            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Height.LOW) }
+            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Height.HIGH) }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
-                lift.runToPos(desiredPos, lift.getHeight())
+                lift.updateProfiled(lift.getHeight())
             } else {
                 lift.setEffort(-gamepad2.left_stick_y + 0.2)
                 if (gamepad2.dpad_up && -gamepad2.left_stick_y < -0.9) {
@@ -74,7 +75,7 @@ class Teleop: LinearOpMode() {
             when (samplerState) {
                 SamplerState.SAMPLER_STOW -> {
                     sampler.stow()
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && desiredPos == Lift.Height.BOTTOM) {
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Height.BOTTOM) {
                         samplerState = SamplerState.SAMPLER_EXTEND
                     }
                 }
