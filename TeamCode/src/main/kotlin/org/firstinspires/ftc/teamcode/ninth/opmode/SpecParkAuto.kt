@@ -11,27 +11,27 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 class SpecParkAuto: LinearOpMode() {
     override fun runOpMode() {
 
-        val drivetrain = Drivetrain(hardwareMap)
-        val lift = Lift(hardwareMap)
-        val sampler = Sampler(hardwareMap)
+        // val drivetrain = Drivetrain(hardwareMap)
+        // val lift = Lift(hardwareMap)
+        // val sampler = Sampler(hardwareMap)
 
-        waitForStart()
-        val timer = ElapsedTime()
+        // waitForStart()
+        // val timer = ElapsedTime()
 
-        while (opModeIsActive()) {
-            if (timer.seconds() <= 3.0) {
-                drivetrain.setEffort(0.2, 0.0, 0.0)
-                lift.runToPos(0.0, lift.getHeight())
-                sampler.stow() // stow on purpose, not hold
-            }
-            if (3.0 < timer.seconds()) {
+        // while (opModeIsActive()) {
+        //     if (timer.seconds() <= 3.0) {
+        //         drivetrain.setEffort(0.2, 0.0, 0.0)
+        //         lift.runToPos(0.0, lift.getHeight())
+        //         sampler.stow() // stow on purpose, not hold
+        //     }
+        //     if (3.0 < timer.seconds()) {
 
-                drivetrain.setEffort(0.0, 0.0, 0.0)
-                lift.runToPos(0.0, lift.getHeight())
-                sampler.stow() // stow on purpose, not hold
-            }
-            drivetrain.write()
-            lift.write()
-        }
+        //         drivetrain.setEffort(0.0, 0.0, 0.0)
+        //         lift.runToPos(0.0, lift.getHeight())
+        //         sampler.stow() // stow on purpose, not hold
+        //     }
+        //     drivetrain.write()
+        //     lift.write()
+        // }
     }
 }
