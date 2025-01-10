@@ -12,19 +12,17 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import kotlin.math.pow
 import kotlin.math.sign
 
-@TeleOp(name = "NinthTele")
-class Teleop: LinearOpMode() {
+@TeleOp(name = "SampleTele")
+class SampleTele: LinearOpMode() {
 
     // TODO: test reset, manual, charge bot, test positions of lift and intake, pow turn
     enum class SamplerState {
         SAMPLER_STOW,
         SAMPLER_EXTEND,
         SAMPLER_GRAB_SAMPLE,
-//        SAMPLER_GRAB_SPECIMEN,
         SAMPLER_SPIT,
         SAMPLER_HOLD,
         SAMPLER_SCORE_SAMPLE,
-//        SAMPLER_SCORE_SPECIMEN,
         SAMPLER_AUTOSCORE,
     }
     var samplerState = SamplerState.SAMPLER_STOW
