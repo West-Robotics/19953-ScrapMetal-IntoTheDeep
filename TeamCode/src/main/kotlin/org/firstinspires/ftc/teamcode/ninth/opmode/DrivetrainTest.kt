@@ -31,6 +31,7 @@ class DrivetrainTest : LinearOpMode() {
                 .drawRobot(drivetrain.getPose())
                 .drawTrail(drivetrain.getPose().position)
             dashboard.sendTelemetryPacket(packet)
+            dashboard.telemetry.update()
         }
     }
 }

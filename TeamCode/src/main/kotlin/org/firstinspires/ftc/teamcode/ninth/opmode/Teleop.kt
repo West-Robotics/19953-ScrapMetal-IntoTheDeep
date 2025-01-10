@@ -19,10 +19,12 @@ class Teleop: LinearOpMode() {
     enum class SamplerState {
         SAMPLER_STOW,
         SAMPLER_EXTEND,
-        SAMPLER_GRAB,
+        SAMPLER_GRAB_SAMPLE,
+//        SAMPLER_GRAB_SPECIMEN,
         SAMPLER_SPIT,
         SAMPLER_HOLD,
-        SAMPLER_SCORE,
+        SAMPLER_SCORE_SAMPLE,
+//        SAMPLER_SCORE_SPECIMEN,
         SAMPLER_AUTOSCORE,
     }
     var samplerState = SamplerState.SAMPLER_STOW
@@ -42,6 +44,8 @@ class Teleop: LinearOpMode() {
         var manual = false
         lift.setPreset(Lift.Preset.LOW)
 
+        var speed_decrease = 0.0
+
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
         while (opModeIsActive()) {
@@ -52,15 +56,15 @@ class Teleop: LinearOpMode() {
 
             // drive
             drivetrain.setEffort(
-                -sign(gamepad1.left_stick_y.toDouble()) * gamepad1.left_stick_y.toDouble().pow(2),
-                -sign(gamepad1.left_stick_x.toDouble()) * gamepad1.left_stick_x.toDouble().pow(2),
-                -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / 2,
+                -sign(gamepad1.left_stick_y.toDouble()) * gamepad1.left_stick_y.toDouble().pow(2) / (1 + speed_decrease),
+                -sign(gamepad1.left_stick_x.toDouble()) * gamepad1.left_stick_x.toDouble().pow(2) / (1 + speed_decrease),
+                -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / (2 + speed_decrease),
             )
 
             // lift
-            if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Preset.BOTTOM) }
-            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.LOW) }
-            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.HIGH) }
+            if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Preset.BOTTOM) ; speed_decrease = 0.0 }
+            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.LOW) ; speed_decrease = 1.5 }
+            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.HIGH) ; speed_decrease = 2.0 }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
                 lift.updateProfiled(lift.getHeight())
@@ -82,14 +86,14 @@ class Teleop: LinearOpMode() {
                 SamplerState.SAMPLER_EXTEND -> {
                     sampler.extend()
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        samplerState = SamplerState.SAMPLER_GRAB
+                        samplerState = SamplerState.SAMPLER_GRAB_SAMPLE
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
                 }
-                SamplerState.SAMPLER_GRAB -> {
-                    sampler.grab()
+                SamplerState.SAMPLER_GRAB_SAMPLE -> {
+                    sampler.grab_sample()
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_HOLD
                     }
@@ -103,7 +107,7 @@ class Teleop: LinearOpMode() {
                 SamplerState.SAMPLER_SPIT -> {
                     sampler.spit()
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        samplerState = SamplerState.SAMPLER_GRAB
+                        samplerState = SamplerState.SAMPLER_GRAB_SAMPLE
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
@@ -112,7 +116,7 @@ class Teleop: LinearOpMode() {
                 SamplerState.SAMPLER_HOLD -> {
                     sampler.hold()
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        samplerState = SamplerState.SAMPLER_SCORE
+                        samplerState = SamplerState.SAMPLER_SCORE_SAMPLE
                     }
                     // if (currentGamepad1.right_trigger > 0.8) {
                     //     if (desiredPos == 0.0) {
@@ -123,8 +127,8 @@ class Teleop: LinearOpMode() {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
                 }
-                SamplerState.SAMPLER_SCORE -> {
-                    sampler.score()
+                SamplerState.SAMPLER_SCORE_SAMPLE -> {
+                    sampler.score_sample()
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
@@ -146,6 +150,7 @@ class Teleop: LinearOpMode() {
 
             drivetrain.write()
             lift.write()
+            sampler.write()
 
 //            telemetry.addLine("RETRACT - g2 left bumper")
             telemetry.addLine("EXTEND -> INTAKE -> HOLD -> SCORE (g1 left trigger)")

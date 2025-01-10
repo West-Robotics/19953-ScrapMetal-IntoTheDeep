@@ -68,6 +68,7 @@ class ZeroPlusFour : LinearOpMode() {
 
             drivetrain.write()
             lift.write()
+            sampler.write()
         }
     }
 }
