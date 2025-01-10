@@ -20,9 +20,10 @@ class Drivetrain(hardwareMap: HardwareMap) {
     private val pinpoint = hardwareMap.get(GoBildaPinpointDriver::class.java, "pinpoint")
 
     init {
-        pinpoint.setOffsets(-999.0, -999.0)
+        // 3.75 m, 6.5 + 1/16 in
+        pinpoint.setOffsets(-3.75, -166.6875)
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD)
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED)
         pinpoint.resetPosAndIMU()
     }
 
