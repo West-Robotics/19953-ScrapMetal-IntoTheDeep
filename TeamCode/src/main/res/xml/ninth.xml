@@ -9,7 +9,7 @@
             <Servo name="frontExt" port="0" />
             <Servo name="backExt" port="2" />
             <ContinuousRotationServo name="intake" port="4" />
-            <goBILDAPinpoint name="pinpoint" port="0" bus="1" />
+            <goBILDAPinpoint name="pinpoint" port="0" bus="0" />
             <AnalogInput name="intakeEnc" port="0" />
         </LynxModule>
         <LynxModule name="Expansion Hub 1" port="1">

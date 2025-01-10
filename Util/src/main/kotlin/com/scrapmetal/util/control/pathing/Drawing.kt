@@ -9,8 +9,8 @@ const val PATH_COLOR = "#0000ff"
 const val ROBOT_RADIUS = 7.5
 const val POINT_COUNT = 256
 const val HEADING_COUNT = 16
-const val TRAIL_COUNT = 512
-const val TRAIL_RADIUS = 0.125
+const val TRAIL_COUNT = 256
+const val TRAIL_RADIUS = 0.5
 // TODO: does this need a flush between opmodes?
 // TODO: use a better data structure
 val trail = ArrayDeque<Vector2d>(512)
@@ -55,7 +55,7 @@ fun Canvas.drawSubMovement(subMovement: SubMovement): Canvas {
 fun Canvas.drawTrail(position: Vector2d): Canvas {
     if (trail.size == TRAIL_COUNT) trail.removeFirst()
     trail.add(position)
-    this.setStroke(ROBOT_COLOR)
+    this.setFill(ROBOT_COLOR)
     trail.forEach { this.fillCircle(it.x, it.y, TRAIL_RADIUS) }
     return this
 }

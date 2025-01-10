@@ -36,35 +36,35 @@ class ZeroPlusFour : LinearOpMode() {
         while (opModeIsActive()) {
             val pose = drivetrain.getPose()
             // score preload
-            if (timer.seconds() <= 4.0) {
-                if (!profile1Triggered) {
-                    lift.setPreset(Lift.Preset.HIGH)
-                    profile1Triggered = true
-                }
-                lift.updateProfiled(lift.getHeight())
-                val fieldFrameEffort = Pose2d(
-                    pControl(translationGain, 0.0, pose.position.x),
-                    pControl(translationGain, -12.0, pose.position.y),
-                    pControl(headingGain, 90.0, pose.heading.theta),
-                )
-                drivetrain.setEffort(Pose2d(pose.heading.inverse()*fieldFrameEffort.position))
-                sampler.stow() // stow on purpose, not hold
-            }
-            // backup and lower
-            if (4.0 < timer.seconds() && timer.seconds() <= 8.0) {
-                if (!profile2Triggered) {
-                    lift.setPreset(Lift.Preset.BOTTOM)
-                    profile2Triggered = true
-                }
-                lift.updateProfiled(lift.getHeight())
-                val fieldFrameEffort = Pose2d(
-                    pControl(translationGain, 8.0, pose.position.x),
-                    pControl(translationGain, 0.0, pose.position.y),
-                    pControl(headingGain, 90.0, pose.heading.theta),
-                )
-                drivetrain.setEffort(Pose2d(pose.heading.inverse()*fieldFrameEffort.position))
-                sampler.stow() // stow on purpose, not hold
-            }
+            // if (timer.seconds() <= 4.0) {
+            //     if (!profile1Triggered) {
+            //         lift.setPreset(Lift.Preset.HIGH)
+            //         profile1Triggered = true
+            //     }
+            //     lift.updateProfiled(lift.getHeight())
+            //     val fieldFrameEffort = Pose2d(
+            //         pControl(translationGain, 0.0, pose.position.x),
+            //         pControl(translationGain, -12.0, pose.position.y),
+            //         pControl(headingGain, 90.0, pose.heading.theta),
+            //     )
+            //     drivetrain.setEffort(Pose2d(pose.heading.inverse()*fieldFrameEffort.position))
+            //     sampler.stow() // stow on purpose, not hold
+            // }
+            // // backup and lower
+            // if (4.0 < timer.seconds() && timer.seconds() <= 8.0) {
+            //     if (!profile2Triggered) {
+            //         lift.setPreset(Lift.Preset.BOTTOM)
+            //         profile2Triggered = true
+            //     }
+            //     lift.updateProfiled(lift.getHeight())
+            //     val fieldFrameEffort = Pose2d(
+            //         pControl(translationGain, 8.0, pose.position.x),
+            //         pControl(translationGain, 0.0, pose.position.y),
+            //         pControl(headingGain, 90.0, pose.heading.theta),
+            //     )
+            //     drivetrain.setEffort(Pose2d(pose.heading.inverse()*fieldFrameEffort.position))
+            //     sampler.stow() // stow on purpose, not hold
+            // }
 
             drivetrain.write()
             lift.write()

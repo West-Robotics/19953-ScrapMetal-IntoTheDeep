@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.scrapmetal.util.control.Pose2d
+import com.scrapmetal.util.control.Rotation2d
+import com.scrapmetal.util.control.Vector2d
 import com.scrapmetal.util.hardware.GoBildaPinpointDriver
 import com.scrapmetal.util.hardware.SMMotor
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
@@ -17,13 +19,13 @@ class Drivetrain(hardwareMap: HardwareMap) {
     private val backLeft = SMMotor(hardwareMap, "backLeft", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
     private val backRight = SMMotor(hardwareMap, "backRight", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE)
     private val frontRight = SMMotor(hardwareMap, "frontRight", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
-    private val pinpoint = hardwareMap.get(GoBildaPinpointDriver::class.java, "pinpoint")
+    val pinpoint = hardwareMap.get(GoBildaPinpointDriver::class.java, "pinpoint")
 
     init {
         // 3.75 m, 6.5 + 1/16 in
         pinpoint.setOffsets(-3.75, -166.6875)
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED)
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD)
         pinpoint.resetPosAndIMU()
     }
 
@@ -38,7 +40,7 @@ class Drivetrain(hardwareMap: HardwareMap) {
     }
 
     fun setEffort(x: Double, y: Double, turn: Double) {
-        val yModified: Double = y * 1.1
+        val yModified: Double = y * 1.0
         val denominator = max(abs(x) + abs(y) + abs(turn), 1.0)
 
         frontLeft.effort = (x - yModified - turn) / denominator

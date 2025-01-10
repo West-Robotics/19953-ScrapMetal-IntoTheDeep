@@ -41,7 +41,7 @@ fun Degrees.toRad() = 2 * PI / 360 * this
  * A [position] and [heading] in a 2D plane.
  */
 data class Pose2d(val position: Vector2d = Vector2d(), val heading: Rotation2d = Rotation2d()) {
-    constructor(x: Double = 0.0, y: Double = 0.0, theta: Double = 0.0) : this()
+    constructor(x: Double, y: Double, theta: Double) : this(Vector2d(x, y), Rotation2d(theta))
     operator fun plus(p: Pose2d) = Pose2d(position + p.position, p.heading * heading)
     operator fun minus(p: Pose2d) = Pose2d(position - p.position, p.heading.inverse() * heading)
 }

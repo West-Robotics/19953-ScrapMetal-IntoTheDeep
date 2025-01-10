@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.scrapmetal.util.control.pathing.drawRobot
 import com.scrapmetal.util.control.pathing.drawTrail
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
@@ -18,6 +20,7 @@ class DrivetrainTest : LinearOpMode() {
 
         val dashboard = FtcDashboard.getInstance()
         waitForStart()
+        drivetrain.setPose(0.0, 0.0, 0.0)
         while (opModeIsActive()) {
             drivetrain.setEffort(
                 -gamepad1.left_stick_y.toDouble(),
@@ -25,13 +28,21 @@ class DrivetrainTest : LinearOpMode() {
                 -gamepad1.right_stick_x.toDouble(),
             )
             drivetrain.write()
+            val pos = drivetrain.getPose()
 
             val packet = TelemetryPacket()
             packet.fieldOverlay()
-                .drawRobot(drivetrain.getPose())
+                .drawRobot(pos)
                 .drawTrail(drivetrain.getPose().position)
             dashboard.sendTelemetryPacket(packet)
+            dashboard.telemetry.addData("x", drivetrain.getPose().position.x)
+            dashboard.telemetry.addData("y", drivetrain.getPose().position.y)
+            dashboard.telemetry.addData("heading", drivetrain.getPose().heading.theta)
             dashboard.telemetry.update()
+            // telemetry.addData("x", drivetrain.getPose().position.x)
+            // telemetry.addData("y", pos.getY(DistanceUnit.INCH))
+            // telemetry.addData("heading", pos.getHeading(AngleUnit.DEGREES))
+            // telemetry.update()
         }
     }
 }
