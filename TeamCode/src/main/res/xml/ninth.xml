@@ -16,6 +16,7 @@
             <goBILDA5202SeriesMotor name="rightLift" port="0" />
             <goBILDA5202SeriesMotor name="leftLift" port="1" />
             <Servo name="pivot" port="0" />
+            <Servo name="wrist" port="2" />
         </LynxModule>
     </LynxUsbDevice>
 </Robot>

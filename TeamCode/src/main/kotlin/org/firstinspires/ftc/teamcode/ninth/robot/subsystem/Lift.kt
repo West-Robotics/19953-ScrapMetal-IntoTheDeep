@@ -13,7 +13,7 @@ import kotlin.math.PI
 
 class Lift(hardwareMap: HardwareMap) {
     val feedforward = 0.1
-    val kp = 1.5
+    val kp = 2.5
 
     val cpr = 8192.0
     val spoolCircumference = 0.7874016 * PI
@@ -57,8 +57,8 @@ class Lift(hardwareMap: HardwareMap) {
             MPConstraints(
                 mpStart,
                 preset.height,
+                1000.0,
                 100.0,
-                10.0,
                 100.0
             ),
             mpTimer.seconds()
@@ -73,7 +73,9 @@ class Lift(hardwareMap: HardwareMap) {
 
     enum class Preset(val height: Double) {
         BOTTOM(0.0),
-        LOW(25.75 - 7.5),
-        HIGH(43.0 - 7.5),
+        LOW(25.75 - 7.0),
+        HIGH(43.0 - 7.0),
+        RAISE_HANG(43.0 - 7.0),
+        PULL_HANG(43.0 - 13.0),
     }
 }

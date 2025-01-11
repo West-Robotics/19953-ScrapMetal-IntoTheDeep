@@ -4,4 +4,4 @@ fun inchesToTicks(inches: Double, cpr:Double, spoolCircumference: Double) = (inc
 
 fun ticksToInches(ticks: Int, spoolCircumference: Double, cpr: Double) = ticks * spoolCircumference / cpr
 
-fun controlEffort(preset: Double, currentHeight: Double, kp:Double, feedforward:Double) = kp*(preset-currentHeight) + feedforward
+fun controlEffort(preset: Double, currentHeight: Double, kp:Double, feedforward:Double) = kp*(preset-currentHeight) + if (currentHeight > 0.1) feedforward else 0.0
