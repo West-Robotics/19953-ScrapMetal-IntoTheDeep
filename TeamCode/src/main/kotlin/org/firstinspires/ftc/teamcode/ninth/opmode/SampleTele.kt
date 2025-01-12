@@ -58,13 +58,13 @@ class SampleTele: LinearOpMode() {
             drivetrain.setEffort(
                 -sign(gamepad1.left_stick_y.toDouble()) * gamepad1.left_stick_y.toDouble().pow(2) / (1 + speed_decrease),
                 -sign(gamepad1.left_stick_x.toDouble()) * gamepad1.left_stick_x.toDouble().pow(2) / (1 + speed_decrease),
-                -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / (2 + turn_decrease),
+                -sign(gamepad1.right_stick_x.toDouble()) * gamepad1.right_stick_x.toDouble().pow(2) / (1.5 + turn_decrease),
             )
 
             // lift
             if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Preset.BOTTOM) ; speed_decrease = 0.0 }
-            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.LOW) ; speed_decrease = 1.0 }
-            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.HIGH) ; speed_decrease = 1.5 }
+            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.LOW) ; speed_decrease = 0.0 }
+            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.HIGH) ; speed_decrease = 1.0 }
             if (currentGamepad2.left_trigger > 0.8 &&
                 currentGamepad2.right_trigger > 0.8 &&
                 currentGamepad2.dpad_up &&
@@ -95,6 +95,7 @@ class SampleTele: LinearOpMode() {
             when (samplerState) {
                 SamplerState.SAMPLER_STOW -> {
                     sampler.stow()
+                    speed_decrease = 0.0
                     turn_decrease = 0.0
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
                         samplerState = SamplerState.SAMPLER_EXTEND
@@ -102,7 +103,8 @@ class SampleTele: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_EXTEND -> {
                     sampler.extend()
-                    turn_decrease = 1.0
+                    speed_decrease = 0.0
+                    turn_decrease = 1.5
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_GRAB_SAMPLE
                     }
@@ -112,8 +114,10 @@ class SampleTele: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_GRAB_SAMPLE -> {
                     sampler.grab_sample()
-                    turn_decrease = 1.0
+                    speed_decrease = 0.75
+                    turn_decrease = 1.5
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
+                        speed_decrease = 0.0
                         samplerState = SamplerState.SAMPLER_HOLD
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
@@ -125,9 +129,11 @@ class SampleTele: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_SPIT -> {
                     sampler.spit()
-                    turn_decrease = 1.0
+                    speed_decrease = 0.75
+                    turn_decrease = 1.5
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_GRAB_SAMPLE
+                        speed_decrease = 0.0
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
@@ -150,6 +156,7 @@ class SampleTele: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_SCORE_SAMPLE -> {
                     sampler.score_sample()
+                    speed_decrease = 0.0
                     turn_decrease = 0.0
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_STOW
@@ -161,6 +168,7 @@ class SampleTele: LinearOpMode() {
                 SamplerState.SAMPLER_AUTOSCORE -> {
                     samplerTimer.reset()
                     sampler.extend()
+                    speed_decrease = 0.0
                     turn_decrease = 0.0
                     if (samplerTimer.seconds() >= 0.5) {
                         sampler.score_front()
@@ -190,6 +198,7 @@ class SampleTele: LinearOpMode() {
             telemetry.addLine("LIFT reset - g2 dpad up + left stick up")
             telemetry.addLine("               ")
             telemetry.addData("state", samplerState)
+            telemetry.addData("turn", gamepad1.right_stick_x)
             telemetry.addData("height", lift.getHeight())
             // TODO: remove current reads for comp for looptimes
             telemetry.addData("left current", lift.leftCurrent())

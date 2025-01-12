@@ -6,10 +6,13 @@ import kotlin.math.sign
 /**
  * Simple P controller that can also handle wraparound logic for heading etc., in degrees
  */
-// TODO: add wraparound logic
 fun pControl(gain: Double, reference: Double, state: Double, wraparound: Boolean = false): Double =
     gain * (reference - state).let {
-        if (!wraparound || abs(it) < 180.0) it else it - sign(it) * 360.0
+        if (!wraparound || abs(it) < 180.0) {
+            it
+        } else {
+            it - sign(it) * 360.0
+        }
     }
 
 /**

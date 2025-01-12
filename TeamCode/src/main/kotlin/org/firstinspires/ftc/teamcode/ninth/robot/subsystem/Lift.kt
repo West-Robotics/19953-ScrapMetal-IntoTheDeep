@@ -13,7 +13,7 @@ import kotlin.math.PI
 
 class Lift(hardwareMap: HardwareMap) {
     val feedforward = 0.1
-    val kp = 2.5
+    val kp = 1.5
 
     val cpr = 8192.0
     val spoolCircumference = 0.7874016 * PI
@@ -63,7 +63,8 @@ class Lift(hardwareMap: HardwareMap) {
             ),
             mpTimer.seconds()
         ).s
-        val effort = controlEffort(reference, currentHeight, kp, feedforward).coerceAtLeast(0.0)
+        var effort = controlEffort(reference, currentHeight, kp, feedforward)
+        if (preset != Preset.PULL_HANG) effort.coerceAtLeast(0.0)
         setEffort(effort)
     }
 
@@ -75,7 +76,7 @@ class Lift(hardwareMap: HardwareMap) {
         BOTTOM(0.0),
         LOW(25.75 - 7.0),
         HIGH(43.0 - 7.0),
-        RAISE_HANG(43.0 - 7.0),
-        PULL_HANG(43.0 - 13.0),
+        RAISE_HANG(32.0),
+        PULL_HANG(20.0),
     }
 }

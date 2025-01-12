@@ -42,7 +42,7 @@ class Sampler(hardwareMap: HardwareMap) {
         SPIT(-1.00, 0.12, 0.0, 0.64),
         STOW(0.00, 0.43, 0.0, 0.03),
 //        RETRACT(0.0, 0.43, 0.0),
-        HOLD(0.10, 0.43, 0.0, 0.03),
+        HOLD(0.11, 0.43, 0.0, 0.03),
         SCORE_SAMPLE(-0.17, 0.55, 0.0, 0.03),
         SCORE_SPECIMEN(-0.20, 0.55, 0.0, 0.03),
         SCORE_FRONT(-1.0, 0.2, 0.0, 0.64),
