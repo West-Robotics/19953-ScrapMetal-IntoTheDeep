@@ -17,15 +17,15 @@ class SpecTele: LinearOpMode() {
 
     // TODO: test reset, manual, charge bot, test positions of lift and intake, pow turn
     enum class SamplerState {
-        SAMPLER_STOW,
+        SAMPLER_STOW, //neutral, can switch between two main pathways
         SAMPLER_EXTEND,
         SAMPLER_GRAB_SAMPLE,
-        //        SAMPLER_GRAB_SPECIMEN,
+        SAMPLER_GRAB_SPECIMEN,
         SAMPLER_SPIT,
         SAMPLER_HOLD,
         SAMPLER_SCORE_SAMPLE,
-        //        SAMPLER_SCORE_SPECIMEN,
-        SAMPLER_AUTOSCORE,
+        SAMPLER_PREPARE_TO_SCORE_SPECIMEN,
+        SAMPLER_SCORE_SPECIMEN,
     }
     var samplerState = SamplerState.SAMPLER_STOW
     val samplerTimer = ElapsedTime()
@@ -82,6 +82,9 @@ class SpecTele: LinearOpMode() {
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
                         samplerState = SamplerState.SAMPLER_EXTEND
                     }
+                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
+                        samplerState = SamplerState.SAMPLER_GRAB_SPECIMEN
+                    }
                 }
                 SamplerState.SAMPLER_EXTEND -> {
                     sampler.extend()
@@ -100,9 +103,22 @@ class SpecTele: LinearOpMode() {
                     if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
-                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
+                    if (currentGamepad1.right_bumper  && previousGamepad1.right_bumper) {
                         samplerState = SamplerState.SAMPLER_SPIT
                     }
+                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
+                        sampler.lower_intake()
+                    }
+                }
+                SamplerState.SAMPLER_GRAB_SPECIMEN -> {
+                    sampler.grab_specimen()
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
+                        samplerState = SamplerState.SAMPLER_HOLD
+                    }
+                    if (currentGamepad2.x && !previousGamepad2.x) {
+                        samplerState = SamplerState.SAMPLER_STOW
+                    }
+
                 }
                 SamplerState.SAMPLER_SPIT -> {
                     sampler.spit()
@@ -115,8 +131,12 @@ class SpecTele: LinearOpMode() {
                 }
                 SamplerState.SAMPLER_HOLD -> {
                     sampler.hold()
+                    // TODO add spitting back
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         samplerState = SamplerState.SAMPLER_SCORE_SAMPLE
+                    }
+                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
+                        samplerState = SamplerState.SAMPLER_SCORE_SPECIMEN
                     }
                     // if (currentGamepad1.right_trigger > 0.8) {
                     //     if (desiredPos == 0.0) {
@@ -136,15 +156,20 @@ class SpecTele: LinearOpMode() {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
                 }
-                SamplerState.SAMPLER_AUTOSCORE -> {
-                    samplerTimer.reset()
-                    sampler.extend()
-                    if (samplerTimer.seconds() >= 0.5) {
-                        sampler.score_front()
+                SamplerState.SAMPLER_PREPARE_TO_SCORE_SPECIMEN -> {
+                    lift.setPreset(Lift.Preset.SPEC_HIGH)
+                    sampler.prepare_to_score_specimen()
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
+                        samplerState = SamplerState.SAMPLER_SCORE_SPECIMEN
                     }
-                    if ((samplerTimer.seconds() > 1.0) or (currentGamepad2.x && !previousGamepad2.x)) {
+                    if (currentGamepad2.x && !previousGamepad2.x) {
                         samplerState = SamplerState.SAMPLER_STOW
                     }
+                }
+                SamplerState.SAMPLER_SCORE_SPECIMEN -> {
+                    lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE)
+                    // TODO add delay
+                    sampler.score_specimen()
                 }
             }
 

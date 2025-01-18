@@ -78,5 +78,9 @@ class Lift(hardwareMap: HardwareMap) {
         HIGH(43.0 - 7.0),
         RAISE_HANG(32.0),
         PULL_HANG(20.0),
+        SPEC_LOW(20.0),
+        SPEC_LOW_SCORE(20.0),
+        SPEC_HIGH(35.0),
+        SPEC_HIGH_SCORE(30.0),
     }
 }
