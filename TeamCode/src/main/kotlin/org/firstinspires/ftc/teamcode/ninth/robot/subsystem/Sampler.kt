@@ -15,16 +15,16 @@ class Sampler(hardwareMap: HardwareMap) {
     private val wrist = SMServo(hardwareMap, "wrist", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
     private val intake = SMCRServo(hardwareMap, "intake", DcMotorSimple.Direction.REVERSE, SMCRServo.ModelPWM.AXON)
 
+    // TODO: Determine values for specimen grabbing/ scoring, side sample grabbing (wrist/pivot)
+
     enum class State(val grabber: Double, val pivot: Double, val wrist: Double,  val linkage: Double) {
         EXTEND(0.00, 0.43, 0.0, 0.64),
         GRAB_SAMPLE(1.00, 0.12, 0.0, 0.64),
-        GRAB_LOWER(1.00, 0.00, 0.0, 0.68),
+        GRAB_SAMPLE_SIDE(1.00, 0.00, 0.0, 0.68),
         GRAB_SPECIMEN (1.00, 0.12, 0.0, 0.00),
         SPIT(-1.00, 0.12, 0.0, 0.64),
         STOW(0.00, 0.43, 0.0, 0.03),
-//        RETRACT(0.0, 0.43, 0.0),
         HOLD(0.11, 0.43, 0.0, 0.03),
-//        RETRACT(0.0, 0.43, 0.0),
         PREPARE_TO_SCORE_SAMPLE (0.10, 0.55, 0.0,0.00),
         SCORE_SAMPLE(-0.20, 0.55, 0.0,0.00),
         PREPARE_TO_SCORE_SPECIMEN(-0.20, 0.55, 0.0,0.00),
@@ -46,7 +46,7 @@ class Sampler(hardwareMap: HardwareMap) {
 
     fun extend() = setState(State.EXTEND)
     fun grab_sample() = setState(State.GRAB_SAMPLE)
-    fun lower_intake() = setState(State.GRAB_LOWER)
+    fun grab_sample_side() = setState(State.GRAB_SAMPLE_SIDE)
     fun grab_specimen() = setState(State.GRAB_SPECIMEN)
     fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)

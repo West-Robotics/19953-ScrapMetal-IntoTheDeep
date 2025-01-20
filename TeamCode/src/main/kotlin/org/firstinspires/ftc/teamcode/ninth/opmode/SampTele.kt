@@ -13,7 +13,7 @@ import kotlin.math.pow
 import kotlin.math.sign
 
 @TeleOp(name = "SampleTele")
-class SampleTele: LinearOpMode() {
+class SampTele: LinearOpMode() {
 
     // TODO: test reset, manual, charge bot, test positions of lift and intake, pow turn
     enum class SamplerState {
