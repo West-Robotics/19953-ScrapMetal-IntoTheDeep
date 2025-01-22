@@ -64,7 +64,7 @@ class Lift(hardwareMap: HardwareMap) {
             mpTimer.seconds()
         ).s
         var effort = controlEffort(reference, currentHeight, kp, feedforward)
-        if (preset != Preset.PULL_HANG) effort.coerceAtLeast(0.0)
+        if (preset != Preset.PULL_HANG) effort = effort.coerceAtLeast(0.0)
         setEffort(effort)
     }
 
@@ -72,12 +72,14 @@ class Lift(hardwareMap: HardwareMap) {
 
     fun rightCurrent() = right.current
 
+    // TODO determine height to score specs
     enum class Preset(val height: Double) {
         BOTTOM(0.0),
         LOW(25.75 - 7.0),
         HIGH(43.0 - 7.0),
         RAISE_HANG(32.0),
         PULL_HANG(20.0),
+        SPEC_INTAKE(20.0),
         SPEC_LOW(20.0),
         SPEC_LOW_SCORE(20.0),
         SPEC_HIGH(35.0),
