@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.scrapmetal.util.control.MPConstraints
+import com.scrapmetal.util.control.MPState
 import com.scrapmetal.util.control.motionProfile
 import com.scrapmetal.util.hardware.SMMotor
 import com.scrapmetal.util.hardware.SMQuadrature
@@ -12,11 +13,11 @@ import org.firstinspires.ftc.teamcode.ninth.controlEffort
 import kotlin.math.PI
 
 class Lift(hardwareMap: HardwareMap) {
-    val feedforward = 0.1
+    val feedforward = 0.20
     val kp = 1.5
 
     val cpr = 8192.0
-    val spoolCircumference = 0.7874016 * PI
+    val spoolCircumference = 0.9842520 * PI
 
     private val left = SMMotor(hardwareMap, "leftLift", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
     private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
@@ -52,20 +53,23 @@ class Lift(hardwareMap: HardwareMap) {
 
     fun getPreset() = preset
 
-    fun updateProfiled(currentHeight: Double) {
-        val reference = motionProfile(
+    fun updateProfiled(currentHeight: Double): MPState {
+        val mpState = motionProfile(
             MPConstraints(
                 mpStart,
                 preset.height,
-                1000.0,
-                100.0,
-                100.0
+                500.0,
+                70.0,
+                30.0
             ),
             mpTimer.seconds()
-        ).s
+        )
+        val reference = mpState.s
         var effort = controlEffort(reference, currentHeight, kp, feedforward)
-        if (preset != Preset.PULL_HANG) effort = effort.coerceAtLeast(0.0)
+        if (preset != Preset.PULL_HANG) effort = effort.coerceAtLeast(-1.00)
         setEffort(effort)
+
+        return mpState
     }
 
     fun leftCurrent() = left.current
@@ -76,9 +80,9 @@ class Lift(hardwareMap: HardwareMap) {
     enum class Preset(val height: Double) {
         BOTTOM(0.0),
         LOW(25.75 - 7.0),
-        HIGH(43.0 - 7.0),
+        HIGH(43.0 - 7.0 - 0.25),
         RAISE_HANG(32.0),
-        PULL_HANG(20.0),
+        PULL_HANG(16.0),
         SPEC_INTAKE(20.0),
         SPEC_LOW(20.0),
         SPEC_LOW_SCORE(20.0),

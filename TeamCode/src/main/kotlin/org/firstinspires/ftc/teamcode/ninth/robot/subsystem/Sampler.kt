@@ -11,8 +11,8 @@ class Sampler(hardwareMap: HardwareMap) {
     private val extensionTwo = SMServo(hardwareMap, "backExt", 0.00, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
 
     // TODO: Make hardware private again
-    private val pivot = SMServo(hardwareMap, "pivot", 0.43, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
-    private val wrist = SMServo(hardwareMap, "wrist", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val pitch = SMServo(hardwareMap, "pitch", 0.43, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val roll = SMServo(hardwareMap, "roll", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
     private val intake = SMCRServo(hardwareMap, "intake", DcMotorSimple.Direction.REVERSE, SMCRServo.ModelPWM.AXON)
 
     // TODO: Determine values for specimen grabbing/ scoring, side sample grabbing (wrist/pivot)
@@ -35,7 +35,7 @@ class Sampler(hardwareMap: HardwareMap) {
     // have continuous power (but less than intake) going during stow
     fun setState(state: State) {
         intake.effort = state.grabber
-        pivot.position = state.pivot
+        pitch.position = state.pivot
         extensionOne.position = state.linkage
         extensionTwo.position = state.linkage
     }
@@ -61,8 +61,8 @@ class Sampler(hardwareMap: HardwareMap) {
     fun write() {
         extensionOne.write()
         extensionTwo.write()
-        wrist.write()
-        pivot.write()
+        roll.write()
+        pitch.write()
         intake.write()
     }
 }

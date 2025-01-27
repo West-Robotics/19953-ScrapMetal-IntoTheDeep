@@ -6,17 +6,19 @@
             <goBILDA5202SeriesMotor name="backRight" port="1" />
             <goBILDA5202SeriesMotor name="backLeft" port="2" />
             <goBILDA5202SeriesMotor name="frontLeft" port="3" />
-            <Servo name="frontExt" port="0" />
-            <Servo name="backExt" port="2" />
-            <ContinuousRotationServo name="intake" port="4" />
             <goBILDAPinpoint name="pinpoint" port="0" bus="0" />
             <AnalogInput name="intakeEnc" port="0" />
         </LynxModule>
         <LynxModule name="Expansion Hub 1" port="1">
             <goBILDA5202SeriesMotor name="rightLift" port="0" />
             <goBILDA5202SeriesMotor name="leftLift" port="1" />
-            <Servo name="pivot" port="0" />
-            <Servo name="wrist" port="2" />
+        </LynxModule>
+        <LynxModule name="Servo Hub 3" port="3">
+            <Servo name="frontExt" port="0" />
+            <Servo name="backExt" port="1" />
+            <ContinuousRotationServo name="intake" port="3" />
+            <Servo name="roll" port="4" />
+            <Servo name="pitch" port="5" />
         </LynxModule>
     </LynxUsbDevice>
 </Robot>

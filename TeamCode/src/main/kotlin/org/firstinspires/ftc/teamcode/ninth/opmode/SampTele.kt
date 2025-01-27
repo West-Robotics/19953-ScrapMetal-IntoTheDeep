@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
-import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import kotlin.math.pow
 import kotlin.math.sign
 
@@ -29,6 +29,7 @@ class SampTele: LinearOpMode() {
     val samplerTimer = ElapsedTime()
 
     override fun runOpMode() {
+        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         val previousGamepad1 = Gamepad()
         val previousGamepad2 = Gamepad()
         val currentGamepad1 = Gamepad()
@@ -48,6 +49,7 @@ class SampTele: LinearOpMode() {
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
+        val loopTimer = ElapsedTime()
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
             previousGamepad2.copy(currentGamepad2)
@@ -83,7 +85,10 @@ class SampTele: LinearOpMode() {
             }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
-                lift.updateProfiled(lift.getHeight())
+                val mpState = lift.updateProfiled(lift.getHeight())
+                telemetry.addData("mp s", mpState.s)
+                telemetry.addData("mp v", mpState.v)
+                telemetry.addData("mp a", mpState.a)
             } else {
                 lift.setEffort(-gamepad2.left_stick_y + 0.2)
                 if (gamepad2.dpad_up && -gamepad2.left_stick_y < -0.9) {
@@ -179,9 +184,9 @@ class SampTele: LinearOpMode() {
                 }
             }
 
-            drivetrain.write()
+//            drivetrain.write()
             lift.write()
-            sampler.write()
+//            sampler.write()
 
 //            telemetry.addLine("RETRACT - g2 left bumper")
             telemetry.addLine("EXTEND -> INTAKE -> HOLD -> SCORE (g1 left trigger)")
@@ -198,12 +203,13 @@ class SampTele: LinearOpMode() {
             telemetry.addLine("LIFT reset - g2 dpad up + left stick up")
             telemetry.addLine("               ")
             telemetry.addData("state", samplerState)
-            telemetry.addData("turn", gamepad1.right_stick_x)
             telemetry.addData("height", lift.getHeight())
             // TODO: remove current reads for comp for looptimes
-            telemetry.addData("left current", lift.leftCurrent())
-            telemetry.addData("right current", lift.rightCurrent())
-            telemetry.addData("total current", lift.leftCurrent() + lift.rightCurrent())
+//            telemetry.addData("left current", lift.leftCurrent())
+//            telemetry.addData("right current", lift.rightCurrent())
+//            telemetry.addData("total current", lift.leftCurrent() + lift.rightCurrent())
+            telemetry.addData("loop time", loopTimer.milliseconds())
+            loopTimer.reset()
             telemetry.update()
         }
     }

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
 // TODO: migrate relevant teleop logic out of subsystem tests
@@ -21,7 +22,7 @@ class SubsystemTests : LinearOpMode() {
 
         val drivetrain = Drivetrain(hardwareMap)
         var desiredPos = 0.0
-//        val lift = Lift(hardwareMap)
+        val lift = Lift(hardwareMap)
         var manual = false
 //        var extensionAmount = 0.43
         val sampler = Sampler(hardwareMap)
@@ -62,7 +63,7 @@ class SubsystemTests : LinearOpMode() {
 //            if (!manual) {
 //                lift.runToPos(desiredPos, liftHeight)
 //            } else {
-//                lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.1)
+              lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.15)
 //            }
 //
 //            lift.write()
@@ -103,6 +104,8 @@ class SubsystemTests : LinearOpMode() {
 //            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
 //                score -= 0.01
 //            }
+
+            lift.write()
 
             telemetry.addLine("Raise lift - hold left trigger")
             telemetry.addLine("Lower lift - hold right trigger")
