@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.ninth.nominalVoltage
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
@@ -36,7 +37,7 @@ class SampTele: LinearOpMode() {
         val currentGamepad2 = Gamepad()
 
         val drivetrain = Drivetrain(hardwareMap)
-        val lift = Lift(hardwareMap)
+        val lift = Lift(hardwareMap, (nominalVoltage / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         val sampler = Sampler(hardwareMap)
 
         var desiredPos = Lift.Preset.LOW
@@ -203,8 +204,8 @@ class SampTele: LinearOpMode() {
             telemetry.addLine("LIFT reset - g2 dpad up + left stick up")
             telemetry.addLine("               ")
             telemetry.addData("state", samplerState)
+            // TODO: REMOVE FOR COMP!
             telemetry.addData("height", lift.getHeight())
-            // TODO: remove current reads for comp for looptimes
 //            telemetry.addData("left current", lift.leftCurrent())
 //            telemetry.addData("right current", lift.rightCurrent())
 //            telemetry.addData("total current", lift.leftCurrent() + lift.rightCurrent())

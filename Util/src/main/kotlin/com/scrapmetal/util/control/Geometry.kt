@@ -44,4 +44,5 @@ data class Pose2d(val position: Vector2d = Vector2d(), val heading: Rotation2d =
     constructor(x: Double, y: Double, theta: Double) : this(Vector2d(x, y), Rotation2d(theta))
     operator fun plus(p: Pose2d) = Pose2d(position + p.position, p.heading * heading)
     operator fun minus(p: Pose2d) = Pose2d(position - p.position, p.heading.inverse() * heading)
+    operator fun times(m: Double) = Pose2d(position * m, Rotation2d(heading.theta * m))
 }

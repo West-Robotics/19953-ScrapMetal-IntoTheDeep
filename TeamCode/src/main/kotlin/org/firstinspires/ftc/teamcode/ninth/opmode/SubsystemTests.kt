@@ -64,7 +64,7 @@ class SubsystemTests : LinearOpMode() {
 //            if (!manual) {
 //                lift.runToPos(desiredPos, liftHeight)
 //            } else {
-              lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.15)
+              lift.setEffort(gamepad1.left_trigger - gamepad1.right_trigger.toDouble() + 0.20)
 //            }
 //
 //            lift.write()

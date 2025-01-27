@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D
 import kotlin.math.abs
 import kotlin.math.max
 
-class Drivetrain(hardwareMap: HardwareMap) {
+class Drivetrain(hardwareMap: HardwareMap, val voltageMultiplier: Double = 1.0) {
     private val frontLeft = SMMotor(hardwareMap, "frontLeft", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE)
     private val backLeft = SMMotor(hardwareMap, "backLeft", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.BRAKE)
     private val backRight = SMMotor(hardwareMap, "backRight", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.BRAKE)
@@ -30,24 +30,18 @@ class Drivetrain(hardwareMap: HardwareMap) {
     }
 
     fun setEffort(effort: Pose2d) {
-        val yModified: Double = effort.position.y * 1.0
-        val denominator = max(abs(effort.position.x) + abs(effort.position.y) + abs(effort.heading.theta), 1.0)
+        (effort * voltageMultiplier).let { effort ->
+            val yModified: Double = effort.position.y * 1.0
+            val denominator = max(abs(effort.position.x) + abs(effort.position.y) + abs(effort.heading.theta), 1.0)
 
-        frontLeft.effort = (effort.position.x - yModified - effort.heading.theta) / denominator
-        backLeft.effort = (effort.position.x + yModified - effort.heading.theta) / denominator
-        backRight.effort = (effort.position.x - yModified + effort.heading.theta) / denominator
-        frontRight.effort = (effort.position.x + yModified + effort.heading.theta) / denominator
+            frontLeft.effort = (effort.position.x - yModified - effort.heading.theta) / denominator
+            backLeft.effort = (effort.position.x + yModified - effort.heading.theta) / denominator
+            backRight.effort = (effort.position.x - yModified + effort.heading.theta) / denominator
+            frontRight.effort = (effort.position.x + yModified + effort.heading.theta) / denominator
+        }
     }
 
-    fun setEffort(x: Double, y: Double, turn: Double) {
-        val yModified: Double = y * 1.0
-        val denominator = max(abs(x) + abs(y) + abs(turn), 1.0)
-
-        frontLeft.effort = (x - yModified - turn) / denominator
-        backLeft.effort = (x + yModified - turn) / denominator
-        backRight.effort = (x - yModified + turn) / denominator
-        frontRight.effort = (x + yModified + turn) / denominator
-    }
+    fun setEffort(x: Double, y: Double, turn: Double) = setEffort(Pose2d(x, y, turn))
 
     fun setPose(x: Double, y: Double, heading: Double) {
         pinpoint.position = Pose2D(DistanceUnit.INCH, x, y, AngleUnit.DEGREES, heading)

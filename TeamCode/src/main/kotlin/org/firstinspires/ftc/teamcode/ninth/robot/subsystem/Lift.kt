@@ -12,9 +12,13 @@ import com.scrapmetal.util.hardware.SMQuadrature
 import org.firstinspires.ftc.teamcode.ninth.controlEffort
 import kotlin.math.PI
 
-class Lift(hardwareMap: HardwareMap) {
+class Lift(hardwareMap: HardwareMap, val voltageMultiplier: Double = 1.0) {
     val feedforward = 0.20
+//    val kv = 0.023
+    val kv = 0.0
+    val ka = 0.000
     val kp = 1.5
+//    val kp = 0.0
 
     val cpr = 8192.0
     val spoolCircumference = 0.9842520 * PI
@@ -58,16 +62,15 @@ class Lift(hardwareMap: HardwareMap) {
             MPConstraints(
                 mpStart,
                 preset.height,
-                500.0,
+                10.0,
                 70.0,
                 30.0
             ),
             mpTimer.seconds()
         )
-        val reference = mpState.s
-        var effort = controlEffort(reference, currentHeight, kp, feedforward)
-        if (preset != Preset.PULL_HANG) effort = effort.coerceAtLeast(-1.00)
-        setEffort(effort)
+        var effort = controlEffort(mpState.s, currentHeight, kp, 0.0)
+//        if (preset != Preset.PULL_HANG) effort = effort.coerceAtLeast(-1.00)
+        setEffort((effort + feedforward + kv * mpState.v + ka * mpState.a) * voltageMultiplier)
 
         return mpState
     }
