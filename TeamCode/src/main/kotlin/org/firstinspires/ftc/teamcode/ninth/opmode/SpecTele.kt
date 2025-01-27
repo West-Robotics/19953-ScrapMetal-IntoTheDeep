@@ -47,11 +47,10 @@ class SpecTele: LinearOpMode() {
         val drivetrain = Drivetrain(hardwareMap)
         val lift = Lift(hardwareMap)
         val sampler = Sampler(hardwareMap)
-        val intakeSpeed = SMAnalog(hardwareMap, "analogOutput")
+        val intakeSpeed = SMAnalog(hardwareMap, "intakeEnc")
 
         val intake_stalled = 5.0
 
-        var desiredPos = Lift.Preset.LOW
         var manual = false
 //        lift.setPreset(Lift.Preset.LOW)
         lift.setPreset(Lift.Preset.BOTTOM)
@@ -140,6 +139,7 @@ class SpecTele: LinearOpMode() {
                     speed_decrease = 0.75
                     turn_decrease = 1.5
                     if (intakeSpeed.velocity < intake_stalled) {
+                        speed_decrease = 0.0
                         samplerState = SamplerState.HOLD_SAMPLE
                     }
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
@@ -287,28 +287,19 @@ class SpecTele: LinearOpMode() {
             lift.write()
             sampler.write()
 
-            //TODO Update Telemetry for new control system
-//            telemetry.addLine("RETRACT - g2 left bumper")
-//            telemetry.addLine("EXTEND -> INTAKE -> HOLD -> SCORE (g1 left trigger)")
-//            telemetry.addLine("SCORE sample - g1 right trig")
+            telemetry.addLine("regular pathway - g1 left trigger")
+            telemetry.addLine("alt pathway - g1 right trigger")
+            telemetry.addLine("lift ctrls, samp & spec - g2 a, b, y")
+            telemetry.addLine("reset to stow - g2 x")
 //            telemetry.addLine("               ")
-//            telemetry.addLine("EXTEND - g2 left trig")
-//            telemetry.addLine("SPIT - g2 left trig")
-//            telemetry.addLine("RETRACT/HOLD sample - g2 right trig")
-//            telemetry.addLine("STOW - g2 x")
-//            telemetry.addLine("LIFT down - g2 a")
-//            telemetry.addLine("LIFT pos 1 - g2 b")
-//            telemetry.addLine("LIFT pos 2 - g2 y")
-//            telemetry.addLine("LIFT manual - g2 start")
             telemetry.addLine("LIFT reset - g2 dpad up + left stick up")
             telemetry.addLine("               ")
             telemetry.addData("state", samplerState)
-            telemetry.addData("turn", gamepad1.right_stick_x)
+//            telemetry.addData("turn", gamepad1.right_stick_x)
             telemetry.addData("height", lift.getHeight())
-            // TODO: remove current reads for comp for looptimes
-            telemetry.addData("left current", lift.leftCurrent())
-            telemetry.addData("right current", lift.rightCurrent())
-            telemetry.addData("total current", lift.leftCurrent() + lift.rightCurrent())
+//            telemetry.addData("left current", lift.leftCurrent())
+//            telemetry.addData("right current", lift.rightCurrent())
+//            telemetry.addData("total current", lift.leftCurrent() + lift.rightCurrent())
             telemetry.update()
         }
     }

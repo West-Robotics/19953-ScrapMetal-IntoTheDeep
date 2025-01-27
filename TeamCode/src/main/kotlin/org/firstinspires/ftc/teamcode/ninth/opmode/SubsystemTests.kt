@@ -28,7 +28,8 @@ class SubsystemTests : LinearOpMode() {
         val sampler = Sampler(hardwareMap)
         var intakeToggle = false
         var extensionToggle = false
-//        var score = 0.43
+        var grab_spec = 0.43
+        var grab_wrist = 0.0
 
         waitForStart()
         while (opModeIsActive()) {
@@ -99,29 +100,38 @@ class SubsystemTests : LinearOpMode() {
 //            }
 
 //            if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
-//                score += 0.01
+//                grab_spec += 0.01
 //            }
 //            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
-//                score -= 0.01
+//                grab_spec -= 0.01
 //            }
+//            sampler.pitch.position = grab_spec
+//
+//            if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
+//                grab_wrist += 0.01
+//            }
+//            if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
+//                grab_wrist -= 0.01
+//            }
+//            sampler.roll.position = grab_wrist
 
-            lift.write()
+            sampler.write()
 
-            telemetry.addLine("Raise lift - hold left trigger")
-            telemetry.addLine("Lower lift - hold right trigger")
-
-            telemetry.addLine("Extend sampler - press a")
-            telemetry.addLine("Retract sampler - press a")
-            telemetry.addLine("Intake sample - press b")
-            telemetry.addLine("Stow intake - press b")
-            telemetry.addLine("Score - hold x")
-            telemetry.addLine("           ")
+//            telemetry.addLine("Raise lift - hold left trigger")
+//            telemetry.addLine("Lower lift - hold right trigger")
+//
+//            telemetry.addLine("Extend sampler - press a")
+//            telemetry.addLine("Retract sampler - press a")
+//            telemetry.addLine("Intake sample - press b")
+//            telemetry.addLine("Stow intake - press b")
+//            telemetry.addLine("Score - hold x")
+//            telemetry.addLine("           ")
 //            telemetry.addData("Lift height", liftHeight)
 //            telemetry.addData("Control Effort", lift.getEffort())
 //            telemetry.addData("Desired position", desiredPos)
 //            telemetry.addData("Scoring pos", score)
-//            telemetry.addData("Scoring pos", score)
-//            telemetry.addData("extension amount", extensionAmount)
+            telemetry.addData("grabbing spec wrist", grab_wrist)
+            telemetry.addData("grabbing spec pivot", grab_spec)
 
             telemetry.update()
         }
