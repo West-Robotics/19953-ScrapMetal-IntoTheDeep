@@ -120,6 +120,7 @@ class SpecTele: LinearOpMode() {
                         samplerState = SamplerState.EXTEND
                     }
                     if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
+                        samplerTimer.reset()
                         samplerState = SamplerState.GRAB_SPECIMEN
                     }
                 }
@@ -173,11 +174,16 @@ class SpecTele: LinearOpMode() {
                     }
                 }
                 SamplerState.GRAB_SPECIMEN -> {
-                    sampler.grab_specimen()
-                    lift.setPreset(Lift.Preset.SPEC_INTAKE)
-                    if (intakeSpeed.velocity < intake_stalled) {
-                      samplerState = SamplerState.HOLD_SPECIMEN
+                    if (samplerTimer.seconds() < 0.7) {
+                        sampler.extend()
                     }
+                    if (samplerTimer.seconds() > 0.7) {
+                        sampler.grab_specimen()
+                    }
+                    lift.setPreset(Lift.Preset.SPEC_INTAKE)
+//                    if (intakeSpeed.velocity < intake_stalled) {
+//                      samplerState = SamplerState.HOLD_SPECIMEN
+//                    }
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
                         samplerState = SamplerState.HOLD_SPECIMEN
                     }
