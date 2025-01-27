@@ -4,15 +4,14 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.AnalogInput
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
+import com.scrapmetal.util.hardware.SMAnalog
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import kotlin.math.pow
 import kotlin.math.sign
-import kotlin.time.Duration.Companion.seconds
 
 @TeleOp(name = "SpecTele")
 
@@ -48,6 +47,9 @@ class SpecTele: LinearOpMode() {
         val drivetrain = Drivetrain(hardwareMap)
         val lift = Lift(hardwareMap)
         val sampler = Sampler(hardwareMap)
+        val intakeSpeed = SMAnalog(hardwareMap, "analogOutput")
+
+        val intake_stalled = 5.0
 
         var desiredPos = Lift.Preset.LOW
         var manual = false
@@ -137,6 +139,9 @@ class SpecTele: LinearOpMode() {
                     sampler.grab_sample()
                     speed_decrease = 0.75
                     turn_decrease = 1.5
+                    if (intakeSpeed.velocity < intake_stalled) {
+                        samplerState = SamplerState.HOLD_SAMPLE
+                    }
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         speed_decrease = 0.0
                         samplerState = SamplerState.HOLD_SAMPLE
@@ -156,6 +161,9 @@ class SpecTele: LinearOpMode() {
                     if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
                         samplerState = SamplerState.GRAB_SAMPLE
                     }
+                    if (intakeSpeed.velocity < intake_stalled) {
+                        samplerState = SamplerState.HOLD_SAMPLE
+                    }
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         speed_decrease = 0.0
                         samplerState = SamplerState.HOLD_SAMPLE
@@ -167,9 +175,15 @@ class SpecTele: LinearOpMode() {
                 SamplerState.GRAB_SPECIMEN -> {
                     sampler.grab_specimen()
                     lift.setPreset(Lift.Preset.SPEC_INTAKE)
-//                    if (intake servo has stalled){
-//                      sampler.HOLD_SPECIMEN
-//                    }
+                    if (intakeSpeed.velocity < intake_stalled) {
+                      samplerState = SamplerState.HOLD_SPECIMEN
+                    }
+                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
+                        samplerState = SamplerState.HOLD_SPECIMEN
+                    }
+                    if (currentGamepad2.x && !previousGamepad2.x) {
+                        samplerState = SamplerState.STOW
+                    }
                 }
                 SamplerState.HOLD_SPECIMEN -> {
                     lift.setPreset(Lift.Preset.SPEC_INTAKE)
@@ -250,8 +264,8 @@ class SpecTele: LinearOpMode() {
                         sampler.score_specimen()
                     }
                     if (samplerTimer.seconds() > 2.5) {
-                        lift.setPreset(Lift.Preset.BOTTOM)
                         samplerState = SamplerState.STOW
+                        lift.setPreset(Lift.Preset.BOTTOM)
                     }
                 }
                 SamplerState.SCORE_SPECIMEN_HIGH -> {
@@ -263,8 +277,8 @@ class SpecTele: LinearOpMode() {
                         sampler.score_specimen()
                     }
                     if (samplerTimer.seconds() > 2.5) {
-                        lift.setPreset(Lift.Preset.BOTTOM)
                         samplerState = SamplerState.STOW
+                        lift.setPreset(Lift.Preset.BOTTOM)
                     }
                 }
             }

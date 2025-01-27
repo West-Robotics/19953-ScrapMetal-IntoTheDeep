@@ -9,19 +9,17 @@ import com.scrapmetal.util.hardware.SMServo
 class Sampler(hardwareMap: HardwareMap) {
     private val extensionOne = SMServo(hardwareMap, "frontExt", 0.00, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
     private val extensionTwo = SMServo(hardwareMap, "backExt", 0.00, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
-
     // TODO: Make hardware private again
-    private val pitch = SMServo(hardwareMap, "pitch", 0.43, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
-    private val roll = SMServo(hardwareMap, "roll", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    val pitch = SMServo(hardwareMap, "pitch", 0.43, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    val roll = SMServo(hardwareMap, "roll", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
     private val intake = SMCRServo(hardwareMap, "intake", DcMotorSimple.Direction.REVERSE, SMCRServo.ModelPWM.AXON)
 
     // TODO: Determine values for specimen grabbing/ scoring, side sample grabbing (wrist/pivot)
-
     enum class State(val grabber: Double, val pivot: Double, val wrist: Double,  val linkage: Double) {
         EXTEND(0.00, 0.43, 0.0, 0.64),
         GRAB_SAMPLE(1.00, 0.12, 0.0, 0.64),
         GRAB_SAMPLE_SIDE(1.00, 0.00, 0.0, 0.68),
-        GRAB_SPECIMEN (1.00, 0.12, 0.0, 0.00),
+        GRAB_SPECIMEN (1.00, 0.12, 0.0, 0.68),
         SPIT(-1.00, 0.12, 0.0, 0.64),
         STOW(0.00, 0.43, 0.0, 0.03),
         HOLD(0.11, 0.43, 0.0, 0.03),
@@ -50,7 +48,6 @@ class Sampler(hardwareMap: HardwareMap) {
     fun grab_specimen() = setState(State.GRAB_SPECIMEN)
     fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)
-//    fun retract() = setState(State.RETRACT)
     fun hold() = setState(State.HOLD)
     fun score_sample() = setState(State.SCORE_SAMPLE)
     fun prepare_to_score_sample() = setState(State.PREPARE_TO_SCORE_SAMPLE)
