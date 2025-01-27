@@ -15,25 +15,25 @@ class Sampler(hardwareMap: HardwareMap) {
     private val intake = SMCRServo(hardwareMap, "intake", DcMotorSimple.Direction.REVERSE, SMCRServo.ModelPWM.AXON)
 
     // TODO: Determine values for specimen grabbing/ scoring, side sample grabbing (wrist/pivot)
-    enum class State(val grabber: Double, val pivot: Double, val wrist: Double,  val linkage: Double) {
+    enum class State(val grabber: Double, val pitch: Double, val roll: Double, val linkage: Double) {
         EXTEND(0.00, 0.43, 0.0, 0.64),
         GRAB_SAMPLE(1.00, 0.12, 0.0, 0.64),
-        GRAB_SAMPLE_SIDE(1.00, 0.00, 0.0, 0.68),
-        GRAB_SPECIMEN (1.00, 0.12, 0.0, 0.68),
+        GRAB_SAMPLE_SIDE(1.00, 0.00, 0.26, 0.68),
+        GRAB_SPECIMEN (1.00, 0.20, 0.26, 0.68),
         SPIT(-1.00, 0.12, 0.0, 0.64),
         STOW(0.00, 0.43, 0.0, 0.03),
         HOLD(0.11, 0.43, 0.0, 0.03),
         PREPARE_TO_SCORE_SAMPLE (0.10, 0.55, 0.0,0.00),
         SCORE_SAMPLE(-0.20, 0.55, 0.0,0.00),
-        PREPARE_TO_SCORE_SPECIMEN(-0.20, 0.55, 0.0,0.00),
-        SCORE_SPECIMEN(-0.20, 0.55, 0.0,0.00),
+        PREPARE_TO_SCORE_SPECIMEN(-0.20, 0.55, 0.77,0.00),
+        SCORE_SPECIMEN(-0.20, 0.55, 0.77,0.00),
         SCORE_FRONT(-1.0,0.2, 0.0,0.68),
     }
 
     // have continuous power (but less than intake) going during stow
     fun setState(state: State) {
         intake.effort = state.grabber
-        pitch.position = state.pivot
+        pitch.position = state.pitch
         extensionOne.position = state.linkage
         extensionTwo.position = state.linkage
     }
