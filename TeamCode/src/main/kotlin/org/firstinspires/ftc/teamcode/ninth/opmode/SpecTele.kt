@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.scrapmetal.util.hardware.SMAnalog
+import com.sfdev.assembly.state.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
@@ -31,8 +32,6 @@ class SpecTele: LinearOpMode() {
         SCORE_SPECIMEN_LOW,
         SCORE_SPECIMEN_HIGH,
     }
-    var samplerState = SamplerState.STOW
-    val samplerTimer = ElapsedTime()
     val sampleWait = 0.5
 
     var specHeights = false
@@ -58,8 +57,209 @@ class SpecTele: LinearOpMode() {
         var speed_decrease = 0.0
         var turn_decrease = 0.0
 
+        val fsm = StateMachineBuilder()
+            .state(SamplerState.STOW)
+            .onEnter {
+                sampler.stow()
+                speed_decrease = 0.0
+                turn_decrease = 0.0
+                sampHeights = false
+                specHeights = false
+            }
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
+                        && lift.getPreset() == Lift.Preset.BOTTOM },
+                SamplerState.EXTEND,
+            )
+            .transition(
+                { currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8
+                        && lift.getPreset() == Lift.Preset.BOTTOM },
+                SamplerState.GRAB_SPECIMEN,
+            )
+
+            .state(SamplerState.EXTEND)
+            .onEnter {
+                sampler.extend()
+                speed_decrease = 0.0
+                turn_decrease = 1.5
+            }
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
+                SamplerState.GRAB_SAMPLE,
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.GRAB_SAMPLE)
+            .onEnter {
+                sampler.grab_sample()
+                speed_decrease = 0.75
+                turn_decrease = 1.5
+            }
+            .transition(
+                { intakeSpeed.velocity < intake_stalled },
+                SamplerState.HOLD_SAMPLE,
+                { speed_decrease = 0.0 },
+            )
+            /* no clue if this right (i think it is)
+               (it should only apply to this state and nominal transitions under the minimum
+               time and shouldn't cause a transition after the minimum time)
+             */
+            .minimumTransitionTimed(0.25, 1)
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
+                SamplerState.HOLD_SAMPLE,
+                { speed_decrease = 0.0 },
+            )
+            .transition(
+                { currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 },
+                SamplerState.GRAB_SAMPLE_SIDE,
+            )
+            .transition(
+                { currentGamepad1.right_bumper && !previousGamepad1.right_bumper },
+                SamplerState.SPIT,
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.GRAB_SAMPLE_SIDE)
+            .onEnter { sampler.grab_sample_side() }
+            .transition(
+                { currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 },
+                SamplerState.GRAB_SAMPLE,
+            )
+            .transition(
+                { intakeSpeed.velocity < intake_stalled },
+                SamplerState.HOLD_SAMPLE,
+            )
+            .minimumTransitionTimed(0.25, 2) // no clue if this is right
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
+                SamplerState.HOLD_SAMPLE,
+                { speed_decrease = 0.0 },
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.GRAB_SPECIMEN)
+            // WARNING: .setPreset() can't be used in a loop
+            .onEnter { sampler.extend(); lift.setPreset(Lift.Preset.SPEC_INTAKE) }
+            .afterTime(0.7) { sampler.grab_specimen() }
+            .transition(
+                { intakeSpeed.velocity < intake_stalled },
+                SamplerState.HOLD_SPECIMEN,
+            )
+            .minimumTransitionTimed(0.25, 1) // no clue if this is right
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
+                        && lift.getPreset() == Lift.Preset.BOTTOM },
+                SamplerState.HOLD_SPECIMEN,
+            )
+            // QUESTION: should this transition also include lowering the lift?
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.HOLD_SPECIMEN)
+            // QUESTION: i don't think we need the .setPreset() here since we're already at the position
+            // (and it's not the looping function which is .updateProfiled())
+            // perhaps this state should first raise the lift, then after some time (using .afterTime)
+            // retract to the hold position? also, does the specimen fit through the robot sideways?
+            // if not, we might need a special spec hold position with roll at 90 deg
+            .onEnter { sampler.hold(); specHeights = true; lift.setPreset(Lift.Preset.SPEC_INTAKE) }
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
+                SamplerState.PREPARE_TO_SCORE_SPECIMEN,
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.SPIT)
+            // NOTE: maybe we should make the various preset speed decreases variables
+            .onEnter { sampler.spit(); speed_decrease = 0.75; turn_decrease = 1.5 }
+            .transitionTimed(sampleWait, SamplerState.GRAB_SAMPLE)
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW
+            )
+
+            .state(SamplerState.HOLD_SAMPLE)
+            .onEnter { sampler.hold(); sampHeights = true; turn_decrease = 0.0 }
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
+                SamplerState.SCORE_SAMPLE,
+            )
+            .transition(
+                { currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 },
+                SamplerState.SPIT,
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.SCORE_SAMPLE)
+            .onEnter { sampler.score_sample(); sampHeights = true;
+                // WARNING: this should probably be changed so that speed decrease only resets once lift lowers
+                speed_decrease = 0.0
+                turn_decrease = 0.0
+            }
+            .transitionTimed(sampleWait, SamplerState.STOW)
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
+                SamplerState.STOW,
+                { lift.setPreset(Lift.Preset.BOTTOM) }
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.PREPARE_TO_SCORE_SPECIMEN)
+            .onEnter { sampler.prepare_to_score_specimen(); sampHeights = true }
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
+                        && lift.getPreset() == Lift.Preset.LOW },
+                SamplerState.SCORE_SPECIMEN_LOW,
+            )
+            .transition(
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
+                        && lift.getPreset() == Lift.Preset.HIGH },
+                SamplerState.SCORE_SPECIMEN_HIGH,
+            )
+            .transition(
+                { currentGamepad2.x && !previousGamepad2.x },
+                // how would we eject an unwanted spec?
+                SamplerState.STOW,
+            )
+
+            .state(SamplerState.SCORE_SPECIMEN_LOW)
+            // could this be immediate instead?
+            .afterTime(1.5) { lift.setPreset(Lift.Preset.SPEC_LOW_SCORE) }
+            // is after time always from beginning of state or does it count from previous after time? presumably the former
+            .afterTime(2.0) { sampler.score_specimen() }
+            // we might want the lift to go spec intake instead assuming we're doing chaining
+            .transitionTimed(2.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.BOTTOM) }
+
+            .state(SamplerState.SCORE_SPECIMEN_HIGH)
+            .afterTime(1.5) { lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE) }
+            .afterTime(2.0) { sampler.score_specimen() }
+            .transitionTimed(2.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.BOTTOM) }
+
+            .build()
+
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
+        fsm.start()
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
             previousGamepad2.copy(currentGamepad2)
@@ -109,187 +309,7 @@ class SpecTele: LinearOpMode() {
 
             // sampler
             // TODO Add auto-retraction based on analog intake output and localization
-            when (samplerState) {
-                SamplerState.STOW -> {
-                    sampler.stow()
-                    speed_decrease = 0.0
-                    turn_decrease = 0.0
-                    sampHeights = false
-                    specHeights = false
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
-                        samplerState = SamplerState.EXTEND
-                    }
-                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
-                        samplerTimer.reset()
-                        samplerState = SamplerState.GRAB_SPECIMEN
-                    }
-                }
-                SamplerState.EXTEND -> {
-                    sampler.extend()
-                    speed_decrease = 0.0
-                    turn_decrease = 1.5
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        samplerState = SamplerState.GRAB_SAMPLE
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.GRAB_SAMPLE -> {
-                    sampler.grab_sample()
-                    speed_decrease = 0.75
-                    turn_decrease = 1.5
-                    if (intakeSpeed.velocity < intake_stalled) {
-                        speed_decrease = 0.0
-                        samplerState = SamplerState.HOLD_SAMPLE
-                    }
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        speed_decrease = 0.0
-                        samplerState = SamplerState.HOLD_SAMPLE
-                    }
-                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
-                        samplerState = SamplerState.GRAB_SAMPLE_SIDE
-                    }
-                    if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
-                        samplerTimer.reset()
-                        samplerState = SamplerState.SPIT
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.GRAB_SAMPLE_SIDE -> {
-                    sampler.grab_sample_side()
-                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
-                        samplerState = SamplerState.GRAB_SAMPLE
-                    }
-                    if (intakeSpeed.velocity < intake_stalled) {
-                        samplerState = SamplerState.HOLD_SAMPLE
-                    }
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        speed_decrease = 0.0
-                        samplerState = SamplerState.HOLD_SAMPLE
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.GRAB_SPECIMEN -> {
-                    if (samplerTimer.seconds() < 0.7) {
-                        sampler.extend()
-                    }
-                    if (samplerTimer.seconds() > 0.7) {
-                        sampler.grab_specimen()
-                    }
-                    sampler.grab_specimen()
-                    lift.setPreset(Lift.Preset.SPEC_INTAKE)
-//                    if (intakeSpeed.velocity < intake_stalled) {
-//                      samplerState = SamplerState.HOLD_SPECIMEN
-//                    }
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 && lift.getPreset() == Lift.Preset.BOTTOM) {
-                        samplerState = SamplerState.HOLD_SPECIMEN
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.HOLD_SPECIMEN -> {
-                    lift.setPreset(Lift.Preset.SPEC_INTAKE)
-                    sampler.hold()
-                    specHeights = true
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        samplerState = SamplerState.PREPARE_TO_SCORE_SPECIMEN
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.SPIT -> {
-                    speed_decrease = 0.75
-                    turn_decrease = 1.5
-                    sampler.spit()
-                    if (samplerTimer.seconds() >= sampleWait) {
-                        samplerState = SamplerState.GRAB_SAMPLE
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.HOLD_SAMPLE -> {
-                    sampler.hold()
-                    sampHeights = true
-                    turn_decrease = 0.0
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        samplerTimer.reset()
-                        samplerState = SamplerState.SCORE_SAMPLE
-                    }
-                    if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
-                        samplerTimer.reset()
-                        samplerState = SamplerState.SPIT
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.SCORE_SAMPLE -> {
-                    sampler.score_sample()
-                    sampHeights = true
-                    if (samplerTimer.seconds() >= sampleWait) {
-                        samplerState = SamplerState.STOW
-                    }
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        lift.setPreset(Lift.Preset.BOTTOM)
-                        samplerState = SamplerState.STOW
-                    }
-                    speed_decrease = 0.0
-                    turn_decrease = 0.0
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                // Not sure if this state is necessary, iuli put it in the control scheme
-                SamplerState.PREPARE_TO_SCORE_SPECIMEN -> {
-                    sampHeights = true
-                    sampler.prepare_to_score_specimen()
-                    if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
-                        if (lift.getPreset() == Lift.Preset.LOW) {
-                            samplerTimer.reset()
-                            samplerState = SamplerState.SCORE_SPECIMEN_LOW
-                        }
-                        if (lift.getPreset() == Lift.Preset.HIGH) {
-                            samplerTimer.reset()
-                            samplerState = SamplerState.SCORE_SPECIMEN_HIGH
-                        }
-                    }
-                    if (currentGamepad2.x && !previousGamepad2.x) {
-                        samplerState = SamplerState.STOW
-                    }
-                }
-                SamplerState.SCORE_SPECIMEN_LOW -> {
-                    if (samplerTimer.seconds() > 1.5) {
-                        lift.setPreset(Lift.Preset.SPEC_LOW_SCORE)
-                    }
-                    if (samplerTimer.seconds() > 2.0) {
-                        sampler.score_specimen()
-                    }
-                    if (samplerTimer.seconds() > 2.5) {
-                        samplerState = SamplerState.STOW
-                        lift.setPreset(Lift.Preset.BOTTOM)
-                    }
-                }
-                SamplerState.SCORE_SPECIMEN_HIGH -> {
-                    if (samplerTimer.seconds() > 1.5) {
-                        lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE)
-                    }
-                    if (samplerTimer.seconds() > 2.0) {
-                        sampler.score_specimen()
-                    }
-                    if (samplerTimer.seconds() > 2.5) {
-                        samplerState = SamplerState.STOW
-                        lift.setPreset(Lift.Preset.BOTTOM)
-                    }
-                }
-            }
+            fsm.update()
 
             drivetrain.write()
             lift.write()
@@ -302,7 +322,7 @@ class SpecTele: LinearOpMode() {
 //            telemetry.addLine("               ")
             telemetry.addLine("LIFT reset - g2 dpad up + left stick up")
             telemetry.addLine("               ")
-            telemetry.addData("state", samplerState)
+            telemetry.addData("state", fsm.state)
 //            telemetry.addData("turn", gamepad1.right_stick_x)
             telemetry.addData("height", lift.getHeight())
 //            telemetry.addData("left current", lift.leftCurrent())
