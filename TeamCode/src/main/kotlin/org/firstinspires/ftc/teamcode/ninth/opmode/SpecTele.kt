@@ -151,6 +151,7 @@ class SpecTele: LinearOpMode() {
                         samplerState = SamplerState.GRAB_SAMPLE_SIDE
                     }
                     if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper) {
+                        samplerTimer.reset()
                         samplerState = SamplerState.SPIT
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
@@ -180,6 +181,7 @@ class SpecTele: LinearOpMode() {
                     if (samplerTimer.seconds() > 0.7) {
                         sampler.grab_specimen()
                     }
+                    sampler.grab_specimen()
                     lift.setPreset(Lift.Preset.SPEC_INTAKE)
 //                    if (intakeSpeed.velocity < intake_stalled) {
 //                      samplerState = SamplerState.HOLD_SPECIMEN
@@ -205,7 +207,6 @@ class SpecTele: LinearOpMode() {
                 SamplerState.SPIT -> {
                     speed_decrease = 0.75
                     turn_decrease = 1.5
-                    samplerTimer.reset()
                     sampler.spit()
                     if (samplerTimer.seconds() >= sampleWait) {
                         samplerState = SamplerState.GRAB_SAMPLE
@@ -219,9 +220,11 @@ class SpecTele: LinearOpMode() {
                     sampHeights = true
                     turn_decrease = 0.0
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
+                        samplerTimer.reset()
                         samplerState = SamplerState.SCORE_SAMPLE
                     }
                     if (currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8) {
+                        samplerTimer.reset()
                         samplerState = SamplerState.SPIT
                     }
                     if (currentGamepad2.x && !previousGamepad2.x) {
@@ -231,7 +234,6 @@ class SpecTele: LinearOpMode() {
                 SamplerState.SCORE_SAMPLE -> {
                     sampler.score_sample()
                     sampHeights = true
-                    samplerTimer.reset()
                     if (samplerTimer.seconds() >= sampleWait) {
                         samplerState = SamplerState.STOW
                     }
@@ -251,9 +253,11 @@ class SpecTele: LinearOpMode() {
                     sampler.prepare_to_score_specimen()
                     if (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8) {
                         if (lift.getPreset() == Lift.Preset.LOW) {
+                            samplerTimer.reset()
                             samplerState = SamplerState.SCORE_SPECIMEN_LOW
                         }
                         if (lift.getPreset() == Lift.Preset.HIGH) {
+                            samplerTimer.reset()
                             samplerState = SamplerState.SCORE_SPECIMEN_HIGH
                         }
                     }
@@ -262,7 +266,6 @@ class SpecTele: LinearOpMode() {
                     }
                 }
                 SamplerState.SCORE_SPECIMEN_LOW -> {
-                    samplerTimer.reset()
                     if (samplerTimer.seconds() > 1.5) {
                         lift.setPreset(Lift.Preset.SPEC_LOW_SCORE)
                     }
@@ -275,7 +278,6 @@ class SpecTele: LinearOpMode() {
                     }
                 }
                 SamplerState.SCORE_SPECIMEN_HIGH -> {
-                    samplerTimer.reset()
                     if (samplerTimer.seconds() > 1.5) {
                         lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE)
                     }
