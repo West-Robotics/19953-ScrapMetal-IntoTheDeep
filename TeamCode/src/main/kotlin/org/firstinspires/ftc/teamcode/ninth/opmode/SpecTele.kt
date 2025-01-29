@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
-import com.qualcomm.robotcore.util.ElapsedTime
 import com.scrapmetal.util.hardware.SMAnalog
 import com.sfdev.assembly.state.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
@@ -48,7 +47,8 @@ class SpecTele: LinearOpMode() {
         val sampler = Sampler(hardwareMap)
         val intakeSpeed = SMAnalog(hardwareMap, "intakeEnc")
 
-        val intake_stalled = 5.0
+        val intake_stalled = 2.0
+        val retract_wait = 1.0
 
         var manual = false
 //        lift.setPreset(Lift.Preset.LOW)
@@ -99,20 +99,22 @@ class SpecTele: LinearOpMode() {
                 turn_decrease = 1.5
             }
             .transition(
-                { intakeSpeed.velocity < intake_stalled },
+                { intakeSpeed.speed < intake_stalled },
                 SamplerState.HOLD_SAMPLE,
                 { speed_decrease = 0.0 },
             )
+            .minimumTransitionTimed(retract_wait, 1) // no clue if this is right
+
             /* no clue if this right (i think it is)
                (it should only apply to this state and nominal transitions under the minimum
                time and shouldn't cause a transition after the minimum time)
              */
-            .minimumTransitionTimed(0.25, 1)
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.HOLD_SAMPLE,
                 { speed_decrease = 0.0 },
             )
+            .minimumTransitionTimed(0.25, 2)
             .transition(
                 { currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 },
                 SamplerState.GRAB_SAMPLE_SIDE,
@@ -133,15 +135,16 @@ class SpecTele: LinearOpMode() {
                 SamplerState.GRAB_SAMPLE,
             )
             .transition(
-                { intakeSpeed.velocity < intake_stalled },
+                { intakeSpeed.speed < intake_stalled },
                 SamplerState.HOLD_SAMPLE,
             )
-            .minimumTransitionTimed(0.25, 2) // no clue if this is right
+            .minimumTransitionTimed(retract_wait, 2) // no clue if this is right
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.HOLD_SAMPLE,
                 { speed_decrease = 0.0 },
             )
+            .minimumTransitionTimed(0.25, 3) // no clue if this is right
             .transition(
                 { currentGamepad2.x && !previousGamepad2.x },
                 SamplerState.STOW,
@@ -152,15 +155,16 @@ class SpecTele: LinearOpMode() {
             .onEnter { sampler.extend(); lift.setPreset(Lift.Preset.SPEC_INTAKE) }
             .afterTime(0.7) { sampler.grab_specimen() }
             .transition(
-                { intakeSpeed.velocity < intake_stalled },
+                { intakeSpeed.speed < intake_stalled },
                 SamplerState.HOLD_SPECIMEN,
             )
-            .minimumTransitionTimed(0.25, 1) // no clue if this is right
+            .minimumTransitionTimed(retract_wait, 1) // no clue if this is right
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
                         && lift.getPreset() == Lift.Preset.BOTTOM },
                 SamplerState.HOLD_SPECIMEN,
             )
+            .minimumTransitionTimed(0.25, 2) // no clue if this is right
             // QUESTION: should this transition also include lowering the lift?
             .transition(
                 { currentGamepad2.x && !previousGamepad2.x },
@@ -243,17 +247,16 @@ class SpecTele: LinearOpMode() {
             )
 
             .state(SamplerState.SCORE_SPECIMEN_LOW)
-            // could this be immediate instead?
-            .afterTime(1.5) { lift.setPreset(Lift.Preset.SPEC_LOW_SCORE) }
+            .onEnter() { lift.setPreset(Lift.Preset.SPEC_LOW_SCORE) }
             // is after time always from beginning of state or does it count from previous after time? presumably the former
-            .afterTime(2.0) { sampler.score_specimen() }
+            .afterTime(1.0) { sampler.score_specimen() }
             // we might want the lift to go spec intake instead assuming we're doing chaining
-            .transitionTimed(2.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.BOTTOM) }
+            .transitionTimed(1.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.BOTTOM) }
 
             .state(SamplerState.SCORE_SPECIMEN_HIGH)
-            .afterTime(1.5) { lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE) }
-            .afterTime(2.0) { sampler.score_specimen() }
-            .transitionTimed(2.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.BOTTOM) }
+            .onEnter() { lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE) }
+            .afterTime(1.0) { sampler.score_specimen() }
+            .transitionTimed(1.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.BOTTOM) }
 
             .build()
 
@@ -325,8 +328,8 @@ class SpecTele: LinearOpMode() {
             telemetry.addData("state", fsm.state)
 //            telemetry.addData("turn", gamepad1.right_stick_x)
             telemetry.addData("height", lift.getHeight())
-//            telemetry.addData("left current", lift.leftCurrent())
-//            telemetry.addData("right current", lift.rightCurrent())
+            telemetry.addData("intake velocity", intakeSpeed.speed)
+            telemetry.addData("intake voltage", intakeSpeed.getVoltage)
 //            telemetry.addData("total current", lift.leftCurrent() + lift.rightCurrent())
             telemetry.update()
         }

@@ -7,7 +7,7 @@
             <goBILDA5202SeriesMotor name="backLeft" port="2" />
             <goBILDA5202SeriesMotor name="frontLeft" port="3" />
             <goBILDAPinpoint name="pinpoint" port="0" bus="0" />
-            <AnalogInput name="intakeEnc" port="0" />
+            <AnalogInput name="intakeEnc" port="1" />
         </LynxModule>
         <LynxModule name="Expansion Hub 1" port="1">
             <goBILDA5202SeriesMotor name="rightLift" port="0" />
