@@ -16,9 +16,9 @@ class Sampler(hardwareMap: HardwareMap) {
 
     // TODO: Determine values for specimen grabbing/ scoring, side sample grabbing (wrist/pivot)
     enum class State(val grabber: Double, val pitch: Double, val roll: Double, val linkage: Double) {
-        EXTEND(0.00, 0.43, 0.0, 0.64),
-        GRAB_SAMPLE(1.00, 0.12, 0.0, 0.64),
-        GRAB_SAMPLE_SIDE(1.00, 0.12, 0.26, 0.64),
+        EXTEND(0.00, 0.43, 0.00, 0.64),
+        GRAB_SAMPLE(1.00, 0.12, 0.00, 0.64),
+        GRAB_SAMPLE_SIDE(-1.00, 0.12, 0.26, 0.64),
         GRAB_SPECIMEN (1.00, 0.20, 0.26, 0.64),
         SPIT(-1.00, 0.12, 0.0, 0.64),
         STOW(0.00, 0.43, 0.0, 0.03),

@@ -103,12 +103,7 @@ class SpecTele: LinearOpMode() {
                 SamplerState.HOLD_SAMPLE,
                 { speed_decrease = 0.0 },
             )
-            .minimumTransitionTimed(retract_wait, 1) // no clue if this is right
-
-            /* no clue if this right (i think it is)
-               (it should only apply to this state and nominal transitions under the minimum
-               time and shouldn't cause a transition after the minimum time)
-             */
+            .minimumTransitionTimed(retract_wait, 1)
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.HOLD_SAMPLE,
@@ -138,13 +133,13 @@ class SpecTele: LinearOpMode() {
                 { intakeSpeed.speed < intake_stalled },
                 SamplerState.HOLD_SAMPLE,
             )
-            .minimumTransitionTimed(retract_wait, 2) // no clue if this is right
+            .minimumTransitionTimed(retract_wait, 2)
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.HOLD_SAMPLE,
                 { speed_decrease = 0.0 },
             )
-            .minimumTransitionTimed(0.25, 3) // no clue if this is right
+            .minimumTransitionTimed(0.25, 3)
             .transition(
                 { currentGamepad2.x && !previousGamepad2.x },
                 SamplerState.STOW,
@@ -158,13 +153,12 @@ class SpecTele: LinearOpMode() {
                 { intakeSpeed.speed < intake_stalled },
                 SamplerState.HOLD_SPECIMEN,
             )
-            .minimumTransitionTimed(retract_wait, 1) // no clue if this is right
+            .minimumTransitionTimed(retract_wait, 1)
             .transition(
-                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
-                        && lift.getPreset() == Lift.Preset.BOTTOM },
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.HOLD_SPECIMEN,
             )
-            .minimumTransitionTimed(0.25, 2) // no clue if this is right
+            .minimumTransitionTimed(0.25, 2)
             // QUESTION: should this transition also include lowering the lift?
             .transition(
                 { currentGamepad2.x && !previousGamepad2.x },

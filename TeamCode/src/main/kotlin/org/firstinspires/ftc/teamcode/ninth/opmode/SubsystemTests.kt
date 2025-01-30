@@ -99,21 +99,21 @@ class SubsystemTests : LinearOpMode() {
 //                extensionAmount = 0.68
 //            }
 
-//            if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
-//                grab_spec += 0.01
-//            }
-//            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
-//                grab_spec -= 0.01
-//            }
-//            sampler.pitch.position = grab_spec
-//
-//            if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
-//                grab_wrist += 0.01
-//            }
-//            if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
-//                grab_wrist -= 0.01
-//            }
-//            sampler.roll.position = grab_wrist
+            if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
+                grab_spec += 0.01
+            }
+            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
+                grab_spec -= 0.01
+            }
+            sampler.pitch.position = grab_spec
+
+            if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
+                grab_wrist += 0.01
+            }
+            if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
+                grab_wrist -= 0.01
+            }
+            sampler.roll.position = grab_wrist
 
             sampler.write()
 
