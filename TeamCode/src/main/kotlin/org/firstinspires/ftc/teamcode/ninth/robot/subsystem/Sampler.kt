@@ -25,7 +25,7 @@ class Sampler(hardwareMap: HardwareMap) {
         HOLD(0.11, 0.43, 0.0, 0.03),
         PREPARE_TO_SCORE_SAMPLE (0.10, 0.55, 0.0,0.00),
         SCORE_SAMPLE(-0.20, 0.55, 0.0,0.00),
-        PREPARE_TO_SCORE_SPECIMEN(-0.20, 0.55, 0.77,0.00),
+        PREPARE_TO_SCORE_SPECIMEN(0.11, 0.69, 0.77,0.00),
         SCORE_SPECIMEN(-0.20, 0.55, 0.77,0.00),
         SCORE_FRONT(-1.0,0.2, 0.0,0.64),
     }
@@ -34,6 +34,7 @@ class Sampler(hardwareMap: HardwareMap) {
     fun setState(state: State) {
         intake.effort = state.grabber
         pitch.position = state.pitch
+        roll.position = state.roll
         extensionOne.position = state.linkage
         extensionTwo.position = state.linkage
     }

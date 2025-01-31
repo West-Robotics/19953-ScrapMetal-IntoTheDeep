@@ -171,7 +171,7 @@ class SpecTele: LinearOpMode() {
             // perhaps this state should first raise the lift, then after some time (using .afterTime)
             // retract to the hold position? also, does the specimen fit through the robot sideways?
             // if not, we might need a special spec hold position with roll at 90 deg
-            .onEnter { sampler.hold(); specHeights = true; lift.setPreset(Lift.Preset.SPEC_INTAKE) }
+            .onEnter { sampler.hold(); specHeights = true }
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.PREPARE_TO_SCORE_SPECIMEN,
@@ -223,15 +223,15 @@ class SpecTele: LinearOpMode() {
             )
 
             .state(SamplerState.PREPARE_TO_SCORE_SPECIMEN)
-            .onEnter { sampler.prepare_to_score_specimen(); sampHeights = true }
+            .onEnter { sampler.prepare_to_score_specimen(); sampHeights = true; lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE); }
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
-                        && lift.getPreset() == Lift.Preset.LOW },
+                        && lift.getPreset() == Lift.Preset.SPEC_LOW },
                 SamplerState.SCORE_SPECIMEN_LOW,
             )
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
-                        && lift.getPreset() == Lift.Preset.HIGH },
+                        && lift.getPreset() == Lift.Preset.SPEC_HIGH },
                 SamplerState.SCORE_SPECIMEN_HIGH,
             )
             .transition(
