@@ -48,7 +48,7 @@ class SpecTele: LinearOpMode() {
         val intakeSpeed = SMAnalog(hardwareMap, "intakeEnc")
 
         val intake_stalled = 2.0
-        val retract_wait = 1.0
+        val retract_wait = 2.0
 
         var manual = false
 //        lift.setPreset(Lift.Preset.LOW)
@@ -148,7 +148,7 @@ class SpecTele: LinearOpMode() {
             .state(SamplerState.GRAB_SPECIMEN)
             // WARNING: .setPreset() can't be used in a loop
             .onEnter { sampler.extend(); lift.setPreset(Lift.Preset.SPEC_INTAKE) }
-            .afterTime(0.7) { sampler.grab_specimen() }
+            .afterTime(1.0) { sampler.grab_specimen() }
             .transition(
                 { intakeSpeed.speed < intake_stalled },
                 SamplerState.HOLD_SPECIMEN,
@@ -171,7 +171,7 @@ class SpecTele: LinearOpMode() {
             // perhaps this state should first raise the lift, then after some time (using .afterTime)
             // retract to the hold position? also, does the specimen fit through the robot sideways?
             // if not, we might need a special spec hold position with roll at 90 deg
-            .onEnter { sampler.hold(); specHeights = true }
+            .onEnter { sampler.hold_specimen(); specHeights = true }
             .transition(
                 { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
                 SamplerState.PREPARE_TO_SCORE_SPECIMEN,
@@ -241,7 +241,7 @@ class SpecTele: LinearOpMode() {
             )
 
             .state(SamplerState.SCORE_SPECIMEN_LOW)
-            .onEnter() { lift.setPreset(Lift.Preset.SPEC_LOW_SCORE) }
+            .onEnter { lift.setPreset(Lift.Preset.SPEC_LOW_SCORE) }
             // is after time always from beginning of state or does it count from previous after time? presumably the former
             .afterTime(1.0) { sampler.score_specimen() }
             // we might want the lift to go spec intake instead assuming we're doing chaining

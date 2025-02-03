@@ -23,10 +23,11 @@ class Sampler(hardwareMap: HardwareMap) {
         SPIT(-1.00, 0.12, 0.0, 0.64),
         STOW(0.00, 0.43, 0.0, 0.03),
         HOLD(0.11, 0.43, 0.0, 0.03),
-        PREPARE_TO_SCORE_SAMPLE (0.10, 0.55, 0.0,0.00),
+        HOLD_SPECIMEN(0.11, 0.43, 0.26, 0.03),
+        PREPARE_TO_SCORE_SAMPLE (0.40, 0.55, 0.0,0.00),
         SCORE_SAMPLE(-0.20, 0.55, 0.0,0.00),
-        PREPARE_TO_SCORE_SPECIMEN(0.11, 0.69, 0.77,0.00),
-        SCORE_SPECIMEN(-0.20, 0.55, 0.77,0.00),
+        PREPARE_TO_SCORE_SPECIMEN(0.11, 0.68, 0.77,0.00),
+        SCORE_SPECIMEN(-0.20, 0.68, 0.77,0.00),
         SCORE_FRONT(-1.0,0.2, 0.0,0.64),
     }
 
@@ -50,6 +51,7 @@ class Sampler(hardwareMap: HardwareMap) {
     fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)
     fun hold() = setState(State.HOLD)
+    fun hold_specimen() = setState(State.HOLD_SPECIMEN)
     fun score_sample() = setState(State.SCORE_SAMPLE)
     fun prepare_to_score_sample() = setState(State.PREPARE_TO_SCORE_SAMPLE)
     fun prepare_to_score_specimen() = setState(State.PREPARE_TO_SCORE_SPECIMEN)

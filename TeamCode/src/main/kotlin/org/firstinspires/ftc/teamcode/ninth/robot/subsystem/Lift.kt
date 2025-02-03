@@ -62,9 +62,9 @@ class Lift(hardwareMap: HardwareMap, val voltageMultiplier: Double = 1.0) {
             MPConstraints(
                 mpStart,
                 preset.height,
+                500.0,
                 70.0,
-                70.0,
-                70.0
+                100.0
             ),
             mpTimer.seconds()
         )
@@ -86,10 +86,10 @@ class Lift(hardwareMap: HardwareMap, val voltageMultiplier: Double = 1.0) {
         HIGH(43.0 - 7.0 - 0.25),
         RAISE_HANG(32.0),
         PULL_HANG(16.0),
-        SPEC_INTAKE(12.0 - 7.0 + 1.5),
+        SPEC_INTAKE(12.0 - 7.0 + 0.0),
         SPEC_LOW(13.0 - 7.0 + 1.5 +  2.0),
         SPEC_LOW_SCORE(9.5 - 3.0),
         SPEC_HIGH(26.0 - 7.0 + 1.5 + 2.0),
-        SPEC_HIGH_SCORE(22.5),
+        SPEC_HIGH_SCORE(19.5),
     }
 }
