@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ninth.opmode
+package org.firstinspires.ftc.teamcode.ninth.opmode.tele
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
@@ -40,7 +40,7 @@ class SampTele: LinearOpMode() {
         val lift = Lift(hardwareMap, (nominalVoltage / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         val sampler = Sampler(hardwareMap)
 
-        var desiredPos = Lift.Preset.LOW
+        var desiredPos = Lift.Preset.SAMP_LOW
         var manual = false
 //        lift.setPreset(Lift.Preset.LOW)
         lift.setPreset(Lift.Preset.BOTTOM)
@@ -66,8 +66,8 @@ class SampTele: LinearOpMode() {
 
             // lift
             if (currentGamepad2.a && !previousGamepad2.a) { lift.setPreset(Lift.Preset.BOTTOM) ; speed_decrease = 0.0 }
-            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.LOW) ; speed_decrease = 0.0 }
-            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.HIGH) ; speed_decrease = 1.0 }
+            if (currentGamepad2.b && !previousGamepad2.b) { lift.setPreset(Lift.Preset.SAMP_LOW) ; speed_decrease = 0.0 }
+            if (currentGamepad2.y && !previousGamepad2.y) { lift.setPreset(Lift.Preset.SAMP_HIGH) ; speed_decrease = 1.0 }
             if (currentGamepad2.left_trigger > 0.8 &&
                 currentGamepad2.right_trigger > 0.8 &&
                 currentGamepad2.dpad_up &&

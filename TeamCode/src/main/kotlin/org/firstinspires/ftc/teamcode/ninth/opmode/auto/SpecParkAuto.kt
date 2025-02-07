@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ninth.opmode
+package org.firstinspires.ftc.teamcode.ninth.opmode.auto
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode

@@ -14,24 +14,23 @@ class Sampler(hardwareMap: HardwareMap) {
     val roll = SMServo(hardwareMap, "roll", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
     private val intake = SMCRServo(hardwareMap, "intake", DcMotorSimple.Direction.REVERSE, SMCRServo.ModelPWM.AXON)
 
-    // TODO: Determine values for specimen grabbing/ scoring, side sample grabbing (wrist/pivot)
     enum class State(val grabber: Double, val pitch: Double, val roll: Double, val linkage: Double) {
-        EXTEND(0.00, 0.43, 0.00, 0.64),
-        GRAB_SAMPLE(1.00, 0.12, 0.00, 0.64),
-        GRAB_SAMPLE_SIDE(-1.00, 0.12, 0.26, 0.64),
-        GRAB_SPECIMEN (1.00, 0.20, 0.26, 0.64),
-        SPIT(-1.00, 0.12, 0.0, 0.64),
-        STOW(0.00, 0.43, 0.0, 0.03),
-        HOLD(0.11, 0.43, 0.0, 0.03),
-        HOLD_SPECIMEN(0.11, 0.43, 0.26, 0.03),
-        PREPARE_TO_SCORE_SAMPLE (0.40, 0.55, 0.0,0.00),
-        SCORE_SAMPLE(-0.20, 0.55, 0.0,0.00),
-        PREPARE_TO_SCORE_SPECIMEN(0.11, 0.68, 0.77,0.00),
-        SCORE_SPECIMEN(-0.20, 0.68, 0.77,0.00),
-        SCORE_FRONT(-1.0,0.2, 0.0,0.64),
+        EXTEND                      ( 0.00, 0.43, 0.51, 0.64),
+        GRAB_SAMPLE                 ( 1.00, 0.12, 0.51, 0.64),
+        GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.06, 0.25, 0.64),
+        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.06, 0.76, 0.64),
+        GRAB_SPECIMEN               ( 1.00, 0.20, 0.75, 0.64),
+        SPIT                        (-1.00, 0.12, 0.51, 0.64),
+        STOW                        ( 0.00, 0.43, 0.51, 0.03),
+        HOLD                        ( 0.11, 0.43, 0.51, 0.03),
+        HOLD_SPECIMEN               ( 0.20, 0.43, 0.25, 0.03),
+        PREPARE_TO_SCORE_SAMPLE     ( 0.11, 0.62, 0.51, 0.03),
+        SCORE_SAMPLE                (-0.20, 0.62, 0.51, 0.03),
+        PREPARE_TO_SCORE_SPECIMEN   ( 0.20, 0.68, 0.25, 0.03),
+        SCORE_SPECIMEN              (-0.20, 0.68, 0.25, 0.03),
+        SCORE_FRONT                 (-1.00, 0.20, 0.51, 0.64),
     }
 
-    // have continuous power (but less than intake) going during stow
     fun setState(state: State) {
         intake.effort = state.grabber
         pitch.position = state.pitch
@@ -46,7 +45,8 @@ class Sampler(hardwareMap: HardwareMap) {
 
     fun extend() = setState(State.EXTEND)
     fun grab_sample() = setState(State.GRAB_SAMPLE)
-    fun grab_sample_side() = setState(State.GRAB_SAMPLE_SIDE)
+    fun grab_sample_left_side() = setState(State.GRAB_SAMPLE_LEFT_SIDE)
+    fun grab_sample_right_side() = setState(State.GRAB_SAMPLE_RIGHT_SIDE)
     fun grab_specimen() = setState(State.GRAB_SPECIMEN)
     fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)

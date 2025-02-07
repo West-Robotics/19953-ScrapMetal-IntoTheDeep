@@ -1,11 +1,7 @@
-package org.firstinspires.ftc.teamcode.ninth.opmode
+package org.firstinspires.ftc.teamcode.ninth.opmode.auto
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
-import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
-import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 
 @Autonomous(name = "0+1")
 class SampAuto: LinearOpMode() {
