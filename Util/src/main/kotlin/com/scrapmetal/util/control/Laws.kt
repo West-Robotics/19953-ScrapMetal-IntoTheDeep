@@ -24,15 +24,14 @@ fun feedforward(ff: (Double) -> Double, state: Double) = ff(state)
  * Linearly constrain the [input] effort between the minimum [min] and the maximum [max] once
  * outside the [deadzone]. Below [deadzone], effort scales linearly between 0 and [min].
  */
-fun constrainEffort(
-    input: Double,
+fun Double.constrainEffort(
     min: Double,
     max: Double,
     deadzone: Double,
-) = when {
-    abs(input) > deadzone
-        -> (max - min) / (max - deadzone) *
-           (input - sign(input) * deadzone) +
-           sign(input) * min
-    else -> input * min / deadzone
+) = if (abs(this) > deadzone) {
+    (max - min) / (max - deadzone) *
+        (this - sign(this) * deadzone) +
+        sign(this) * min
+} else {
+    this * min / deadzone
 }.coerceIn(-max, max)

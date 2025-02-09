@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.ninth.nominalVoltage
+import org.firstinspires.ftc.teamcode.ninth.NOM_VOLT
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
@@ -37,7 +37,7 @@ class SampTele: LinearOpMode() {
         val currentGamepad2 = Gamepad()
 
         val drivetrain = Drivetrain(hardwareMap)
-        val lift = Lift(hardwareMap, (nominalVoltage / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
+        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         val sampler = Sampler(hardwareMap)
 
         var desiredPos = Lift.Preset.SAMP_LOW
@@ -73,7 +73,7 @@ class SampTele: LinearOpMode() {
                 currentGamepad2.dpad_up &&
                 !previousGamepad2.dpad_up
             ) {
-                lift.setPreset(Lift.Preset.RAISE_HANG)
+                lift.setPreset(Lift.Preset.RAISE_CLIMB)
                 speed_decrease = 1.5
             }
             if (currentGamepad2.left_trigger > 0.8 &&
@@ -81,15 +81,12 @@ class SampTele: LinearOpMode() {
                 currentGamepad2.dpad_down &&
                 !previousGamepad2.dpad_down
             ) {
-                lift.setPreset(Lift.Preset.PULL_HANG)
+                lift.setPreset(Lift.Preset.PULL_CLIMB)
                 speed_decrease = 1.5
             }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
-                val mpState = lift.updateProfiled(lift.getHeight())
-                telemetry.addData("mp s", mpState.s)
-                telemetry.addData("mp v", mpState.v)
-                telemetry.addData("mp a", mpState.a)
+                lift.updateProfiled(lift.getHeight())
             } else {
                 lift.setEffort(-gamepad2.left_stick_y + 0.2)
                 if (gamepad2.dpad_up && -gamepad2.left_stick_y < -0.9) {

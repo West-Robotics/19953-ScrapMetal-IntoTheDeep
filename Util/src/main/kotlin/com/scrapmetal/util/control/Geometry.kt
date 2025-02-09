@@ -35,7 +35,9 @@ data class Rotation2d(val theta: Degrees = 0.0) {
     fun inverse() = Rotation2d(-theta)
 }
 typealias Degrees = Double
+typealias Rad = Double
 fun Degrees.toRad() = 2 * PI / 360 * this
+fun Rad.toDegrees() = 360 / (2 * PI) * this
 
 /**
  * A [position] and [heading] in a 2D plane.
