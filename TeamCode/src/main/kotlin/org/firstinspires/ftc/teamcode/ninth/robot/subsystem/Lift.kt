@@ -16,13 +16,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.ninth.controlEffort
 import kotlin.math.PI
 
-class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0, val drivetrain: Drivetrain?) {
-    constructor(hardwareMap: HardwareMap, voltageMultiplier: Double = 1.0) : this(hardwareMap, voltageMultiplier, null)
+class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0, val drivetrain: Drivetrain?, val auto: Boolean = false) {
+    constructor(hardwareMap: HardwareMap, voltageMultiplier: Double = 1.0, auto: Boolean = false) : this(hardwareMap, voltageMultiplier, null, auto)
     val feedforward = 0.20
 //    val kv = 0.023
     val kv = 0.0
     val ka = 0.000
-    val kp = 1.5
+    val kp = if (auto) 0.9 else 1.5
 //    val kp = 0.0
 
     val cpr = 8192.0
@@ -78,7 +78,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
                 start = mpStart,
                 end = preset.height,
                 accel = 4000.0,
-                decel = if (mpStart < preset.height) 200.0 else 120.0,
+                decel = if (mpStart < preset.height) 200.0 else if (auto) 80.0 else 120.0,
                 vLimit = if (mpStart < preset.height) 40.0 else 70.0,
             ),
             mpTimer.seconds()
@@ -127,6 +127,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
 
     enum class Preset(val height: Double) {
         BOTTOM         (00.00                        ),
+        SIDE_SIN       (01.00                        ),
         SAMP_LOW       (25.75 - 7.0 + 1.0            ),
         SAMP_HIGH      (43.00 - 7.0 - 0.0            ),
         RAISE_CLIMB    (32.00                        ),

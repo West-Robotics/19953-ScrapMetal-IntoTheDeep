@@ -37,7 +37,7 @@ class SpecTele: LinearOpMode() {
         SCORE_SPECIMEN_HIGH,
         RELEASE_SPECIMEN,
     }
-    val sampleWait = 0.5
+    val sampleWait = 0.4
 
     var specHeights = false
     var sampHeights = false
@@ -291,15 +291,15 @@ class SpecTele: LinearOpMode() {
 
             .state(SamplerState.SCORE_SPECIMEN_LOW)
             .onEnter { lift.setPreset(Lift.Preset.SPEC_LOW_SCORE) }
-            .transitionTimed(0.5, SamplerState.RELEASE_SPECIMEN)
+            .transitionTimed(0.4, SamplerState.RELEASE_SPECIMEN)
 
             .state(SamplerState.SCORE_SPECIMEN_HIGH)
             .onEnter { lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE) }
-            .transitionTimed(0.5, SamplerState.RELEASE_SPECIMEN)
+            .transitionTimed(0.4, SamplerState.RELEASE_SPECIMEN)
 
             .state(SamplerState.RELEASE_SPECIMEN)
             .onEnter { sampler.score_specimen() }
-            .transitionTimed(0.5, SamplerState.STOW) { lift.setPreset(Lift.Preset.SPEC_INTAKE) }
+            .transitionTimed(0.4, SamplerState.STOW) { lift.setPreset(Lift.Preset.SPEC_INTAKE) }
             .build()
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)

@@ -30,12 +30,12 @@ class Drivetrain(hardwareMap: HardwareMap, private val voltageMultiplier: Double
     val pinpoint: GoBildaPinpointDriver = hardwareMap.get(GoBildaPinpointDriver::class.java, "pinpoint")
     // TODO: restore private
 
-    private val kPTrans = 0.6
-    private val kDTrans = 0.07
+    private val kPTrans = 0.5
+    private val kDTrans = 0.05
 //    private val kPTrans = 0.0
 //    private val kDTrans = 0.0
-    private val kPRot = 0.09
-    private val kDRot = 0.006
+    private val kPRot = 0.08
+    private val kDRot = 0.005
 //    private val kPRot = 0.0
 //    private val kDRot = 0.0
 
@@ -66,6 +66,10 @@ class Drivetrain(hardwareMap: HardwareMap, private val voltageMultiplier: Double
         this.backLeft.effort = backLeft
         this.backRight.effort = backRight
         this.frontRight.effort = frontRight
+    }
+
+    fun setPose(pose: Pose2d) {
+        setPose(pose.position.x, pose.position.y, pose.heading.theta)
     }
 
     fun setPose(x: Double, y: Double, heading: Double) {
@@ -144,6 +148,8 @@ class Drivetrain(hardwareMap: HardwareMap, private val voltageMultiplier: Double
             pinpoint.update()
         }
     }
+
+    fun read() = pinpoint.update()
 
     fun write() {
         frontLeft.write()
