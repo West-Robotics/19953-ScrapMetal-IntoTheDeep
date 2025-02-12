@@ -39,6 +39,7 @@ typealias Rad = Double
 fun Degrees.toRad() = 2 * PI / 360 * this
 fun Rad.toDegrees() = 360 / (2 * PI) * this
 
+// TODO: uses twists instead
 /**
  * A [position] and [heading] in a 2D plane.
  */

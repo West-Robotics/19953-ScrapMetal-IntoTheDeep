@@ -18,12 +18,14 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
-@Autonomous(name="0+4")
-class ZeroPlusFour : LinearOpMode() {
+@Autonomous(name="0+6")
+class ZeroPlusSix : LinearOpMode() {
     enum class State {
         INTAKE,
         SCORE,
         DECISION,
+        SUB_ALIGN,
+        SUB_INTAKE,
         PARK,
     }
 

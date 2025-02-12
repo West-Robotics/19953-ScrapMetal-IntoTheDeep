@@ -31,16 +31,18 @@ class Sampler(hardwareMap: HardwareMap) {
 //        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.09, 0.75, 0.64),
         GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.125, 0.17, 0.64),
         GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.12, 0.85, 0.64),
-        GRAB_SPECIMEN               ( 1.00, 0.20, 0.75, 0.64),
         SPIT                        (-1.00, 0.12, 0.51, 0.64),
         STOW                        ( 0.00, 0.43, 0.51, 0.03),
-        HOLD                        ( 0.15, 0.43, 0.51, 0.03),
-        HOLD_SPECIMEN               ( 0.15, 0.43, 0.25, 0.03),
+        HOLD                        ( 0.20, 0.43, 0.51, 0.03),
+        GRAB_SPECIMEN               ( 1.00, 0.20, 0.75, 0.64),
+        LIFT_SPECIMEN               ( 0.20, 0.43, 0.75, 0.03),
+        HOLD_SPECIMEN               ( 0.20, 0.43, 0.25, 0.03),
         PREPARE_TO_SCORE_SAMPLE     ( 0.15, 0.59, 0.51, 0.03),
-        SCORE_SAMPLE                (-0.30, 0.59, 0.51, 0.03),
+        SCORE_SAMPLE                (-0.20, 0.59, 0.51, 0.03),
         PREPARE_TO_SCORE_SPECIMEN   ( 0.20, 0.68, 0.25, 0.03),
-        SCORE_SPECIMEN              (-0.20, 0.68, 0.25, 0.03),
+        SCORE_SPECIMEN              (-1.00, 0.68, 0.25, 0.03),
         SCORE_FRONT                 (-1.00, 0.20, 0.51, 0.64),
+        SWEEP                       ( 0.00, 0.08, 0.51, 0.64),
     }
 
     fun setState(state: State) {
@@ -85,16 +87,18 @@ class Sampler(hardwareMap: HardwareMap) {
     fun grab_sample() = setState(State.GRAB_SAMPLE)
     fun grab_sample_left_side() = setState(State.GRAB_SAMPLE_LEFT_SIDE)
     fun grab_sample_right_side() = setState(State.GRAB_SAMPLE_RIGHT_SIDE)
-    fun grab_specimen() = setState(State.GRAB_SPECIMEN)
     fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)
     fun hold() = setState(State.HOLD)
+    fun grab_specimen() = setState(State.GRAB_SPECIMEN)
+    fun lift_specimen() = setState(State.LIFT_SPECIMEN)
     fun hold_specimen() = setState(State.HOLD_SPECIMEN)
     fun score_sample() = setState(State.SCORE_SAMPLE)
     fun prepare_to_score_sample() = setState(State.PREPARE_TO_SCORE_SAMPLE)
     fun prepare_to_score_specimen() = setStateProfiled(State.PREPARE_TO_SCORE_SPECIMEN)
     fun score_specimen() = setState(State.SCORE_SPECIMEN)
     fun score_front() = setState(State.SCORE_FRONT)
+    fun sweep() = setState(State.SWEEP)
 
     fun write() {
         extensionOne.write()

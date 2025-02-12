@@ -22,15 +22,14 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
 //    val kv = 0.023
     val kv = 0.0
     val ka = 0.000
-    val kp = if (auto) 0.9 else 1.5
-//    val kp = 0.0
+    val kp = if (auto) 0.6 else 1.5
 
     val cpr = 8192.0
-    val spoolCircumference = 0.9842520 * PI
+    val spoolCircumference = 1.25984 * PI
 
-    private val left = SMMotor(hardwareMap, "leftLift", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
-    private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
-    private val encoder = SMQuadrature(hardwareMap, "frontRight", spoolCircumference/cpr, 1.0/cpr, DcMotorSimple.Direction.REVERSE)
+    private val left = SMMotor(hardwareMap, "leftLift", DcMotorSimple.Direction.REVERSE, DcMotor.ZeroPowerBehavior.FLOAT)
+    private val right = SMMotor(hardwareMap, "rightLift", DcMotorSimple.Direction.FORWARD, DcMotor.ZeroPowerBehavior.FLOAT)
+    private val encoder = SMQuadrature(hardwareMap, "frontRight", spoolCircumference/cpr, 1.0/cpr, DcMotorSimple.Direction.FORWARD)
     // TODO: make private
     val pto = SMServo(hardwareMap, "pto", PTO.STOW.position, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
 
@@ -79,7 +78,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
                 end = preset.height,
                 accel = 4000.0,
                 decel = if (mpStart < preset.height) 200.0 else if (auto) 80.0 else 120.0,
-                vLimit = if (mpStart < preset.height) 40.0 else 70.0,
+                vLimit = if (mpStart < preset.height) 70.0 else 70.0,
             ),
             mpTimer.seconds()
         )

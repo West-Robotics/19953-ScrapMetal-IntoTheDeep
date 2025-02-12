@@ -252,9 +252,10 @@ class SpecTele: LinearOpMode() {
             .state(SamplerState.GRAB_SPECIMEN)
             .onEnter { sampler.grab_specimen() }
             .transition(
-                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 },
-                SamplerState.HOLD_SPECIMEN,
+                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 }
             )
+            .waitState(0.25, SamplerState.HOLD_SPECIMEN)
+            .onEnter { sampler.lift_specimen() }
 
             .state(SamplerState.HOLD_SPECIMEN)
             .onEnter { lift.setPreset(Lift.Preset.SPEC_MID); sampler.hold_specimen(); specHeights = true }
