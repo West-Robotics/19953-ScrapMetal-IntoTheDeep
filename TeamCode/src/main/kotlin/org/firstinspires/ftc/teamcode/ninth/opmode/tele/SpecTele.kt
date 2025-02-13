@@ -267,6 +267,7 @@ class SpecTele: LinearOpMode() {
                 { currentGamepad2.x && !previousGamepad2.x },
                 SamplerState.STOW,
             )
+
             .state(SamplerState.GRAB_SPECIMEN)
             .onEnter { sampler.grab_specimen() }
             .transition { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 }

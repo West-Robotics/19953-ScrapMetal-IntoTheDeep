@@ -36,12 +36,12 @@ class ZeroPlusFour : LinearOpMode() {
         val scorePose = Pose2d(17.0, 17.0, 180.0 + 45.0)
         val intakePoses = listOf(
             Pose2d(13.0, 18.0, 180 + 75.0),
-            Pose2d(20.0, 17.0, 180 + 95.0),
-            Pose2d(28.0, 26.5, 180 + 140.0),
+            Pose2d(38.5, 26.5, -40.0),
+            Pose2d(28.0, 26.5, -40.0),
         )
         val intakeOffsets = listOf(
             Pose2d(0.0, 0.0, -15.0),
-            Pose2d(0.0, 0.0, 20.0),
+            Pose2d(Rotation2d(130.0)*Vector2d(3.5, 0.0), Rotation2d(0.0)),
             Pose2d(Rotation2d(130.0)*Vector2d(2.5, 0.0), Rotation2d(0.0)),
         )
         var currentTargetPose = startPose
@@ -84,7 +84,7 @@ class ZeroPlusFour : LinearOpMode() {
                     when (sampCount) {
 //                        1 -> grab_sample_right_side()
                         1 -> grab_sample_right_side()
-                        2 -> grab_sample_left_side()
+                        2 -> grab_sample()
                         3 -> grab_sample()
                     }
                 }
