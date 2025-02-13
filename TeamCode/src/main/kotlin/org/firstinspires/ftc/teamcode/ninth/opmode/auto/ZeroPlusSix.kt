@@ -51,6 +51,67 @@ class ZeroPlusSix : LinearOpMode() {
         var rotationMultiplier = 0.6
         var sampCount = 0
 
+
+        val dashboard = FtcDashboard.getInstance()
+        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        lift.updateProfiled(lift.getHeight(), telemetry)
+        telemetry.update()
+        var xMarks1 = 0
+        var yMarks1 = 0
+        var xMarks2 = 0
+        var yMarks2 = 0
+        while (!isStarted) {
+            if (gamepad1.a) {
+                if (gamepad1.dpad_up) yMarks1 += 1
+                if (gamepad1.dpad_down) yMarks1 -= 1
+                if (gamepad1.dpad_left) xMarks1 -= 1
+                if (gamepad1.dpad_right) xMarks1 += 1
+            }
+            if (gamepad1.x) {
+                if (gamepad1.dpad_up) yMarks2 += 1
+                if (gamepad1.dpad_down) yMarks2 -= 1
+                if (gamepad1.dpad_left) xMarks2 -= 1
+                if (gamepad1.dpad_right) xMarks2 += 1
+            }
+            telemetry.addData("x marks 1", xMarks1)
+            telemetry.addData("y marks 1", yMarks1)
+            telemetry.addData("x marks 2", xMarks2)
+            telemetry.addData("y marks 2", yMarks2)
+            telemetry.update()
+        }
+        val sub1Pos = Vector2d(
+            (0..xMarks1).fold(0.0) { sum, mark ->
+                sum + when {
+                    mark == 0 -> 0.0
+                    mark % 2 == 0 -> 1.0
+                    else -> 1.5 - 1.0/8.0
+                }
+            },
+            (0..yMarks1).fold(0.0) { sum, mark ->
+                sum + when {
+                    mark == 0 -> 0.0
+                    mark % 2 == 0 -> 1.0
+                    else -> 1.5 - 1.0/8.0
+                }
+            },
+        )
+        val sub2Pos = Vector2d(
+            (0..xMarks2).fold(0.0) { sum, mark ->
+                sum + when {
+                    mark == 0 -> 0.0
+                    mark % 2 == 0 -> 1.0
+                    else -> 1.5 - 1.0/8.0
+                }
+            },
+            (0..yMarks2).fold(0.0) { sum, mark ->
+                sum + when {
+                    mark == 0 -> 0.0
+                    mark % 2 == 0 -> 1.0
+                    else -> 1.5 - 1.0/8.0
+                }
+            },
+        )
+
         val fsm = StateMachineBuilder()
             .state(State.SCORE)
             .onEnter {
@@ -101,11 +162,6 @@ class ZeroPlusSix : LinearOpMode() {
             }
             .build()
 
-        val dashboard = FtcDashboard.getInstance()
-        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
-        lift.updateProfiled(lift.getHeight(), telemetry)
-        telemetry.update()
-        waitForStart()
         drivetrain.setPose(startPose)
         drivetrain.beginPinpoint(this)
         fsm.start()

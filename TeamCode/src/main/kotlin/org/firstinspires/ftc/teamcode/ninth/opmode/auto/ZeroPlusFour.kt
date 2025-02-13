@@ -35,9 +35,9 @@ class ZeroPlusFour : LinearOpMode() {
         val startPose = Pose2d(48.0 - LENGTH/2, WIDTH/2, 180.0)
         val scorePose = Pose2d(17.0, 17.0, 180.0 + 45.0)
         val intakePoses = listOf(
-            Pose2d(13.0, 19.0, 180 + 75.0),
-            Pose2d(21.0, 17.5, 180 + 95.0),
-            Pose2d(24.0, 22.5, 180 + 130.0),
+            Pose2d(13.0, 18.0, 180 + 75.0),
+            Pose2d(20.0, 17.0, 180 + 95.0),
+            Pose2d(28.0, 26.5, 180 + 140.0),
         )
         val intakeOffsets = listOf(
             Pose2d(0.0, 0.0, -15.0),
@@ -46,17 +46,18 @@ class ZeroPlusFour : LinearOpMode() {
         )
         var currentTargetPose = startPose
         var transMultiplier = 0.7
-        var rotationMultiplier = 0.6
+        var rotationMultiplier = 0.4
         var sampCount = 0
 
         val fsm = StateMachineBuilder()
             .state(State.SCORE)
             .onEnter {
                 currentTargetPose = scorePose
-                lift.setPreset(Lift.Preset.SAMP_HIGH)
                 sampler.hold()
             }
-            .transitionTimed(1.5)
+            .transitionTimed(0.75)
+            .waitState(1.1)
+            .onEnter { lift.setPreset(Lift.Preset.SAMP_HIGH) }
             .waitState(0.4)
             .onEnter { sampler.score_sample(); sampCount++ }
             .onExit { sampler.stow() }
@@ -68,16 +69,20 @@ class ZeroPlusFour : LinearOpMode() {
 
             .state(State.INTAKE)
             .onEnter {
-                currentTargetPose = intakePoses[sampCount - 1]
                 lift.setPreset(Lift.Preset.BOTTOM)
             }
             .transitionTimed(0.5)
             .waitState(0.5)
+            .onEnter {
+                currentTargetPose = intakePoses[sampCount - 1]
+            }
+            .waitState(0.5)
             .onEnter { sampler.extend() }
-            .waitState(1.0)
+            .waitState(0.75)
             .onEnter {
                 with (sampler) {
                     when (sampCount) {
+//                        1 -> grab_sample_right_side()
                         1 -> grab_sample_right_side()
                         2 -> grab_sample_left_side()
                         3 -> grab_sample()
@@ -87,16 +92,16 @@ class ZeroPlusFour : LinearOpMode() {
             .waitState(1.0, State.SCORE)
             .onEnter {
                 currentTargetPose += intakeOffsets[sampCount - 1]
-                rotationMultiplier = 0.2
+                rotationMultiplier = if (sampCount != 1) 0.25 else 0.18
             }
             .onExit { rotationMultiplier = 1.0 }
 
             .state(State.PARK)
             .onEnter {
-                currentTargetPose = startPose
                 lift.setPreset(Lift.Preset.BOTTOM)
                 sampler.stow()
             }
+            .afterTime(0.5) { currentTargetPose = startPose }
             .build()
 
         val dashboard = FtcDashboard.getInstance()

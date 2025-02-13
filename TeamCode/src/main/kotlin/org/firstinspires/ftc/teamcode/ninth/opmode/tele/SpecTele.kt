@@ -36,6 +36,8 @@ class SpecTele: LinearOpMode() {
         SCORE_SPECIMEN_LOW,
         SCORE_SPECIMEN_HIGH,
         RELEASE_SPECIMEN,
+        RAISE_CLIMB,
+        PULL_CLIMB,
     }
     val sampleWait = 0.4
 
@@ -49,7 +51,7 @@ class SpecTele: LinearOpMode() {
         val currentGamepad2 = Gamepad()
 
         val drivetrain = Drivetrain(hardwareMap)
-        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
+        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0), drivetrain)
         val sampler = Sampler(hardwareMap)
         val intakeSpeed = SMAnalog(hardwareMap, "intakeEnc")
 
@@ -58,6 +60,7 @@ class SpecTele: LinearOpMode() {
         var manual = false
         // TODO: set to low for post-auto
         lift.setPreset(Lift.Preset.BOTTOM)
+        var ITSCLIMBINTIME = false
 
         var speed_decrease = 0.0
         var turn_decrease = 0.0
@@ -81,6 +84,21 @@ class SpecTele: LinearOpMode() {
                         && (lift.getPreset() == Lift.Preset.BOTTOM || lift.getPreset() == Lift.Preset.SPEC_INTAKE) },
                 SamplerState.EXTEND_SPECIMEN,
             )
+            .transition(
+                { currentGamepad2.left_trigger > 0.8 && currentGamepad2.right_trigger > 0.8 && currentGamepad2.dpad_up },
+                SamplerState.RAISE_CLIMB,
+            )
+
+            .state(SamplerState.RAISE_CLIMB)
+            .onEnter { lift.setPreset(Lift.Preset.RAISE_CLIMB) }
+            .transition(
+                { currentGamepad2.left_trigger > 0.8 && currentGamepad2.right_trigger > 0.8 && currentGamepad2.dpad_down },
+                SamplerState.PULL_CLIMB,
+            )
+
+            .state(SamplerState.PULL_CLIMB)
+            .onEnter { lift.pto1FREEZE(); lift.pto1ENGAGE() }
+            .afterTime(0.30) { ITSCLIMBINTIME = true }
 
 //          ░██████╗░█████╗░███╗░░░███╗██████╗░██╗░░░░░███████╗
 //          ██╔════╝██╔══██╗████╗░████║██╔══██╗██║░░░░░██╔════╝
@@ -251,10 +269,8 @@ class SpecTele: LinearOpMode() {
             )
             .state(SamplerState.GRAB_SPECIMEN)
             .onEnter { sampler.grab_specimen() }
-            .transition(
-                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 }
-            )
-            .waitState(0.25, SamplerState.HOLD_SPECIMEN)
+            .transition { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8 }
+            .waitState(0.50, SamplerState.HOLD_SPECIMEN)
             .onEnter { sampler.lift_specimen() }
 
             .state(SamplerState.HOLD_SPECIMEN)
@@ -328,30 +344,34 @@ class SpecTele: LinearOpMode() {
             if (currentGamepad2.b && !previousGamepad2.b && specHeights) { lift.setPreset(Lift.Preset.SPEC_LOW) ; speed_decrease = 2.0 }
             if (currentGamepad2.y && !previousGamepad2.y && specHeights) { lift.setPreset(Lift.Preset.SPEC_HIGH) ; speed_decrease = 2.0 }
 
-            if (
-                currentGamepad2.left_trigger > 0.8 &&
-                currentGamepad2.right_trigger > 0.8 &&
-                currentGamepad2.dpad_up &&
-                !previousGamepad2.dpad_up
-            ) {
-                lift.setPreset(Lift.Preset.RAISE_CLIMB)
-                speed_decrease = 1.5
-            }
-            if (
-                currentGamepad2.left_trigger > 0.8 &&
-                currentGamepad2.right_trigger > 0.8 &&
-                currentGamepad2.dpad_down &&
-                !previousGamepad2.dpad_down
-            ) {
-                lift.setPreset(Lift.Preset.PULL_CLIMB)
-                speed_decrease = 1.5
-            }
+//            if (
+//                currentGamepad2.left_trigger > 0.8 &&
+//                currentGamepad2.right_trigger > 0.8 &&
+//                currentGamepad2.dpad_up &&
+//                !previousGamepad2.dpad_up
+//            ) {
+//                lift.setPreset(Lift.Preset.RAISE_CLIMB)
+//                speed_decrease = 1.5
+//            }
+//            if (
+//                currentGamepad2.left_trigger > 0.8 &&
+//                currentGamepad2.right_trigger > 0.8 &&
+//                currentGamepad2.dpad_down &&
+//                !previousGamepad2.dpad_down
+//            ) {
+//                lift.setPreset(Lift.Preset.PULL_CLIMB)
+//                speed_decrease = 1.5
+//            }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
-                when (lift.getPreset()) {
-                    Lift.Preset.SPEC_HIGH_SCORE, Lift.Preset.SPEC_LOW_SCORE ->
-                        lift.updatePid(lift.getHeight())
-                    else -> lift.updateProfiled(lift.getHeight(), debug = telemetry)
+                if (!ITSCLIMBINTIME) {
+                    when (lift.getPreset()) {
+                        Lift.Preset.SPEC_HIGH_SCORE, Lift.Preset.SPEC_LOW_SCORE ->
+                            lift.updatePid(lift.getHeight())
+                        else -> lift.updateProfiled(lift.getHeight(), debug = telemetry)
+                    }
+                } else {
+                    lift.pto2CLIMB(lift.getHeight())
                 }
             } else {
                 lift.setEffort(-gamepad2.left_stick_y + 0.2)
