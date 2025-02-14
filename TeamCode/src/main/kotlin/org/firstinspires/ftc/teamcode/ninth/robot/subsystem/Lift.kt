@@ -28,6 +28,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
 //    val kp = if (auto) 0.2 else 1.5
 //    val kp = 0.8
     val kp = 0.3
+    val kpSpecScore = if (!auto) 2.5 else 1.2
     val kpClimb = 0.5
 
     val cpr = 8192.0
@@ -118,7 +119,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
     }
 
     fun updatePid(currentHeight: Double) {
-        val effort = pControl(kp, Preset.PULL_CLIMB.height, currentHeight)
+        val effort = pControl(kpSpecScore, getPreset().height, currentHeight)
         setEffort((effort + feedforward) * voltageMultiplier)
     }
 
@@ -159,11 +160,11 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
         RAISE_CLIMB    (32.00                        ),
         PULL_CLIMB     (20.00                        ),
         SPEC_INTAKE    (12.00 - 7.0 + 0.5            ),
-        SPEC_MID       (12.00 - 7.0 + 2.5            ),
+        SPEC_MID       (12.00 - 7.0 + 4.5            ),
         SPEC_LOW       (13.00 - 7.0 + 1.5 + 2.0      ),
-        SPEC_LOW_SCORE (13.00 - 7.0 + 1.5 + 2.0 - 3.0),
-        SPEC_HIGH      (26.00 - 7.0 + 1.5 - 1.0      ),
-        SPEC_HIGH_SCORE(26.00 - 7.0 + 1.5 + 2.0 - 3.0),
+        SPEC_LOW_SCORE (13.00 - 7.0 + 1.5 + 2.0 - 1.5),
+        SPEC_HIGH      (26.00 - 7.0 + 1.5 + 3.5      ),
+        SPEC_HIGH_SCORE(26.00 - 7.0 + 1.5 + 3.5 + 2.0),
     }
 
     enum class PTO(val position: Double) {

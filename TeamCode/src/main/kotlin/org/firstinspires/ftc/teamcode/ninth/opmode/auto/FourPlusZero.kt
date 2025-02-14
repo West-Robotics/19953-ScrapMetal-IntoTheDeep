@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
-@Autonomous(name="5+0")
-class FivePlusZero : LinearOpMode() {
+@Autonomous(name="4+0")
+class FourPlusZero : LinearOpMode() {
     enum class State {
         SCORE,
         MORE_DECISION,
@@ -38,7 +38,7 @@ class FivePlusZero : LinearOpMode() {
         val neutralPose = Pose2d(72.0, 20.0, 180.0)
         val middlePose2 = Pose2d(72.0 + 0.0, 14.0, 180.0 + 35.0)
         val spikePose = Pose2d(72 + 26.0, 24.0 + 4.0, 180 + 35.0)
-        val sweepPose = Pose2d(72 + 22.0, 24.0 + 4.0, 180 - 40.0)
+        val sweepPose = Pose2d(72 + 26.0, 24.0 + 4.0, 180 - 40.0)
         val spikeOffset = Pose2d(10.0, 0.0, 0.0)
         val intakeAlignPose = Pose2d(72 + 8.0, WIDTH/2 + 1.5 + 0.1, 180.0)
         val intakePose = Pose2d(72 + 12.0, WIDTH/2 + 1.5 + 0.1, 180.0)
@@ -57,19 +57,20 @@ class FivePlusZero : LinearOpMode() {
                 sampler.hold_specimen()
             }
             .loop { sampler.updateProfiled() }
-            .transitionTimed(1.6)
-            .waitState(0.2) // could be sped up (but next step is profiled off current position?)
-            .onEnter { sampler.dip_specimen_fast() }
+            .transitionTimed(1.8)
+            .waitState(0.5)
+            .onEnter { sampler.dip_specimen() }
+            .loop { sampler.updateProfiled() }
             .waitState(0.5)
             .onEnter { sampler.retract_specimen() }
             .loop { sampler.updateProfiled(retracting = true) }
-            .waitState(0.5)
+            .waitState(0.8)
             .onEnter { sampler.score_specimen(); lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE) }
-            .waitState(0.1)
-            .onEnter { sampler.release_specimen() }
             .waitState(0.2)
+            .onEnter { sampler.release_specimen() }
+            .waitState(0.5)
             .onEnter { sampler.stow(); lift.setPreset(Lift.Preset.SPEC_HIGH); specCount++ }
-            .waitState(0.4, State.MORE_DECISION)
+            .waitState(0.5, State.MORE_DECISION)
             .onEnter { lift.setPreset(Lift.Preset.BOTTOM); currentTargetPose = neutralPose }
             .state(State.MORE_DECISION)
             .transition({ specCount == 1 }, State.SPIKE)
@@ -80,10 +81,9 @@ class FivePlusZero : LinearOpMode() {
             .onEnter {
                 currentTargetPose = spikePose + spikeOffset * spikeCount.toDouble()
                 sampler.extend()
-                transMultiplier = 0.8
             }
             .transitionTimed(0.5)
-            .waitState(0.5)
+            .waitState(1.0)
             .onEnter { sampler.grab_sample() }
             .state(State.SWEEP)
             .onEnter {
@@ -91,11 +91,11 @@ class FivePlusZero : LinearOpMode() {
                 spikeCount++
             }
             .transitionTimed(0.8)
-            .waitState(0.2)
+            .waitState(0.3)
             .onEnter { sampler.spit() }
             .state(State.SWEEP_DECISION)
-            .transition({ spikeCount == 3 }, State.INTAKE)
-            .transition({ spikeCount < 3 }, State.SPIKE)
+            .transition({ spikeCount == 1 }, State.INTAKE)
+            .transition({ spikeCount < 1 }, State.SPIKE)
 
             .state(State.INTAKE)
             .onEnter {
@@ -103,8 +103,8 @@ class FivePlusZero : LinearOpMode() {
                 transMultiplier = 1.0
                 sampler.extend()
             }
-            .transitionTimed(0.7)
-            .waitState(0.8, State.SCORE)
+            .transitionTimed(1.0)
+            .waitState(1.0, State.SCORE)
             .onEnter {
                 currentTargetPose = intakePose
                 transMultiplier = 0.4

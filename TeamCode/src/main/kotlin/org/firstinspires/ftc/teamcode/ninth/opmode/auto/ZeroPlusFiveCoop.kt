@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.ninth.opmode.auto
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.scrapmetal.util.control.Pose2d
 import com.scrapmetal.util.control.Rotation2d
 import com.scrapmetal.util.control.Vector2d
-import com.scrapmetal.util.control.pathing.drawRobot
 import com.sfdev.assembly.state.StateMachineBuilder
 import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.ninth.LENGTH
@@ -19,12 +17,13 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
-@Autonomous(name="0+4")
-class ZeroPlusFour : LinearOpMode() {
+@Autonomous(name="0+5 Coop")
+class ZeroPlusFiveCoop : LinearOpMode() {
     enum class State {
         INTAKE,
         SCORE,
         DECISION,
+        INTAKE_FIFTH,
         PARK,
     }
 
@@ -39,11 +38,13 @@ class ZeroPlusFour : LinearOpMode() {
             Pose2d(13.0, 18.0, 180 + 75.0),
             Pose2d(38.0, 26.0, -40.0),
             Pose2d(28.0, 26.0, -40.0),
+            Pose2d(86.0, WIDTH/2 + 1.0, 180.0)
         )
         val intakeOffsets = listOf(
             Pose2d(0.0, 0.0, -15.0),
-            Pose2d(Rotation2d(130.0)*Vector2d(4.0, 0.0), Rotation2d(0.0)),
-            Pose2d(Rotation2d(130.0)*Vector2d(2.5, 0.0), Rotation2d(0.0)),
+            Pose2d(Rotation2d(130.0) * Vector2d(4.0, 0.0), Rotation2d(0.0)),
+            Pose2d(Rotation2d(130.0) * Vector2d(2.5, 0.0), Rotation2d(0.0)),
+            Pose2d(0.0, 0.0, 0.0),
         )
         val parkAlignPose = Pose2d(36.0, 60.0, 180.0)
         val parkPose = Pose2d(50.0, 60.0, 180.0)
@@ -51,6 +52,9 @@ class ZeroPlusFour : LinearOpMode() {
         var transMultiplier = 0.7
         var rotationMultiplier = 0.4
         var sampCount = 0
+
+        // 0.5 IS MAX
+        val fifthDelay = 0.3
 
         val fsm = StateMachineBuilder()
             .state(State.SCORE)
@@ -68,7 +72,8 @@ class ZeroPlusFour : LinearOpMode() {
             .waitState(0.1)
             .state(State.DECISION)
             .transition({ sampCount < 4 }, State.INTAKE)
-            .transition({ sampCount >= 4 }, State.PARK)
+            .transition({ sampCount == 4 }, State.INTAKE_FIFTH)
+            .transition({ sampCount >= 5 }, State.PARK)
 
             .state(State.INTAKE)
             .onEnter {
@@ -89,6 +94,7 @@ class ZeroPlusFour : LinearOpMode() {
                         1 -> grab_sample_right_side()
                         2 -> grab_sample()
                         3 -> grab_sample()
+                        4 -> grab_sample()
                     }
                 }
             }
@@ -99,6 +105,31 @@ class ZeroPlusFour : LinearOpMode() {
                 transMultiplier = 0.4
             }
             .onExit { rotationMultiplier = 1.0; transMultiplier = 0.7 }
+
+            .state(State.INTAKE_FIFTH)
+            .onEnter { lift.setPreset(Lift.Preset.BOTTOM) }
+            .transitionTimed(0.5 + fifthDelay)
+            .waitState(0.3)
+            .onEnter {
+                currentTargetPose = intakePoses[sampCount - 1]
+                transMultiplier = 1.0
+            }
+            .waitState(0.5)
+            .onEnter { sampler.extend() }
+            .waitState(0.2)
+            .onEnter {
+                sampler.grab_sample()
+            }
+            .waitState(1.0)
+            .onEnter {
+                transMultiplier = 0.2
+            }
+            .waitState(2.0, State.SCORE)
+            .onEnter {
+                currentTargetPose = scorePose
+                transMultiplier = 1.0
+            }
+            .onExit { transMultiplier = 0.7 }
 
             .state(State.PARK)
             .onEnter {
@@ -130,7 +161,7 @@ class ZeroPlusFour : LinearOpMode() {
                 maxTransEffort = transMultiplier,
                 maxRotEffort = rotationMultiplier,
             ))
-            if (timer.seconds() < 25.0) {
+            if (timer.seconds() < 29.75) {
                 lift.updateProfiled(lift.getHeight(), telemetry)
             } else {
                 lift.setEffort(0.0)
