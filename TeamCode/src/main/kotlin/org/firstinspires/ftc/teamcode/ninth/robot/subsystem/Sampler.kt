@@ -27,7 +27,7 @@ class Sampler(hardwareMap: HardwareMap) {
 
     enum class State(val grabber: Double, val pitch: Double, val roll: Double, val linkage: Double) {
         EXTEND                      ( 0.00, 0.43, 0.51, 0.64),
-        GRAB_SAMPLE                 ( 1.00, 0.14, 0.51, 0.64),
+        GRAB_SAMPLE                 ( 1.00, 0.134, 0.51, 0.64),
 //        GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.09, 0.25, 0.64),
 //        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.09, 0.75, 0.64),
         GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.125, 0.17, 0.64),
@@ -51,6 +51,7 @@ class Sampler(hardwareMap: HardwareMap) {
         SCORE_FRONT                 (-1.00, 0.20, 0.51, 0.64),
         SWEEP                       ( 0.00, 0.08, 0.51, 0.64),
         PREPARE_TO_SCORE_SPECIMEN   ( 0.20, 0.45, 0.37, 0.40),
+        SPEC_PRELOAD                ( 0.20, 0.40, 0.76, 0.36),
     }
 
     fun setState(state: State) {
@@ -124,6 +125,7 @@ class Sampler(hardwareMap: HardwareMap) {
     fun retract_specimen() = setStateProfiled(State.RETRACT_SPECIMEN)
     fun score_specimen() = setState(State.SCORE_SPECIMEN)
     fun release_specimen() = setState(State.RELEASE_SPECIMEN)
+    fun spec_preload() = setStateProfiled(State.SPEC_PRELOAD)
     fun score_front() = setState(State.SCORE_FRONT)
     fun sweep() = setState(State.SWEEP)
 

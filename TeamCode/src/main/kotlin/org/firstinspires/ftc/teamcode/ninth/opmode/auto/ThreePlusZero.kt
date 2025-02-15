@@ -10,13 +10,12 @@ import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.ninth.LENGTH
 import org.firstinspires.ftc.teamcode.ninth.NOM_VOLT
 import org.firstinspires.ftc.teamcode.ninth.WIDTH
-import org.firstinspires.ftc.teamcode.ninth.opmode.tele.SpecTele.SamplerState
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
-@Autonomous(name="4+0")
-class FourPlusZero : LinearOpMode() {
+@Autonomous(name="3+0")
+class ThreePlusZero : LinearOpMode() {
     enum class State {
         SCORE,
         MORE_DECISION,
@@ -29,19 +28,20 @@ class FourPlusZero : LinearOpMode() {
 
     override fun runOpMode() = runBlocking {
         val drivetrain = Drivetrain(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage))
-        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage), true)
+        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage), auto = true, spec = true)
         val sampler = Sampler(hardwareMap)
 
         val startPose = Pose2d(72 + WIDTH/2, LENGTH/2 + 1.0, -90.0)
-        val scorePose = Pose2d(74.0, 35.0, -108.0)
+        val scorePose = Pose2d(71.0, 35.0, -108.0)
         val scoreOffset = Pose2d(-3.0, 0.0, 0.0)
+        val scoreAlignPose = Pose2d(71.0, LENGTH/2 + 1.0, -108.0)
         val neutralPose = Pose2d(72.0, 20.0, 180.0)
         val middlePose2 = Pose2d(72.0 + 0.0, 14.0, 180.0 + 35.0)
         val spikePose = Pose2d(72 + 26.0, 24.0 + 4.0, 180 + 35.0)
         val sweepPose = Pose2d(72 + 26.0, 24.0 + 4.0, 180 - 40.0)
         val spikeOffset = Pose2d(10.0, 0.0, 0.0)
         val intakeAlignPose = Pose2d(72 + 8.0, WIDTH/2 + 1.5 + 0.1, 180.0)
-        val intakePose = Pose2d(72 + 12.0, WIDTH/2 + 1.5 + 0.1, 180.0)
+        val intakePose = Pose2d(72 + 14.0, WIDTH/2 + 1.5 + 0.1, 180.0)
         val parkPose = Pose2d(72 + 36.0, WIDTH/2 + 1.5 + 0.1, 180.0)
         var currentTargetPose = startPose
         var transMultiplier = 0.35
@@ -57,6 +57,9 @@ class FourPlusZero : LinearOpMode() {
                 sampler.hold_specimen()
             }
             .loop { sampler.updateProfiled() }
+            .afterTime(0.0) { sampler.spec_preload() }
+            .afterTime(0.5) { sampler.dip_specimen() }
+            .afterTime(1.0) { sampler.hold_specimen() }
             .transitionTimed(1.8)
             .waitState(0.5)
             .onEnter { sampler.dip_specimen() }
@@ -103,18 +106,27 @@ class FourPlusZero : LinearOpMode() {
                 transMultiplier = 1.0
                 sampler.extend()
             }
-            .transitionTimed(1.0)
-            .waitState(1.0, State.SCORE)
+            .transitionTimed(1.5)
+            .waitState(1.0)
+            .onEnter { sampler.grab_sample() }
+            .waitState(1.2)
             .onEnter {
                 currentTargetPose = intakePose
                 transMultiplier = 0.4
-                sampler.grab_sample()
             }
-            .onExit { transMultiplier = 0.3 }
+            .waitState(1.0, State.SCORE)
+            .onEnter {
+                currentTargetPose = scoreAlignPose
+                transMultiplier = 1.0
+                sampler.hold_specimen()
+            }
+            .loop { sampler.updateProfiled() }
+            .onExit { transMultiplier = 0.35 }
 
             .state(State.PARK)
             .onEnter {
                 currentTargetPose = parkPose
+                transMultiplier = 1.0
                 sampler.stow()
             }
             .build()

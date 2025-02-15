@@ -16,19 +16,19 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.ninth.controlEffort
 import kotlin.math.PI
 
-class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0, val drivetrain: Drivetrain?, val auto: Boolean = false) {
-    constructor(hardwareMap: HardwareMap, voltageMultiplier: Double = 1.0, auto: Boolean = false) : this(hardwareMap, voltageMultiplier, null, auto)
+class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0, val drivetrain: Drivetrain?, val auto: Boolean = false, val spec: Boolean = false) {
+    constructor(hardwareMap: HardwareMap, voltageMultiplier: Double = 1.0, auto: Boolean = false, spec: Boolean = false) : this(hardwareMap, voltageMultiplier, null, auto, spec)
     val feedforward = 0.28
     val kv = 0.018
     val kaccel = 0.002
     val kdecelup = 0.0008
-    val kdeceldown = 0.0007
+    val kdeceldown = if (!spec) 0.0007 else 0.0007
 //    val kv = 0.0
 //    val ka = 0.0
 //    val kp = if (auto) 0.2 else 1.5
 //    val kp = 0.8
     val kp = 0.3
-    val kpSpecScore = if (!auto) 2.5 else 1.2
+    val kpSpecScore = if (!auto) 2.5 else 0.8
     val kpClimb = 0.5
 
     val cpr = 8192.0
@@ -88,7 +88,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
 //                decel = if (mpStart < preset.height) 250.0 else if (auto) 50.0 else 250.0,
 //                vLimit = if (mpStart < preset.height) 40.0 else if (auto) 30.0 else 70.0,
                 decel = if (mpStart < preset.height) 250.0 else 250.0,
-                vLimit = if (mpStart < preset.height) 40.0 else 70.0,
+                vLimit = if (mpStart < preset.height) 40.0 else (if (!spec) 70.0 else 40.0),
 //                vLimit = if (mpStart < preset.height) 50.0 else 70.0,
             ),
             mpTimer.seconds()
