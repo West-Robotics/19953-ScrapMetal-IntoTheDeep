@@ -27,11 +27,11 @@ class Sampler(hardwareMap: HardwareMap) {
 
     enum class State(val grabber: Double, val pitch: Double, val roll: Double, val linkage: Double) {
         EXTEND                      ( 0.00, 0.43, 0.51, 0.64),
-        GRAB_SAMPLE                 ( 1.00, 0.134, 0.51, 0.64),
+        GRAB_SAMPLE                 ( 1.00, 0.124, 0.51, 0.64),
 //        GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.09, 0.25, 0.64),
 //        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.09, 0.75, 0.64),
-        GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.125, 0.17, 0.64),
-        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.12, 0.85, 0.64),
+        GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.115, 0.17, 0.64),
+        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.11, 0.85, 0.64),
         SPIT                        (-1.00, 0.12, 0.51, 0.64),
         STOW                        ( 0.00, 0.43, 0.51, 0.03),
         HOLD                        ( 0.20, 0.43, 0.51, 0.03),

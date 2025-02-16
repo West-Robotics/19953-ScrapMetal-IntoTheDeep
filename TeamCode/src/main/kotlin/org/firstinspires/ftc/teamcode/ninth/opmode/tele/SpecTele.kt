@@ -88,7 +88,7 @@ class SpecTele: LinearOpMode() {
         // TODO: SET TO LOW FOR POST-AUTO
         // TODO: SET TO LOW FOR POST-AUTO
         // TODO: SET TO LOW FOR POST-AUTO
-        lift.setPreset(Lift.Preset.BOTTOM)
+        lift.setPreset(Lift.Preset.INIT_POST_AUTO)
         var ITSCLIMBINTIME = false
 
         var speed_decrease = 0.0

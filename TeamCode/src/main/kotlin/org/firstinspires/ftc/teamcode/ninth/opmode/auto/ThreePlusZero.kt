@@ -34,15 +34,15 @@ class ThreePlusZero : LinearOpMode() {
         val startPose = Pose2d(72 + WIDTH/2, LENGTH/2 + 1.0, -90.0)
         val scorePose = Pose2d(71.0, 35.0, -108.0)
         val scoreOffset = Pose2d(-3.0, 0.0, 0.0)
-        val scoreAlignPose = Pose2d(71.0, LENGTH/2 + 1.0, -108.0)
+        val scoreAlignPose = Pose2d(71.0, LENGTH/2 + 4.0, -108.0)
         val neutralPose = Pose2d(72.0, 20.0, 180.0)
         val middlePose2 = Pose2d(72.0 + 0.0, 14.0, 180.0 + 35.0)
         val spikePose = Pose2d(72 + 26.0, 24.0 + 4.0, 180 + 35.0)
         val sweepPose = Pose2d(72 + 26.0, 24.0 + 4.0, 180 - 40.0)
         val spikeOffset = Pose2d(10.0, 0.0, 0.0)
-        val intakeAlignPose = Pose2d(72 + 8.0, WIDTH/2 + 1.5 + 0.1, 180.0)
-        val intakePose = Pose2d(72 + 14.0, WIDTH/2 + 1.5 + 0.1, 180.0)
-        val parkPose = Pose2d(72 + 36.0, WIDTH/2 + 1.5 + 0.1, 180.0)
+        val intakeAlignPose = Pose2d(72 + 10.0, WIDTH/2 + 1.5 + 0.25, 180.0)
+        val intakePose = Pose2d(72 + 16.0, WIDTH/2 + 1.5 + 0.25, 180.0)
+        val parkPose = Pose2d(72 + 36.0, WIDTH/2 + 1.5 + 1.25, 180.0)
         var currentTargetPose = startPose
         var transMultiplier = 0.35
         var rotationMultiplier = 1.0
@@ -86,7 +86,7 @@ class ThreePlusZero : LinearOpMode() {
                 sampler.extend()
             }
             .transitionTimed(0.5)
-            .waitState(1.0)
+            .waitState(1.2)
             .onEnter { sampler.grab_sample() }
             .state(State.SWEEP)
             .onEnter {
@@ -109,7 +109,7 @@ class ThreePlusZero : LinearOpMode() {
             .transitionTimed(1.5)
             .waitState(1.0)
             .onEnter { sampler.grab_sample() }
-            .waitState(1.2)
+            .waitState(2.0)
             .onEnter {
                 currentTargetPose = intakePose
                 transMultiplier = 0.4
@@ -155,7 +155,6 @@ class ThreePlusZero : LinearOpMode() {
 
             drivetrain.write()
             lift.write()
-//            sampler.hold_specimen()
             sampler.write()
             val pose = drivetrain.getPoseAndVelo().first
             telemetry.addData("x", pose.position.x)

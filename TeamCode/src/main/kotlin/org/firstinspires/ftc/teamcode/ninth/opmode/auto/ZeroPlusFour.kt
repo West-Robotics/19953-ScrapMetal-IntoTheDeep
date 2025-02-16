@@ -36,17 +36,17 @@ class ZeroPlusFour : LinearOpMode() {
         val startPose = Pose2d(48.0 - LENGTH/2, WIDTH/2, 180.0)
         val scorePose = Pose2d(17.0, 17.0, 180.0 + 45.0)
         val intakePoses = listOf(
-            Pose2d(13.0, 18.0, 180 + 75.0),
-            Pose2d(38.0, 26.0, -40.0),
-            Pose2d(28.0, 26.0, -40.0),
+            Pose2d(13.0, 17.5, 180 + 75.0),
+            Pose2d(37.5, 25.3, -40.0),
+            Pose2d(27.5, 25.5, -40.0),
         )
         val intakeOffsets = listOf(
             Pose2d(0.0, 0.0, -15.0),
             Pose2d(Rotation2d(130.0)*Vector2d(4.0, 0.0), Rotation2d(0.0)),
-            Pose2d(Rotation2d(130.0)*Vector2d(2.5, 0.0), Rotation2d(0.0)),
+            Pose2d(Rotation2d(130.0)*Vector2d(3.0, 0.0), Rotation2d(0.0)),
         )
         val parkAlignPose = Pose2d(36.0, 60.0, 180.0)
-        val parkPose = Pose2d(50.0, 60.0, 180.0)
+        val parkPose = Pose2d(48.0, 60.0, 180.0)
         var currentTargetPose = startPose
         var transMultiplier = 0.7
         var rotationMultiplier = 0.4
@@ -108,14 +108,14 @@ class ZeroPlusFour : LinearOpMode() {
             .afterTime(0.5) { currentTargetPose = parkAlignPose }
             // TODO: could be spec high
             .afterTime(1.2) { lift.setPreset(Lift.Preset.SAMP_LOW) }
-            .afterTime(2.2) { currentTargetPose = parkPose }
+            .afterTime(2.2) { currentTargetPose = parkPose; transMultiplier = 0.3 }
             .afterTime(2.4) { sampler.extend() }
             .build()
 
-        val dashboard = FtcDashboard.getInstance()
-        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
-        lift.updateProfiled(lift.getHeight(), telemetry)
-        telemetry.update()
+//        val dashboard = FtcDashboard.getInstance()
+//        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+//        lift.updateProfiled(lift.getHeight(), telemetry)
+//        telemetry.update()
         waitForStart()
         drivetrain.setPose(startPose)
         drivetrain.beginPinpoint(this)
@@ -130,8 +130,9 @@ class ZeroPlusFour : LinearOpMode() {
                 maxTransEffort = transMultiplier,
                 maxRotEffort = rotationMultiplier,
             ))
-            if (timer.seconds() < 25.0) {
-                lift.updateProfiled(lift.getHeight(), telemetry)
+            if (timer.seconds() < 27.0) {
+//                lift.updateProfiled(lift.getHeight(), telemetry)
+                lift.updateProfiled(lift.getHeight())
             } else {
                 lift.setEffort(0.0)
             }
@@ -139,7 +140,7 @@ class ZeroPlusFour : LinearOpMode() {
             drivetrain.write()
             lift.write()
             sampler.write()
-            telemetry.update()
+//            telemetry.update()
         }
     }
 }
