@@ -10,40 +10,43 @@ import com.scrapmetal.util.hardware.SMCRServo
 import com.scrapmetal.util.hardware.SMServo
 
 class Sampler(hardwareMap: HardwareMap) {
-    private val extensionOne = SMServo(hardwareMap, "frontExt", 0.00, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
-    private val extensionTwo = SMServo(hardwareMap, "backExt", 0.00, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
+    private val extensionOne = SMServo(hardwareMap, "frontExt", 0.60, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
+    private val extensionTwo = SMServo(hardwareMap, "backExt", 0.60, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
     // TODO: Make hardware private again
-    private val pitch = SMServo(hardwareMap, "pitch", 0.43, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
-    private val subPitch = SMServo(hardwareMap, "subPitch", 0.43, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
-    private val roll = SMServo(hardwareMap, "roll", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
-    private val claw = SMServo(hardwareMap, "intake", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val pitch = SMServo(hardwareMap, "pitch", 0.34, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val subPitch = SMServo(hardwareMap, "subPitch", 0.11, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val roll = SMServo(hardwareMap, "roll", 0.10, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
+    private val claw = SMServo(hardwareMap, "pinch", 0.00, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
 
     private var mpStart = State.STOW.pitch
     private var mpEnd = State.STOW.pitch
     private val mpTimer = ElapsedTime()
     private var pitchOffset = 0.0
 
+    // TODO: rename grab states to something more discriptive 
     enum class State(val claw: Double, val pitch: Double, val subPitch: Double, val roll: Double, val linkage: Double) {
-        EXTEND                      ( 0.00, 0.43, 0.0,0.51, 0.64),
-        GRAB_SAMPLE                 ( 1.00, 0.124,0.0, 0.51, 0.64),
-        GRAB_SAMPLE_LEFT_SIDE       ( 1.00, 0.115,0.0, 0.17, 0.64),
-        GRAB_SAMPLE_RIGHT_SIDE      ( 1.00, 0.11, 0.0,0.85, 0.64),
-        SPIT                        (-1.00, 0.12, 0.0,0.51, 0.64),
-        STOW                        ( 0.00, 0.43, 0.0,0.51, 0.03),
-        HOLD                        ( 0.20, 0.43, 0.0,0.51, 0.03),
-        PREPARE_TO_SCORE_SAMPLE     ( 0.15, 0.59, 0.0,0.51, 0.03),
-        SCORE_SAMPLE                (-0.20, 0.59, 0.0,0.51, 0.03),
-        GRAB_SPECIMEN               ( 1.00, 0.12, 0.0,0.51, 0.36),
-        LIFT_SPECIMEN               ( 0.20, 0.22, 0.0,0.51, 0.36),
-        HOLD_SPECIMEN               ( 0.20, 0.22, 0.0,0.51, 0.36),
-        DIP_SPECIMEN                ( 0.20, 0.08, 0.0,0.76, 0.36),
-        RETRACT_SPECIMEN            ( 0.20, 0.10, 0.0,0.76, 0.28),
-        SCORE_SPECIMEN              ( 0.20, 0.24, 0.0,0.76, 0.28),
-        RELEASE_SPECIMEN            (-1.00, 0.24, 0.0,0.76, 0.28),
-        SCORE_FRONT                 (-1.00, 0.20, 0.0,0.51, 0.64),
-        SWEEP                       ( 0.00, 0.08, 0.0,0.51, 0.64),
-        PREPARE_TO_SCORE_SPECIMEN   ( 0.20, 0.45, 0.0,0.37, 0.40),
-        SPEC_PRELOAD                ( 0.20, 0.40, 0.0,0.76, 0.36),
+        EXTEND                      ( 0.00, 0.34, 0.11,0.10, 0.60),
+        GRAB_SAMPLE                 ( 0.00, 0.54, 0.37,0.36, 0.60),
+        GRAB_SAMPLE_LEFT_SIDE       ( 0.00, 0.54, 0.37,0.02, 0.60),
+        GRAB_SAMPLE_RIGHT_SIDE      ( 0.00, 0.54, 0.37,0.21, 0.60),
+        GRAB_SAMPLE_SIDE            ( 0.00, 0.54, 0.37,0.10, 0.60),
+        SPIT                        ( 0.00, 0.54, 0.37,0.36, 0.60),
+        STOW                        ( 0.00, 0.34, 0.00,0.10, 0.03),
+        HOLD                        ( 0.27, 0.34, 0.00,0.10, 0.03),
+        HOLD_SAMPLE                 ( 0.27, 0.34, 0.00,0.10, 0.03),
+        PREPARE_TO_SCORE_SAMPLE     ( 0.27, 0.59, 0.00,0.10, 0.03),
+        SCORE_SAMPLE                ( 0.00, 0.59, 0.00,0.10, 0.03),
+        GRAB_SPECIMEN               ( 0.00, 0.12, 0.00,0.10, 0.36),
+        LIFT_SPECIMEN               ( 0.27, 0.22, 0.00,0.10, 0.36),
+        HOLD_SPECIMEN               ( 0.27, 0.22, 0.00,0.10, 0.36),
+        DIP_SPECIMEN                ( 0.00, 0.08, 0.00,0.10, 0.36),
+        RETRACT_SPECIMEN            ( 0.27, 0.10, 0.00,0.10, 0.28),
+        SCORE_SPECIMEN              ( 0.27, 0.24, 0.00,0.10, 0.28),
+        RELEASE_SPECIMEN            ( 0.00, 0.24, 0.00,0.10, 0.28),
+        SCORE_FRONT                 ( 0.00, 0.20, 0.00,0.10, 0.60),
+        SWEEP                       ( 0.00, 0.08, 0.00,0.10, 0.60),
+        PREPARE_TO_SCORE_SPECIMEN   ( 0.27, 0.45, 0.00,0.10, 0.40),
+        SPEC_PRELOAD                ( 0.00, 0.40, 0.00,0.10, 0.36),
     }
 
     /**
@@ -74,8 +77,8 @@ class Sampler(hardwareMap: HardwareMap) {
                 MPConstraints(
                     start = mpStart,
                     end = mpEnd,
-                    accel = 8.0,
-                    decel = 8.0,
+                    accel = 10.0,
+                    decel = 4.0,
                     vLimit = 8.0,
                 )
             },
@@ -92,9 +95,11 @@ class Sampler(hardwareMap: HardwareMap) {
     fun grab_sample() = setState(State.GRAB_SAMPLE)
     fun grab_sample_left_side() = setState(State.GRAB_SAMPLE_LEFT_SIDE)
     fun grab_sample_right_side() = setState(State.GRAB_SAMPLE_RIGHT_SIDE)
+    fun grab_sample_side() = setState(State.GRAB_SAMPLE_SIDE)
     fun spit() = setState(State.SPIT)
     fun stow() = setState(State.STOW)
     fun hold() = setState(State.HOLD)
+    fun hold_sampele() = setState(State.HOLD_SAMPLE)
     fun grab_specimen() = setState(State.GRAB_SPECIMEN)
     fun lift_specimen() = setState(State.LIFT_SPECIMEN)
     fun hold_specimen() = setState(State.HOLD_SPECIMEN)

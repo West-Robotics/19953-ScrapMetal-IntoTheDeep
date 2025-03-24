@@ -16,16 +16,18 @@ class SubsystemTests : LinearOpMode() {
         val currentGamepad1 = Gamepad()
 
         val drivetrain = Drivetrain(hardwareMap)
-        var desiredPos = 0.0
-        val lift = Lift(hardwareMap)
-        var manual = false
-//        var extensionAmount = 0.43
         val sampler = Sampler(hardwareMap)
-        var intakeToggle = false
-        var extensionToggle = false
-        var grab_spec = 0.43
-        var grab_wrist = 0.0
-        var pto_position = 0.5
+        val lift = Lift(hardwareMap)
+        var desiredPos = 0.0
+        var manual = false
+        var extensionAmount = 0.43
+//        var intakeToggle = false
+//        var extensionToggle = false
+//        var pitch = 0.1
+//        var subPitch = 0.11
+//        var roll = 0.1
+//        var pinch = 0.0
+//        var pto_position = 0.5
 
         val dashboard = FtcDashboard.getInstance()
         telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
@@ -34,19 +36,19 @@ class SubsystemTests : LinearOpMode() {
             previousGamepad1.copy(currentGamepad1)
             currentGamepad1.copy(gamepad1)
 
-            sampler.stow()
-            sampler.write()
+//            sampler.stow()
+//            sampler.write()
 
-            lift.read()
-            if (gamepad1.a && !previousGamepad1.a) {
-                lift.setPreset(Lift.Preset.BOTTOM)
-            }
-            if (gamepad1.b && !previousGamepad1.b) {
-                lift.setPreset(Lift.Preset.SAMP_HIGH)
-            }
-            lift.updateProfiled(lift.getHeight(), telemetry)
-            lift.write()
-            telemetry.addData("height", lift.getHeight())
+//            lift.read()
+//            if (gamepad1.a && !previousGamepad1.a) {
+//                lift.setPreset(Lift.Preset.BOTTOM)
+//            }
+//            if (gamepad1.b && !previousGamepad1.b) {
+//                lift.setPreset(Lift.Preset.SAMP_HIGH)
+//            }
+//            lift.updateProfiled(lift.getHeight(), telemetry)
+//            lift.write()
+//            telemetry.addData("height", lift.getHeight())
 //            if (gamepad1.a && !previousGamepad1.a) {
 //                pto_position = 0.75
 //            }
@@ -119,23 +121,42 @@ class SubsystemTests : LinearOpMode() {
 //                extensionAmount = 0.68
 //            }
 
-//            if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
-//                grab_spec += 0.01
-//            }
-//            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
-//                grab_spec -= 0.01
-//            }
-//            sampler.pitch.position = grab_spec
+            if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
+                sampler.extend()
+            }
+            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
+                sampler.grab_sample()
+            }
 
-//            if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
-//                grab_wrist += 0.01
-//            }
-//            if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
-//                grab_wrist -= 0.01
-//            }
-//            sampler.roll.position = grab_wrist
+            if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
+                sampler.grab_sample_right_side()
+            }
+            if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
+                sampler.grab_sample_left_side()
+            }
 
-//            sampler.write()
+//            if (gamepad1.triangle && !previousGamepad1.triangle) {
+//                roll += 0.01
+//            }
+//            if (gamepad1.cross && !previousGamepad1.cross) {
+//                roll -= 0.01
+//            }
+//
+            if (gamepad1.circle && !previousGamepad1.circle) {
+                sampler.claw.position = 0.27
+            }
+            if (gamepad1.square && !previousGamepad1.square) {
+                sampler.claw.position = 0.0
+            }
+
+            sampler.write()
+            sampler.updateProfiled()
+
+//            telemetry.addData("sub pitch", subPitch)
+//            telemetry.addData("pitch", pitch)
+//            telemetry.addData("roll", roll)
+//            telemetry.addData("pinch", pinch)
+
 
 //            telemetry.addLine("Raise lift - hold left trigger")
 //            telemetry.addLine("Lower lift - hold right trigger")
