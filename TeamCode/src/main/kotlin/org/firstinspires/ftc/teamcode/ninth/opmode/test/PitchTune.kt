@@ -16,7 +16,7 @@ class PitchTune : LinearOpMode() {
             if (extendTimer.seconds() < 1) {
                 sampler.extend()
             } else {
-                sampler.setState(Sampler.State.GRAB_SAMPLE)
+                sampler.setState(Sampler.State.PRIME_SAMP)
             }
             sampler.write()
         }

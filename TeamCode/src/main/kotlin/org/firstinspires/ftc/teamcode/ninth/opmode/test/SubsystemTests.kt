@@ -1,12 +1,8 @@
 package org.firstinspires.ftc.teamcode.ninth.opmode.test
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
-import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
-import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
 @TeleOp(name = "SubsystemTests")
@@ -15,9 +11,9 @@ class SubsystemTests : LinearOpMode() {
         val previousGamepad1 = Gamepad()
         val currentGamepad1 = Gamepad()
 
-        val drivetrain = Drivetrain(hardwareMap)
+        // val drivetrain = Drivetrain(hardwareMap)
         val sampler = Sampler(hardwareMap)
-        val lift = Lift(hardwareMap)
+        // val lift = Lift(hardwareMap)
         var desiredPos = 0.0
         var manual = false
         var extensionAmount = 0.43
@@ -29,8 +25,8 @@ class SubsystemTests : LinearOpMode() {
 //        var pinch = 0.0
 //        var pto_position = 0.5
 
-        val dashboard = FtcDashboard.getInstance()
-        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        // val dashboard = FtcDashboard.getInstance()
+        // telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
         waitForStart()
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
@@ -121,19 +117,19 @@ class SubsystemTests : LinearOpMode() {
 //                extensionAmount = 0.68
 //            }
 
-            if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
-                sampler.extend()
-            }
-            if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
-                sampler.grab_sample()
-            }
+            // if (gamepad1.dpad_up && !previousGamepad1.dpad_up) {
+            //     sampler.extend()
+            // }
+            // if (gamepad1.dpad_down && !previousGamepad1.dpad_down) {
+            //     sampler.grab_sample()
+            // }
 
-            if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
-                sampler.grab_sample_right_side()
-            }
-            if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
-                sampler.grab_sample_left_side()
-            }
+            // if (gamepad1.dpad_right && !previousGamepad1.dpad_right) {
+            //     sampler.grab_sample_right_side()
+            // }
+            // if (gamepad1.dpad_left && !previousGamepad1.dpad_left) {
+            //     sampler.grab_sample_left_side()
+            // }
 
 //            if (gamepad1.triangle && !previousGamepad1.triangle) {
 //                roll += 0.01
@@ -142,11 +138,33 @@ class SubsystemTests : LinearOpMode() {
 //                roll -= 0.01
 //            }
 //
-            if (gamepad1.circle && !previousGamepad1.circle) {
-                sampler.claw.position = 0.27
+            // if (gamepad1.circle && !previousGamepad1.circle) {
+            //     sampler.claw.position = 0.27
+            // }
+            // if (gamepad1.square && !previousGamepad1.square) {
+            //     sampler.claw.position = 0.0
+            // }
+
+            if (gamepad1.b) {
+                sampler.setState(Sampler.State.STOW)
             }
-            if (gamepad1.square && !previousGamepad1.square) {
-                sampler.claw.position = 0.0
+            if (gamepad1.y) {
+                sampler.setState(Sampler.State.EXTEND)
+            }
+            if (gamepad1.x) {
+                sampler.setState(Sampler.State.GRAB_SAMP)
+            }
+            if (gamepad1.dpad_left) {
+                sampler.setState(Sampler.State.PICKED)
+            }
+            if (gamepad1.dpad_down) {
+                sampler.setState(Sampler.State.HOLD_SAMP)
+            }
+            if (gamepad1.right_bumper) {
+                sampler.setState(Sampler.State.PREP_SCORE_SAMP)
+            }
+            if (gamepad1.left_bumper) {
+                sampler.setState(Sampler.State.SCORE_SAMP)
             }
 
             sampler.write()
