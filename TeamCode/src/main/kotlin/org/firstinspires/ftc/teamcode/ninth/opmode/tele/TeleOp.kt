@@ -38,8 +38,6 @@ class TeleOp: LinearOpMode() {
         val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         val sampler = Sampler(hardwareMap)
 
-        val retract_wait = 2.0
-
         var manual = false
         // TODO: SET TO LOW FOR POST-AUTO
         lift.setPreset(BOTTOM)
@@ -56,7 +54,15 @@ class TeleOp: LinearOpMode() {
                 sampHeights = false
             }
             .transition(
-                { currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8
+                { (currentGamepad1.left_trigger > 0.8 && previousGamepad1.left_trigger <= 0.8)
+                    && lift.getPreset() == Lift.Preset.BOTTOM },
+                EXTENDING,
+                { sampler.setRoll(R0) }
+            )
+            .transition(
+                { ((currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8)
+                        || (currentGamepad1.left_bumper && !previousGamepad1.left_bumper)
+                        || (currentGamepad1.right_bumper && !previousGamepad1.right_bumper))
                         && lift.getPreset() == Lift.Preset.BOTTOM },
                 EXTENDING,
             )
@@ -69,7 +75,7 @@ class TeleOp: LinearOpMode() {
 //          ╚═════╝░╚═╝░░╚═╝╚═╝░░░░░╚═╝╚═╝░░░░░╚══════╝╚══════╝
 
             .state(EXTENDING)
-            .onEnter { speedDecrease = 0.0; turnDecrease = 1.5; sampler.setRoll(R0) }
+            .onEnter { speedDecrease = 0.0; turnDecrease = 1.5 }
             .transitionTimed(0.50)
             .state(EXTEND)
             .transition(
@@ -166,15 +172,6 @@ class TeleOp: LinearOpMode() {
             }
             if (currentGamepad2.start && !previousGamepad2.start) { manual = !manual }
             if (!manual) {
-                if (!ITSCLIMBINTIME) {
-                    when (lift.getPreset()) {
-                        Lift.Preset.SPEC_HIGH_SCORE, Lift.Preset.SPEC_LOW_SCORE ->
-                            lift.updatePid(lift.getHeight())
-                        else -> lift.updateProfiled(lift.getHeight(), debug = telemetry)
-                    }
-                } else {
-                    lift.pto2CLIMB(lift.getHeight())
-                }
             } else {
                 lift.setEffort(-gamepad2.left_stick_y + 0.2)
                 if (gamepad2.dpad_down && -gamepad2.right_stick_y < -0.8) {
@@ -187,10 +184,11 @@ class TeleOp: LinearOpMode() {
             if (samplerFSM.state != lastState) {
                 sampler.setState(samplerFSM.state as Sampler.State)
             }
+            // safety in other states
             when {
-                currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 -> { sampler.setRoll(R90); sampler.setState(samplerFSM.state as Sampler.State) }
-                currentGamepad1.left_bumper && !previousGamepad1.left_bumper -> { sampler.setRoll(R45); sampler.setState(samplerFSM.state as Sampler.State) }
-                currentGamepad1.right_bumper && !previousGamepad1.right_bumper -> { sampler.setRoll(RCW45); sampler.setState(samplerFSM.state as Sampler.State) }
+                currentGamepad1.right_trigger > 0.8 && previousGamepad1.right_trigger <= 0.8 -> { sampler.setRoll(R90) }
+                currentGamepad1.left_bumper && !previousGamepad1.left_bumper -> { sampler.setRoll(R45) }
+                currentGamepad1.right_bumper && !previousGamepad1.right_bumper -> { sampler.setRoll(RCW45) }
             }
             sampler.updateProfiled()
 

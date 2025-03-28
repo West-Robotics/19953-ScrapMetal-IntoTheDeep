@@ -43,7 +43,7 @@ class Sampler(hardwareMap: HardwareMap) {
         PRIME_SAMP      (Prox.EXT,  Dist.EXT, { rollState }, OPEN,  Lkg.EXT),
         GRAB_SAMP       (Prox.EXT,  Dist.EXT, { rollState }, CLOSE, Lkg.EXT),
         PICKED          (Prox.RET, Dist.EXT,  { R0 },        CLOSE, Lkg.EXT),
-        HOLD_SAMP       (Prox.RET, Dist.RET,  { R0 },        CLOSE, Lkg.RET),
+        HOLD_SAMP       (Prox.RET, Dist.RET,  { R90 },        CLOSE, Lkg.RET),
         // TODO: add different scoring orientations
         PREP_SCORE_SAMP (Prox.OUT,  Dist.RET, { R0 },        CLOSE, Lkg.RET),
         SCORE_SAMP      (Prox.OUT,  Dist.RET, { R0 },        OPEN,  Lkg.RET),
@@ -64,10 +64,10 @@ class Sampler(hardwareMap: HardwareMap) {
     }
 
     enum class Prox(val pos: Double) {
-        EXT  (0.45),
+        EXT  (0.425),
         FLAT (0.48),
         RET  (0.53),
-        OUT  (0.68),
+        OUT  (0.70),
     }
 
     enum class Dist(val pos: Double) {
@@ -105,7 +105,10 @@ class Sampler(hardwareMap: HardwareMap) {
         extensionTwo.position = state.linkage.pos
     }
 
-    fun setRoll(state: Roll) { rollState = state }
+    fun setRoll(state: Roll) {
+        rollState = state
+        roll.position = rollState.pos
+    }
 
     // TODO: remove retracting
     fun updateProfiled(retracting: Boolean = false) {
