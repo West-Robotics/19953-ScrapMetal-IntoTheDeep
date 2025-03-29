@@ -37,13 +37,13 @@ class Sampler(hardwareMap: HardwareMap) {
         val claw: Claw,
         val linkage: Lkg,
     ) {
-        STOW            (Prox.RET, Dist.RET,  { R0 },        OPEN,  Lkg.RET),
-        EXTENDING       (Prox.RET, Dist.EXT,  { R0 },        OPEN,  Lkg.EXT),
+        STOW            (Prox.RET,  Dist.RET,  { R0 },       OPEN,  Lkg.RET),
+        EXTENDING       (Prox.RET,  Dist.EXT,  { R0 },       OPEN,  Lkg.EXT),
         EXTEND          (Prox.FLAT, Dist.EXT, { rollState }, OPEN,  Lkg.EXT),
         PRIME_SAMP      (Prox.EXT,  Dist.EXT, { rollState }, OPEN,  Lkg.EXT),
         GRAB_SAMP       (Prox.EXT,  Dist.EXT, { rollState }, CLOSE, Lkg.EXT),
-        PICKED          (Prox.RET, Dist.EXT,  { R0 },        CLOSE, Lkg.EXT),
-        HOLD_SAMP       (Prox.RET, Dist.RET,  { R90 },        CLOSE, Lkg.RET),
+        PICKED          (Prox.RET,  Dist.EXT,  { R0 },       CLOSE, Lkg.EXT),
+        HOLD_SAMP       (Prox.RET,  Dist.RET,  { R90 },      CLOSE, Lkg.RET),
         // TODO: add different scoring orientations
         PREP_SCORE_SAMP (Prox.OUT,  Dist.RET, { R0 },        CLOSE, Lkg.RET),
         SCORE_SAMP      (Prox.OUT,  Dist.RET, { R0 },        OPEN,  Lkg.RET),
