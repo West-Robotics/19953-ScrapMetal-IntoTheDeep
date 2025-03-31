@@ -70,7 +70,7 @@ class FivePlusZero : LinearOpMode() {
             .loop { sampler.updateProfiled() }
             .waitState(0.5)
             .onEnter { sampler.retract_specimen() }
-            .loop { sampler.updateProfiled(retracting = true) }
+            .loop { sampler.updateProfiled() }
             .waitState(0.7)
             .onEnter { sampler.score_specimen(); lift.setPreset(Lift.Preset.SPEC_HIGH_SCORE) }
             .waitState(0.1)

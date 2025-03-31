@@ -155,7 +155,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
     enum class Preset(val height: Double) {
         BOTTOM         (00.00                        ),
         SIDE_SIN       (01.00                        ),
-        SAMP_LOW       (25.75 - 7.0 + 1.0-2.0        ),
+        SAMP_LOW       (25.75 - 7.0 + 1.0-2.00        ),
         INIT_POST_AUTO (25.75 - 7.0 + 0.0            ),
         SAMP_HIGH      (43.00 - 7.0 + 0.7-2.0        ),
         RAISE_CLIMB    (32.00                        ),

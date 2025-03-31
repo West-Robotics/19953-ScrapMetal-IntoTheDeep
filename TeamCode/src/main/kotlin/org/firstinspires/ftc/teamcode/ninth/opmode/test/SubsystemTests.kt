@@ -28,6 +28,7 @@ class SubsystemTests : LinearOpMode() {
         // val dashboard = FtcDashboard.getInstance()
         // telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
         waitForStart()
+        sampler.setState(Sampler.State.DEBUG)
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
             currentGamepad1.copy(gamepad1)
@@ -145,27 +146,27 @@ class SubsystemTests : LinearOpMode() {
             //     sampler.claw.position = 0.0
             // }
 
-            if (gamepad1.b) {
-                sampler.setState(Sampler.State.STOW)
-            }
-            if (gamepad1.y) {
-                sampler.setState(Sampler.State.EXTEND)
-            }
-            if (gamepad1.x) {
-                sampler.setState(Sampler.State.GRAB_SAMP)
-            }
-            if (gamepad1.dpad_left) {
-                sampler.setState(Sampler.State.PICKED)
-            }
-            if (gamepad1.dpad_down) {
-                sampler.setState(Sampler.State.HOLD_SAMP)
-            }
-            if (gamepad1.right_bumper) {
-                sampler.setState(Sampler.State.PREP_SCORE_SAMP)
-            }
-            if (gamepad1.left_bumper) {
-                sampler.setState(Sampler.State.SCORE_SAMP)
-            }
+            // if (gamepad1.b) {
+            //     sampler.setState(Sampler.State.STOW)
+            // }
+            // if (gamepad1.y) {
+            //     sampler.setState(Sampler.State.EXTEND)
+            // }
+            // if (gamepad1.x) {
+            //     sampler.setState(Sampler.State.GRAB_SAMP)
+            // }
+            // if (gamepad1.dpad_left) {
+            //     sampler.setState(Sampler.State.PICKED)
+            // }
+            // if (gamepad1.dpad_down) {
+            //     sampler.setState(Sampler.State.HOLD_SAMP)
+            // }
+            // if (gamepad1.right_bumper) {
+            //     sampler.setState(Sampler.State.PREP_SCORE_SAMP)
+            // }
+            // if (gamepad1.left_bumper) {
+            //     sampler.setState(Sampler.State.SCORE_SAMP)
+            // }
 
             sampler.write()
             sampler.updateProfiled()

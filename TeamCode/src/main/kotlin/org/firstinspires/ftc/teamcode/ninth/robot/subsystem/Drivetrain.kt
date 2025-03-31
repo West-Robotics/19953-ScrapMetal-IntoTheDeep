@@ -48,14 +48,14 @@ class Drivetrain(hardwareMap: HardwareMap, private val voltageMultiplier: Double
     }
 
     fun setEffort(effort: Pose2d) {
-        (effort * voltageMultiplier).let { effort ->
-            val yModified: Double = effort.position.y * 1.0
-            val denominator = max(abs(effort.position.x) + abs(effort.position.y) + abs(effort.heading.theta), 1.0)
+        (effort * voltageMultiplier).let { u ->
+            val yModified: Double = u.position.y * 1.0
+            val denominator = max(abs(u.position.x) + abs(u.position.y) + abs(u.heading.theta), 1.0)
 
-            frontLeft.effort = (effort.position.x - yModified - effort.heading.theta) / denominator
-            backLeft.effort = (effort.position.x + yModified - effort.heading.theta) / denominator
-            backRight.effort = (effort.position.x - yModified + effort.heading.theta) / denominator
-            frontRight.effort = (effort.position.x + yModified + effort.heading.theta) / denominator
+            frontLeft.effort = (u.position.x - yModified - u.heading.theta) / denominator
+            backLeft.effort = (u.position.x + yModified - u.heading.theta) / denominator
+            backRight.effort = (u.position.x - yModified + u.heading.theta) / denominator
+            frontRight.effort = (u.position.x + yModified + u.heading.theta) / denominator
         }
     }
 

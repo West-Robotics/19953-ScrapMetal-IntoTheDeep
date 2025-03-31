@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.ninth.opmode.tele
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
@@ -15,8 +16,8 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sign
 
+@Disabled
 @TeleOp(name = "SpecTele")
-
 class SpecTele: LinearOpMode() {
     // TODO: test reset, manual, charge bot, test positions of lift and intake, pow turn
     enum class SamplerState {

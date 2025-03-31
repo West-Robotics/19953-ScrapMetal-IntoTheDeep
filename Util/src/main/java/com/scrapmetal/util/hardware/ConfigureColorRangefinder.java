@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ninth.opmode.test;
+package com.scrapmetal.util.hardware;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -21,11 +21,13 @@ public class ConfigureColorRangefinder extends LinearOpMode {
          */
         crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 180 / 360.0 * 255, 250 / 360.0 * 255); // blue
         crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 55 / 360.0 * 255, 90 / 360.0 * 255); // yellow
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement
+        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 15); // 15mm or closer requirement
 
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 0 / 360.0 * 255, 50 / 360.0 * 255); // red
         crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 55 / 360.0 * 255, 90 / 360.0 * 255); // yellow
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 20); // 20mm or closer requirement
+        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 15); // 15mm or closer requirement
+
+        crf.setLedBrightness(25);
 
         waitForStart();
 

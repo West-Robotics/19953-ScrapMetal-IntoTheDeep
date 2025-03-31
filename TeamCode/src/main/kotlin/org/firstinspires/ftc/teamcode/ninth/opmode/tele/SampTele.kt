@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.ninth.opmode.tele
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.Gamepad
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import kotlin.math.pow
 import kotlin.math.sign
 
+@Disabled
 @TeleOp(name = "SampleTele")
 class SampTele: LinearOpMode() {
 

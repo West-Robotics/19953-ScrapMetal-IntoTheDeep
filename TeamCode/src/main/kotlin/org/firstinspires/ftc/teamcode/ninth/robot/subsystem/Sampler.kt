@@ -8,6 +8,7 @@ import com.scrapmetal.util.control.motionProfile
 import com.scrapmetal.util.hardware.SMServo
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler.Claw.*
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler.Roll.*
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler.Color.*
 
 class Sampler(hardwareMap: HardwareMap) {
     init { rollState = R0 }
@@ -20,6 +21,8 @@ class Sampler(hardwareMap: HardwareMap) {
     private val distal = SMServo(hardwareMap, "distal", State.STOW.distal.pos, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
     private val roll = SMServo(hardwareMap, "roll", State.STOW.roll.invoke().pos, Servo.Direction.FORWARD, SMServo.ModelPWM.AXON)
     private val claw = SMServo(hardwareMap, "claw", State.STOW.claw.pos, Servo.Direction.REVERSE, SMServo.ModelPWM.AXON)
+    private val color0 = hardwareMap.digitalChannel.get("color0")
+    private val color1 = hardwareMap.digitalChannel.get("color1")
 
     companion object {
         private var rollState = R0
@@ -37,13 +40,13 @@ class Sampler(hardwareMap: HardwareMap) {
         val claw: Claw,
         val linkage: Lkg,
     ) {
-        STOW            (Prox.RET,  Dist.RET,  { R0 },       OPEN,  Lkg.RET),
-        EXTENDING       (Prox.RET,  Dist.EXT,  { R0 },       OPEN,  Lkg.EXT),
+        STOW            (Prox.FLAT, Dist.RET, { R0 },        OPEN,  Lkg.RET),
+        EXTENDING       (Prox.RET,  Dist.EXT, { R0 },        OPEN,  Lkg.EXT),
         EXTEND          (Prox.FLAT, Dist.EXT, { rollState }, OPEN,  Lkg.EXT),
         PRIME_SAMP      (Prox.EXT,  Dist.EXT, { rollState }, OPEN,  Lkg.EXT),
         GRAB_SAMP       (Prox.EXT,  Dist.EXT, { rollState }, CLOSE, Lkg.EXT),
-        PICKED          (Prox.RET,  Dist.EXT,  { R0 },       CLOSE, Lkg.EXT),
-        HOLD_SAMP       (Prox.RET,  Dist.RET,  { R90 },      CLOSE, Lkg.RET),
+        PICKED          (Prox.RET,  Dist.EXT, { R0 },        CLOSE, Lkg.EXT),
+        HOLD_SAMP       (Prox.FLAT, Dist.RET, { R90 },       CLOSE, Lkg.RET),
         // TODO: add different scoring orientations
         PREP_SCORE_SAMP (Prox.OUT,  Dist.RET, { R0 },        CLOSE, Lkg.RET),
         SCORE_SAMP      (Prox.OUT,  Dist.RET, { R0 },        OPEN,  Lkg.RET),
@@ -61,19 +64,24 @@ class Sampler(hardwareMap: HardwareMap) {
         SWEEP           (Prox.FLAT, Dist.FLAT, { R0 }, OPEN, Lkg.EXT),
         PREP_SCORE_SPEC (Prox.FLAT, Dist.FLAT, { R0 }, OPEN, Lkg.EXT),
         SPEC_PRELOAD    (Prox.FLAT, Dist.FLAT, { R0 }, OPEN, Lkg.EXT),
+
+        DEBUG           (Prox.VERT, Dist.FLAT, { R0 }, OPEN,  Lkg.RET),
     }
 
     enum class Prox(val pos: Double) {
-        EXT  (0.425),
-        FLAT (0.48),
+        EXT  (0.42),
+        FLAT (0.48), // not actually flat
         RET  (0.53),
-        OUT  (0.70),
+        OUT  (0.72),
+
+        VERT (0.67),
     }
 
     enum class Dist(val pos: Double) {
-        EXT  (0.63),
-        FLAT (0.89),
-        RET  (1.00),
+        EXT  (0.64),
+        RET  (0.98),
+
+        FLAT (0.86),
     }
 
     // Names reference the angle of the sample so we don't have to rotate 90 degrees in our head every time
@@ -85,7 +93,7 @@ class Sampler(hardwareMap: HardwareMap) {
     }
 
     enum class Claw(val pos: Double) {
-        OPEN  (0.96),
+        OPEN  (0.94),
         CLOSE (0.74),
     }
 
@@ -110,18 +118,34 @@ class Sampler(hardwareMap: HardwareMap) {
         roll.position = rollState.pos
     }
 
+    fun getRoll() = rollState
+
     // TODO: remove retracting
-    fun updateProfiled(retracting: Boolean = false) {
+    fun updateProfiled() {
         proximal.position = motionProfile(
             MPConstraints(
                 start = mpStart,
                 end = mpEnd,
-                accel = 36.0,
-                decel = 8.0,
+                accel = 82.0,
+                decel = if (mpEnd == Prox.EXT.pos) 64.0 else 6.0,
                 vLimit = 36.0,
             ),
             mpTimer.seconds(),
         ).s + pitchOffset
+    }
+
+    enum class Color {
+        YELLOW,
+        RED,
+        BLUE,
+        NONE,
+    }
+
+    fun getColor(): Color = when (Pair(color0.state, color1.state)) {
+        Pair(true, true) -> YELLOW
+        Pair(false, true) -> RED
+        Pair(true, false) -> BLUE
+        else -> NONE
     }
 
     // TODO: maybe increase servo caching precision
