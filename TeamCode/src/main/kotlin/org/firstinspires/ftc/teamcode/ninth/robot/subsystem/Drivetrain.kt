@@ -129,7 +129,7 @@ class Drivetrain(hardwareMap: HardwareMap, private val voltageMultiplier: Double
             (pControl(kPRot, reference.heading.theta, pose.heading.theta, wraparound = true) +
                     pControl(kDRot, 0.0, velo.heading.theta)).coerceIn(-maxRotEffort..maxRotEffort),
         )
-        val robotFrameEffort = Pose2d(pose.heading.inverse() * fieldFrameEffort.position, fieldFrameEffort.heading)
+        val robotFrameEffort = Pose2d(pose.heading.inverse * fieldFrameEffort.position, fieldFrameEffort.heading)
 
         if (debug != null) {
             debug.addData("x error", reference.position.x - pose.position.x)

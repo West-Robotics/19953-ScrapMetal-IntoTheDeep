@@ -23,8 +23,8 @@ fun Canvas.drawRobot(pose: Pose2d): Canvas {
     return this
 }
 
-fun Canvas.drawPath(spline: Spline): Canvas {
-    val points = Array(POINT_COUNT) { spline(it/POINT_COUNT.toDouble()) }
+fun Canvas.drawPath(curve: Curve): Canvas {
+    val points = Array(POINT_COUNT) { curve(it/POINT_COUNT.toDouble()) }
     val xPoints = DoubleArray(POINT_COUNT) { points[it].x }
     val yPoints = DoubleArray(POINT_COUNT) { points[it].y }
     this.setStroke(PATH_COLOR)
@@ -36,7 +36,7 @@ fun Canvas.drawPath(spline: Spline): Canvas {
  * Draws the path along with interspersed heading markers
  */
 fun Canvas.drawSubMovement(subMovement: SubMovement): Canvas {
-    val points = Array(POINT_COUNT) { subMovement.spline(it / POINT_COUNT.toDouble()) }
+    val points = Array(POINT_COUNT) { subMovement.curve(it / POINT_COUNT.toDouble()) }
     val xPoints = DoubleArray(POINT_COUNT) { points[it].x }
     val yPoints = DoubleArray(POINT_COUNT) { points[it].y }
     val headingTipPoints = Array(HEADING_COUNT) {

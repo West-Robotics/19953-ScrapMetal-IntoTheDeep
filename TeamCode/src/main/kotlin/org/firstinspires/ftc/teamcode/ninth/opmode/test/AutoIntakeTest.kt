@@ -1,0 +1,124 @@
+package org.firstinspires.ftc.teamcode.ninth.opmode.test
+
+import com.qualcomm.hardware.limelightvision.Limelight3A
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.scrapmetal.util.control.Pose2d
+import com.scrapmetal.util.control.Vector2d
+import com.scrapmetal.util.control.pathing.Constant
+import com.scrapmetal.util.control.pathing.Follower
+import com.scrapmetal.util.control.pathing.LinePoint
+import com.scrapmetal.util.control.pathing.lineTo
+import com.scrapmetal.util.control.pathing.withHeading
+import com.sfdev.assembly.state.StateMachineBuilder
+import org.firstinspires.ftc.teamcode.ninth.NOM_VOLT
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Drivetrain
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler.State.*
+import org.firstinspires.ftc.teamcode.ninth.opmode.test.AutoIntakeTest.State.*
+
+@Autonomous(name="Auto Intake Test")
+class AutoIntakeTest : LinearOpMode() {
+    enum class State {
+        DETECT,
+        INTAKE,
+        OUTPUT,
+    }
+
+    override fun runOpMode() {
+        val drivetrain = Drivetrain(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage))
+        val sampler = Sampler(hardwareMap)
+        val limelight = hardwareMap.get(Limelight3A::class.java, "limelight")
+        limelight.pipelineSwitch(0)
+        var latestResult = limelight.latestResult
+
+        val follower = Follower(kN=0.5, kP=0.5, kD=0.05, kTheta=0.08, kOmega=0.005, endDistance=12.0)
+        val outPose = Pose2d(0.0, 0.0, 0.0)
+        var sampAngle = 0.0
+
+        val fsm = StateMachineBuilder()
+            .state(DETECT)
+            // time since last update compensation, timestamp, latency, etc.
+            .loop { latestResult = limelight.latestResult }
+            .transitionTimed(0.5) {
+                val pose = drivetrain.getPoseAndVelo().first
+                val sampPos = pose.position - Vector2d(21.0) + pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
+                follower.follow(
+                    LinePoint(outPose.position) lineTo
+                        LinePoint(sampPos) withHeading Constant(0.0)
+                )
+                sampAngle = latestResult.pythonOutput[2]
+                telemetry.addData("x", latestResult.pythonOutput[0])
+                telemetry.addData("y", latestResult.pythonOutput[1])
+                telemetry.addData("ang", latestResult.pythonOutput[2])
+            }
+
+            .state(INTAKE)
+            .onEnter {
+                sampler.setState(EXTING_SAMP)
+                sampler.setRoll(sampAngle)
+            }
+            .loop {
+                val (pose, velo) = drivetrain.getPoseAndVelo()
+                drivetrain.setEffort(follower.update(pose, velo))
+            }
+            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
+            .waitState(0.08)
+            .onEnter { sampler.setState(PRIME_SAMP) }
+            .loop {
+                val (pose, velo) = drivetrain.getPoseAndVelo()
+                drivetrain.setEffort(follower.update(pose, velo))
+            }
+            .waitState(0.08)
+            .onEnter { sampler.setState(GRAB_SAMP) }
+            .loop {
+                val (pose, velo) = drivetrain.getPoseAndVelo()
+                drivetrain.setEffort(follower.update(pose, velo))
+            }
+
+            .state(OUTPUT)
+            .onEnter {
+                follower.follow(
+                    LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
+                        LinePoint(outPose.position) withHeading Constant(0.0)
+                )
+                sampler.setState(MOVE_SCORE_SAMP)
+            }
+            .loop {
+                val (pose, velo) = drivetrain.getPoseAndVelo()
+                drivetrain.setEffort(follower.update(pose, velo))
+            }
+
+            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
+            .waitState(0.4)
+            .onEnter { sampler.setState(PREP_SCORE_SAMP) }
+            .loop {
+                val (pose, velo) = drivetrain.getPoseAndVelo()
+                drivetrain.setEffort(follower.update(pose, velo))
+            }
+            .waitState(0.2)
+            .onEnter { sampler.setState(SCORE_SAMP) }
+            .loop {
+                val (pose, velo) = drivetrain.getPoseAndVelo()
+                drivetrain.setEffort(follower.update(pose, velo))
+            }
+
+            .build()
+
+//        val dashboard = FtcDashboard.getInstance()
+//        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        limelight.start()
+        waitForStart()
+        drivetrain.setPose(outPose)
+        fsm.start()
+        while (opModeIsActive()) {
+            drivetrain.read()
+
+            fsm.update()
+
+            drivetrain.write()
+            sampler.write()
+            telemetry.update()
+        }
+    }
+}

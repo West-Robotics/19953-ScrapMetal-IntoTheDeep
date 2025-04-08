@@ -10,9 +10,9 @@ import kotlin.math.sqrt
  */
 data class Vector2d(val x: Double = 0.0, val y: Double = 0.0) {
     infix fun dot(v: Vector2d) = x * v.x + y * v.y
-    fun norm() = sqrt(this dot this)
-    fun unit() = if (norm() != 0.0) Vector2d(x / norm(), y / norm()) else Vector2d()
-    fun normal() = Rotation2d(90.0)*this
+    val norm get() = sqrt(this dot this)
+    val unit get() = if (norm != 0.0) Vector2d(x / norm, y / norm) else Vector2d()
+    val normal get() = Rotation2d(90.0)*this
 
     operator fun times(k: Double) = Vector2d(k * x, k * y)
     operator fun div(k: Double) = Vector2d(x / k, y / k)
@@ -32,7 +32,7 @@ data class Rotation2d(val theta: Degrees = 0.0) {
         v.x * sin(theta.toRad()) + v.y * cos(theta.toRad()),
     )
     operator fun times(r: Rotation2d) = Rotation2d(theta + r.theta)
-    fun inverse() = Rotation2d(-theta)
+    val inverse get() = Rotation2d(-theta)
 }
 typealias Degrees = Double
 typealias Rad = Double
@@ -45,7 +45,9 @@ fun Rad.toDegrees() = 360 / (2 * PI) * this
  */
 data class Pose2d(val position: Vector2d = Vector2d(), val heading: Rotation2d = Rotation2d()) {
     constructor(x: Double, y: Double, theta: Double) : this(Vector2d(x, y), Rotation2d(theta))
+    constructor(position: Vector2d, theta: Double) : this(position, Rotation2d(theta))
+    constructor(x: Double, y: Double, heading: Rotation2d) : this(Vector2d(x, y), heading)
     operator fun plus(p: Pose2d) = Pose2d(position + p.position, p.heading * heading)
-    operator fun minus(p: Pose2d) = Pose2d(position - p.position, p.heading.inverse() * heading)
-    operator fun times(m: Double) = Pose2d(position * m, Rotation2d(heading.theta * m))
+    operator fun minus(p: Pose2d) = Pose2d(position - p.position, p.heading.inverse * heading)
+    operator fun times(k: Double) = Pose2d(position * k, Rotation2d(heading.theta * k))
 }

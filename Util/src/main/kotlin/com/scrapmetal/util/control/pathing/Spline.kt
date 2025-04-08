@@ -8,11 +8,11 @@ import kotlin.math.pow
  * A cubic Hermite spline
  */
 data class Spline(
-    val start: Vector2d,
+    override val start: Vector2d,
     val startTangent: Vector2d,
-    val end: Vector2d,
-    val endTangent: Vector2d,
-) {
+    override val end: Vector2d,
+    override val endTangent: Vector2d,
+) : Curve {
     private val p1: Vector2d = start + startTangent/3.0
     private val p2: Vector2d = end - endTangent/3.0
     private val coef: Array<Vector2d> = Array(4) {
@@ -24,17 +24,11 @@ data class Spline(
             else -> Vector2d()
         }
     }
-    private val positions: Array<Vector2d> = Array(1001) { t -> invoke(t / 1000.0)}
+//    private val positions: Array<Vector2d> = Array(1001) { t -> invoke(t / 1000.0)}
 
-    /**
-     * Return a point ([Vector2d]) given a parameter [t]
-     */
-    operator fun invoke(t: Double) = coef[3]*t.pow(3) + coef[2]*t.pow(2) + coef[1]*t + coef[0]
+    override operator fun invoke(t: Double) = coef[3]*t.pow(3) + coef[2]*t.pow(2) + coef[1]*t + coef[0]
 
-    /**
-     * Return the unit tangent vector (normalized derivative) of the path at a parameter [t]
-     */
-    fun tangentAt(t: Double) = (coef[3]*3.0*t.pow(2) + coef[2]*2.0*t + coef[1]).unit()
+    override fun tangentAt(t: Double) = (coef[3]*3.0*t.pow(2) + coef[2]*2.0*t + coef[1]).unit
 
     // WARNING: this might have really bad performance
     /**
@@ -42,12 +36,12 @@ data class Spline(
      *
      * This is done to reduce the chance of not finding a global minimum.
      */
-    fun closestT(pos: Vector2d): Double {
+    override fun closestT(pos: Vector2d): Double {
         fun iToT(i: Int, n: Int, lower: Double, upper: Double) =
             lower + (upper - lower) * (1.0 / n * (0.5+i))
         tailrec fun closestTOfN(n: Int, lower: Double, upper: Double): Double {
             val range = upper - lower
-            val distances = DoubleArray(n) { i -> (invoke(iToT(i, n, lower, upper)) - pos).norm() }
+            val distances = DoubleArray(n) { i -> (invoke(iToT(i, n, lower, upper)) - pos).norm }
             val closestT = iToT(distances.indices.minBy { distances[it] }, n, lower, upper)
             return if (range > n.toDouble().pow(-1)) {
                 closestTOfN(n, closestT - 0.5 * range / n, closestT + 0.5 * range / n)
@@ -61,7 +55,7 @@ data class Spline(
             0.0,
             1.0
         ).minBy {
-            (invoke(it) - pos).norm()
+            (invoke(it) - pos).norm
         }
     }
 
@@ -71,18 +65,23 @@ data class Spline(
      * Brute force closest point with a million samples, only use for testing
      */
     fun closestPointBruteforce(pos: Vector2d) =
-        invoke((1..1_000_000).minBy { i -> (invoke(i / 1_000_000.0) - pos).norm() } / 1_000_000.0)
+        invoke((1..1_000_000).minBy { i -> (invoke(i / 1_000_000.0) - pos).norm } / 1_000_000.0)
 }
 
 /**
- * A convenience class that wraps a spline position and tangent vector, allowing the tangent vector
- * to be specified in polar form
+ * A convenience class for path construction that wraps a spline position and tangent vector,
+ * allowing the tangent vector to be specified in polar form
  */
-data class SplinePoint(val position: Vector2d, val tangent: Vector2d) {
+data class SplinePoint(override val position: Vector2d, val tangent: Vector2d) : CurvePoint {
     constructor(
         x: Double,
         y: Double,
         velocity: Double,
         theta: Double,
-    ) : this(Vector2d(x, y), Rotation2d(theta)*Vector2d(velocity, 0.0))
+    ) : this(Vector2d(x, y), Rotation2d(theta) * Vector2d(velocity, 0.0))
+    constructor(
+        position: Vector2d,
+        velocity: Double,
+        theta: Double,
+    ) : this(position, Rotation2d(theta) * Vector2d(velocity, 0.0))
 }

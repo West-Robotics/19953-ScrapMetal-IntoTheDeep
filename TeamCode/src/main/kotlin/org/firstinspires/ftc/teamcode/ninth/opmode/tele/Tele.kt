@@ -23,13 +23,14 @@ open class Tele : LinearOpMode() {
 
     override fun runOpMode() {
         val driver = SMGamepad(gamepad1)
-        val operator = SMGamepad(gamepad1)
+        val operator = SMGamepad(gamepad2)
 
         val drivetrain = Drivetrain(hardwareMap)
         // TODO: readd tele
         val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         val sampler = Sampler(hardwareMap)
 
+        val COLLISION_WAIT = 0.85
         val PRIME_WAIT = 0.08
         val GRAB_WAIT = 0.08
         val SCORE_WAIT = 0.2
@@ -49,20 +50,23 @@ open class Tele : LinearOpMode() {
             .onEnter {
                 speedDecrease = 0.0
                 turnDecrease = 0.0
-                sampHeights = false
+                sampHeights = false // TODO: change back to false later
+                specHeights = false
             }
-            .transition({ driver.lt.rising && lift.getPreset() == BOTTOM }, EXTENDING, { sampler.setRoll(R0) })
-            .transition({ driver.rt.rising && lift.getPreset() == BOTTOM }, EXTENDING, { sampler.setRoll(R90) })
-            .transition({ driver.lb.rising && lift.getPreset() == BOTTOM }, EXTENDING, { sampler.setRoll(R45) })
-            .transition({ driver.rb.rising && lift.getPreset() == BOTTOM }, EXTENDING, { sampler.setRoll(RCW45) })
+            .transition({ driver.lt.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R0) })
+            .transition({ driver.rt.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R90) })
+            .transition({ driver.lb.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R45) })
+            .transition({ driver.rb.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(RCW45) })
+            .transition({ driver.a.rising && lift.getPreset() == BOTTOM }, EXTING_SPEC)
 
-            .state(EXTENDING)
-            .transitionTimed(0.65)
-            .state(EXTEND)
-            .onEnter { speedDecrease = 0.0; turnDecrease = 1.5 }
+            .state(EXTING_SAMP)
+            .minimumTransitionTimed(0.6)
+            .transitionTimed(COLLISION_WAIT)
+            .state(EXT_SAMP)
+            .onEnter { speedDecrease = 2.0; turnDecrease = 2.5 }
             .loop {
                 when {
-                    driver.rt.rising -> sampler.setRoll(if (sampler.getRoll() == R90) R0 else R90)
+                    driver.rt.rising -> sampler.setRoll(if (sampler.getRoll() == R90.pos) R0 else R90)
                     driver.lb.rising -> { sampler.setRoll(R45) }
                     driver.rb.rising -> { sampler.setRoll(RCW45) }
                 }
@@ -82,32 +86,60 @@ open class Tele : LinearOpMode() {
             .onEnter{ speedDecrease = 0.0; turnDecrease = 0.0 }
             // TODO: add override in case of sensor failure
             .transition({ sampler.getColor() in goodColors }, HOLD_SAMP)
-            .transition({ sampler.getColor() in badColors }, EXTEND)
+            .transition({ sampler.getColor() in badColors }, EXT_SAMP)
             .transition({ driver.lt.rising }, HOLD_SAMP)
-            .transition({ driver.rt.rising }, EXTEND)
+            .transition({ driver.rt.rising }, EXT_SAMP)
             .transition({ operator.x.rising }, STOW)
 
             .state(HOLD_SAMP)
             .onEnter { sampHeights = true }
-            .transition({ driver.lt.rising }, PREP_SCORE_SAMP)
+            .transition({ driver.lt.rising }, MOVE_SCORE_SAMP)
             .transition(
                 {
                     (lift.getPreset() == Lift.Preset.SAMP_HIGH ||
                             lift.getPreset() == Lift.Preset.SAMP_LOW) &&
-                        abs(lift.getHeight() - lift.getPreset().height) < 0.75
+                        abs(lift.getHeight() - lift.getPreset().height) < 3.0
                 },
-                PREP_SCORE_SAMP,
+                MOVE_SCORE_SAMP,
             )
+            .transition({ driver.rt.rising }, OBS_EXT_SAMP)
             .transition({ operator.x.rising }, STOW)
 
+            .state(MOVE_SCORE_SAMP)
+            .transitionTimed(0.4)
             .state(PREP_SCORE_SAMP)
             .transition({ driver.lt.rising }, SCORE_SAMP)
             .transition({ operator.x.rising }, STOW)
-
             .state(SCORE_SAMP)
             .onEnter { speedDecrease = 0.0; turnDecrease = 0.0 }
             .transitionTimed(SCORE_WAIT, STOW)
             .transition({ operator.x.rising }, STOW)
+
+            .state(OBS_EXT_SAMP)
+            .transition({ driver.lt.rising }, OBS_DROP_SAMP)
+            .transition({ operator.x.rising }, STOW)
+            .state(OBS_DROP_SAMP)
+            .transitionTimed(0.2, STOW)
+
+
+
+            .state(EXTING_SPEC)
+            .transitionTimed(COLLISION_WAIT)
+            .state(PRIME_SPEC)
+            .onEnter { speedDecrease = 0.0; turnDecrease = 1.5 }
+            .transition({ driver.lt.rising }, GRAB_SPEC)
+            .transition({ operator.x.rising}, STOW)
+            .state(GRAB_SPEC)
+            .transitionTimed(GRAB_WAIT)
+            .state(RAM_SPEC)
+            .onEnter { specHeights = true }
+            .transition({ driver.lt.rising }, RELEASE_SPEC)
+            .transition({ operator.x.rising}, STOW)
+            .state(RELEASE_SPEC)
+            .transition({ driver.lt.rising }, STOW)
+            .transition({ operator.a.rising}, STOW)
+
+
             .build()
 
         var lastState = STOW
@@ -129,19 +161,20 @@ open class Tele : LinearOpMode() {
 
             // lift
             lift.read()
-            if (operator.a.rising) {
+            if (operator.a.rising && lift.getPreset() != BOTTOM) {
                 lift.setPreset(BOTTOM)
                 speedDecrease = 0.0
             }
             if (sampHeights) {
                 if (operator.b.rising) { lift.setPreset(SAMP_LOW) }
                 if (operator.y.rising) { lift.setPreset(SAMP_HIGH) }
-                speedDecrease = 2.0
+                if (lift.getPreset() != BOTTOM) {
+                    speedDecrease = 2.0
+                }
             }
             if (specHeights) {
                 if (operator.b.rising) { lift.setPreset(Lift.Preset.SPEC_LOW) }
                 if (operator.y.rising) { lift.setPreset(Lift.Preset.SPEC_HIGH) }
-                speedDecrease = 2.0
             }
 
             if (operator.lb.pressed && operator.rb.pressed && operator.up.rising) {
@@ -150,7 +183,7 @@ open class Tele : LinearOpMode() {
             if (operator.lb.pressed && operator.rb.pressed && operator.down.rising) {
                 sampler.decrementPitch()
             }
-            if (operator.start.rising) { manual = !manual }
+            if (operator.guide.rising) { manual = !manual }
             // TODO: readd this stuff
             // how tf did this work before???
             if (!manual) {
@@ -186,6 +219,8 @@ open class Tele : LinearOpMode() {
             telemetry.addLine("               ")
             telemetry.addData("height", lift.getHeight())
             telemetry.addData("state", samplerFSM.state)
+            telemetry.addData("g1 x", driver.lsx.pos)
+            telemetry.addData("g1 x sq", driver.lsx.sq)
             telemetry.update()
         }
     }

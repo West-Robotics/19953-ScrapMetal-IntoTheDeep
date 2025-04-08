@@ -32,7 +32,9 @@ class SMGamepad(val gamepad: Gamepad) {
 
     fun update() {
         SMGamepad::class.memberProperties.forEach {
-            (Input::update)(it(this) as Input, gamepad)
+            if (it(this) !is Gamepad) {
+                (Input::update)(it(this) as Input, gamepad)
+            }
         }
     }
 

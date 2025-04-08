@@ -16,8 +16,8 @@ data class Constant(private val heading: Rotation2d) : HeadingInterpolation {
     }
 }
 
-data class Tangent(private val spline: Spline) : HeadingInterpolation {
-    override fun invoke(t: Double) = spline.tangentAt(t).let {
+data class Tangent(private val curve: Curve) : HeadingInterpolation {
+    override fun invoke(t: Double) = curve.tangentAt(t).let {
         Rotation2d(atan2(it.y, it.x))
     }
     override fun derivative(it: Double): Rotation2d {

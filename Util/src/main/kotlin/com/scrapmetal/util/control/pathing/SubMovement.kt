@@ -1,20 +1,22 @@
 package com.scrapmetal.util.control.pathing
 
 import com.scrapmetal.util.control.Pose2d
+import com.scrapmetal.util.control.Rotation2d
 import com.scrapmetal.util.control.Vector2d
 
 data class SubMovement(
-    val spline: Spline,
-    val heading: HeadingInterpolation = Tangent(spline),
-    val pathEffort: Double = 1.0,
+    val curve: Curve,
+    val heading: HeadingInterpolation = Tangent(curve),
+    val pathSpeed: Double = 1.0,
 ) {
     /**
      * Return closest pose, derivative, and t
      */
-    operator fun invoke(pos: Vector2d) = spline.closestT(pos).let {
+    operator fun invoke(pos: Vector2d) = curve.closestT(pos).let {
         ClosestState(
-            Pose2d(spline(it), heading(it)),
-            Pose2d(spline.tangentAt(it) * pathEffort, heading.derivative(it)),
+            Pose2d(curve(it), heading(it)),
+            Pose2d(curve.tangentAt(it) * pathSpeed, Rotation2d(0.0)),
+            // Pose2d(curve.tangentAt(it) * pathEffort, heading.derivative(it)), // TODO: add this
             it,
         )
     }
