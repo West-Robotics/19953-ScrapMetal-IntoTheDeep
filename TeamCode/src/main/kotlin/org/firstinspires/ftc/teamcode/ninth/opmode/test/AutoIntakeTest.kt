@@ -42,7 +42,7 @@ class AutoIntakeTest : LinearOpMode() {
             .loop { latestResult = limelight.latestResult }
             .transitionTimed(0.5) {
                 val pose = drivetrain.getPoseAndVelo().first
-                val sampPos = pose.position - Vector2d(21.0) + pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
+                val sampPos = pose.position - Vector2d(21.0, 0.0) + pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
                 follower.follow(
                     LinePoint(outPose.position) lineTo
                         LinePoint(sampPos) withHeading Constant(0.0)
@@ -55,7 +55,7 @@ class AutoIntakeTest : LinearOpMode() {
 
             .state(INTAKE)
             .onEnter {
-                sampler.setState(EXTING_SAMP)
+                sampler.state = EXTING_SAMP
                 sampler.setRoll(sampAngle)
             }
             .loop {
@@ -64,13 +64,13 @@ class AutoIntakeTest : LinearOpMode() {
             }
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
             .waitState(0.08)
-            .onEnter { sampler.setState(PRIME_SAMP) }
+            .onEnter { sampler.state = PRIME_SAMP }
             .loop {
                 val (pose, velo) = drivetrain.getPoseAndVelo()
                 drivetrain.setEffort(follower.update(pose, velo))
             }
             .waitState(0.08)
-            .onEnter { sampler.setState(GRAB_SAMP) }
+            .onEnter { sampler.state = GRAB_SAMP }
             .loop {
                 val (pose, velo) = drivetrain.getPoseAndVelo()
                 drivetrain.setEffort(follower.update(pose, velo))
@@ -82,7 +82,7 @@ class AutoIntakeTest : LinearOpMode() {
                     LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
                         LinePoint(outPose.position) withHeading Constant(0.0)
                 )
-                sampler.setState(MOVE_SCORE_SAMP)
+                sampler.state = MOVE_SCORE_SAMP
             }
             .loop {
                 val (pose, velo) = drivetrain.getPoseAndVelo()
@@ -91,13 +91,13 @@ class AutoIntakeTest : LinearOpMode() {
 
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
             .waitState(0.4)
-            .onEnter { sampler.setState(PREP_SCORE_SAMP) }
+            .onEnter { sampler.state = PREP_SCORE_SAMP }
             .loop {
                 val (pose, velo) = drivetrain.getPoseAndVelo()
                 drivetrain.setEffort(follower.update(pose, velo))
             }
             .waitState(0.2)
-            .onEnter { sampler.setState(SCORE_SAMP) }
+            .onEnter { sampler.state = SCORE_SAMP }
             .loop {
                 val (pose, velo) = drivetrain.getPoseAndVelo()
                 drivetrain.setEffort(follower.update(pose, velo))

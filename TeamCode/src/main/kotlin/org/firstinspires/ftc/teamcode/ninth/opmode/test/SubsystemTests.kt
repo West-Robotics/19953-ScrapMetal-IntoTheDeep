@@ -28,7 +28,7 @@ class SubsystemTests : LinearOpMode() {
         // val dashboard = FtcDashboard.getInstance()
         // telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
         waitForStart()
-        sampler.setState(Sampler.State.DEBUG)
+        sampler.state = Sampler.State.DEBUG
         while (opModeIsActive()) {
             previousGamepad1.copy(currentGamepad1)
             currentGamepad1.copy(gamepad1)

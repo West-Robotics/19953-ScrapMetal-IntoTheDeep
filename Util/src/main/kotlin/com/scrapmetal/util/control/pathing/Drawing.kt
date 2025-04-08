@@ -11,6 +11,7 @@ const val POINT_COUNT = 256
 const val HEADING_COUNT = 16
 const val TRAIL_COUNT = 256
 const val TRAIL_RADIUS = 0.5
+const val STROKE_WIDTH = 0.2
 // TODO: does this need a flush between opmodes?
 // TODO: use a better data structure
 val trail = ArrayDeque<Vector2d>(512)
@@ -18,6 +19,7 @@ val trail = ArrayDeque<Vector2d>(512)
 fun Canvas.drawRobot(pose: Pose2d): Canvas {
     val headingTip = pose.position + pose.heading*Vector2d(ROBOT_RADIUS, 0.0)
     this.setStroke(ROBOT_COLOR)
+        .setStrokeWidth(1)
         .strokeCircle(pose.position.x, pose.position.y, ROBOT_RADIUS)
         .strokeLine(pose.position.x, pose.position.y, headingTip.x, headingTip.y)
     return this
@@ -28,7 +30,18 @@ fun Canvas.drawPath(curve: Curve): Canvas {
     val xPoints = DoubleArray(POINT_COUNT) { points[it].x }
     val yPoints = DoubleArray(POINT_COUNT) { points[it].y }
     this.setStroke(PATH_COLOR)
+        .setStrokeWidth(1)
         .strokePolyline(xPoints, yPoints)
+    return this
+}
+
+/**
+ * Draws the path along with interspersed heading markers
+ */
+fun Canvas.drawMovement(movement: Movement): Canvas {
+    for (submovement in movement.submovements) {
+        this.drawSubMovement(submovement)
+    }
     return this
 }
 
@@ -43,12 +56,15 @@ fun Canvas.drawSubMovement(subMovement: SubMovement): Canvas {
         Pair(
             points[it * POINT_COUNT / HEADING_COUNT],
             points[it * POINT_COUNT / HEADING_COUNT] +
-                subMovement.heading(it / HEADING_COUNT.toDouble()) * Vector2d(ROBOT_RADIUS / 4, 0.0)
+                subMovement.heading(it / HEADING_COUNT.toDouble()) * Vector2d(ROBOT_RADIUS / 2, 0.0)
         )
     }
     this.setStroke(PATH_COLOR)
+        .setStrokeWidth(1)
         .strokePolyline(xPoints, yPoints)
-    headingTipPoints.forEach { this.strokeLine(it.first.x, it.first.y, it.second.x, it.second.y) }
+    for (tip in headingTipPoints) {
+        this.strokeLine(tip.first.x, tip.first.y, tip.second.x, tip.second.y)
+    }
     return this
 }
 

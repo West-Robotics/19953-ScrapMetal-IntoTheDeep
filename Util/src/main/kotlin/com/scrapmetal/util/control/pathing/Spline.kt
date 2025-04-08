@@ -21,7 +21,7 @@ data class Spline(
             1 -> -start*3.0 + p1*3.0
             2 ->  start*3.0 - p1*6.0 + p2*3.0
             3 -> -start     + p1*3.0 - p2*3.0 + end
-            else -> Vector2d()
+            else -> Vector2d(0.0, 0.0)
         }
     }
 //    private val positions: Array<Vector2d> = Array(1001) { t -> invoke(t / 1000.0)}

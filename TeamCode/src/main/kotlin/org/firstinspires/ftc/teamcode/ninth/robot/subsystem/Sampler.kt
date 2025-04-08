@@ -25,13 +25,38 @@ class Sampler(hardwareMap: HardwareMap) {
     private val color0 = hardwareMap.digitalChannel.get("color0")
     private val color1 = hardwareMap.digitalChannel.get("color1")
 
-    companion object {
-        private var rollAng = R0.pos
-    }
     private var mpStart = State.EXT_SAMP.proximal.pos
     private var mpEnd = State.EXT_SAMP.proximal.pos
     private val mpTimer = ElapsedTime()
     private var pitchOffset = 0.0
+
+    var state: State = State.STOW
+        set(value) {
+            field = value
+            claw.position = value.claw.pos
+            roll.position = value.roll.invoke()
+            distal.position = value.distal.pos
+            mpStart = proximal.position
+            mpEnd = value.proximal.pos
+            mpTimer.reset()
+            extensionOne.position = value.linkage.pos
+            extensionTwo.position = value.linkage.pos
+        }
+
+    enum class Color {
+        YELLOW,
+        RED,
+        BLUE,
+        NONE,
+    }
+
+    val color
+        get() = when (Pair(color0.state, color1.state)) {
+            Pair(true,  true)  -> YELLOW
+            Pair(false, true)  -> RED
+            Pair(true,  false) -> BLUE
+            else               -> NONE
+        }
 
     // TODO: make roll a lambda to deal with different roll?
     enum class State(
@@ -103,29 +128,6 @@ class Sampler(hardwareMap: HardwareMap) {
         EXT (0.60),
     }
 
-    fun setState(state: State) {
-        claw.position = state.claw.pos
-        roll.position = state.roll.invoke()
-        distal.position = state.distal.pos
-        mpStart = proximal.position
-        mpEnd = state.proximal.pos
-        mpTimer.reset()
-        extensionOne.position = state.linkage.pos
-        extensionTwo.position = state.linkage.pos
-    }
-
-    fun setRoll(state: Roll) {
-        rollAng = state.pos
-        roll.position = rollAng
-    }
-
-    fun setRoll(ang: Double) {
-        rollAng = R0.pos - ang.coerceIn(-90.0, 90.0) / 355.0
-        roll.position = ang
-    }
-
-    fun getRoll() = rollAng
-
     // TODO: remove retracting
     fun updateProfiled() {
         proximal.position = motionProfile(
@@ -140,19 +142,21 @@ class Sampler(hardwareMap: HardwareMap) {
         ).s + pitchOffset
     }
 
-    enum class Color {
-        YELLOW,
-        RED,
-        BLUE,
-        NONE,
+    companion object {
+        var rollAng = R0.pos
     }
 
-    fun getColor() = when (Pair(color0.state, color1.state)) {
-        Pair(true,  true)  -> YELLOW
-        Pair(false, true)  -> RED
-        Pair(true,  false) -> BLUE
-        else               -> NONE
+    fun setRoll(state: Roll) {
+        rollAng = state.pos
+        roll.position = rollAng
     }
+
+    fun setRoll(ang: Double) {
+        rollAng = R0.pos - ang.coerceIn(-90.0, 90.0) / 355.0
+        roll.position = rollAng
+    }
+
+    fun getRoll() = rollAng
 
     // TODO: maybe increase servo caching precision
     fun incrementPitch() { pitchOffset += 0.01 }

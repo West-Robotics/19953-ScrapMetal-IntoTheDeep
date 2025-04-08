@@ -8,10 +8,10 @@ import kotlin.math.sqrt
 /**
  * A 2-dimensional vector that holds coordinates in a Cartesian plane
  */
-data class Vector2d(val x: Double = 0.0, val y: Double = 0.0) {
+data class Vector2d(val x: Double, val y: Double) {
     infix fun dot(v: Vector2d) = x * v.x + y * v.y
     val norm get() = sqrt(this dot this)
-    val unit get() = if (norm != 0.0) Vector2d(x / norm, y / norm) else Vector2d()
+    val unit get() = if (norm != 0.0) this / norm else Vector2d(1.0, 0.0)
     val normal get() = Rotation2d(90.0)*this
 
     operator fun times(k: Double) = Vector2d(k * x, k * y)
@@ -43,7 +43,7 @@ fun Rad.toDegrees() = 360 / (2 * PI) * this
 /**
  * A [position] and [heading] in a 2D plane.
  */
-data class Pose2d(val position: Vector2d = Vector2d(), val heading: Rotation2d = Rotation2d()) {
+data class Pose2d(val position: Vector2d, val heading: Rotation2d) {
     constructor(x: Double, y: Double, theta: Double) : this(Vector2d(x, y), Rotation2d(theta))
     constructor(position: Vector2d, theta: Double) : this(position, Rotation2d(theta))
     constructor(x: Double, y: Double, heading: Rotation2d) : this(Vector2d(x, y), heading)

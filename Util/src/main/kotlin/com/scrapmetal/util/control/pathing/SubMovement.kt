@@ -13,6 +13,7 @@ data class SubMovement(
      * Return closest pose, derivative, and t
      */
     operator fun invoke(pos: Vector2d) = curve.closestT(pos).let {
+        println("heading: ${heading(it)}")
         ClosestState(
             Pose2d(curve(it), heading(it)),
             Pose2d(curve.tangentAt(it) * pathSpeed, Rotation2d(0.0)),

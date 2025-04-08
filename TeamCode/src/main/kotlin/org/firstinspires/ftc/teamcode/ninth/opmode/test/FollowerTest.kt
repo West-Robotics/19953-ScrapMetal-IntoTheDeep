@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.ninth.opmode.test
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.scrapmetal.util.control.Pose2d
@@ -9,6 +12,8 @@ import com.scrapmetal.util.control.pathing.Follower
 import com.scrapmetal.util.control.pathing.LinePoint
 import com.scrapmetal.util.control.pathing.Linear
 import com.scrapmetal.util.control.pathing.SplinePoint
+import com.scrapmetal.util.control.pathing.drawMovement
+import com.scrapmetal.util.control.pathing.drawSubMovement
 import com.scrapmetal.util.control.pathing.lineTo
 import com.scrapmetal.util.control.pathing.splineTo
 import com.scrapmetal.util.control.pathing.withSpeed
@@ -21,9 +26,7 @@ import org.firstinspires.ftc.teamcode.ninth.opmode.test.FollowerTest.State.*
 @Autonomous(name="Follower Test")
 class FollowerTest : LinearOpMode() {
     enum class State {
-        LINE_CH,
-        LINE_TH,
-        LINE_LERPH,
+        LINES,
         SPLINE_C,
         SPLINE_TH,
     }
@@ -37,21 +40,16 @@ class FollowerTest : LinearOpMode() {
         val p2 = Vector2d(24.0, -12.0)
         val p3 = Vector2d(48.0, 0.0)
 
-        val lineConstantHeading = LinePoint(p0) lineTo LinePoint(p1) withHeading Constant(45.0) withSpeed 0.4
-        val lineTangentHeading = LinePoint(p1) lineTo LinePoint(p2) withSpeed 0.2
-        val lineLerpHeading = LinePoint(p2) lineTo LinePoint(p3) withHeading Linear(-90.0, -45.0)
-        val splineConstantHeading = SplinePoint(p3, 10.0, 135.0) splineTo SplinePoint(p0, 10.0, 135.0) withHeading Constant(135.0)
-        val splineTangentHeading = SplinePoint(p0, 10.0, 45.0) splineTo SplinePoint(p3, 10.0, 45.0)
+        val lines = LinePoint(p0) lineTo
+                LinePoint(p1) withHeading Constant(45.0) withSpeed 0.4 lineTo
+                LinePoint(p2) withSpeed 0.2 lineTo
+                LinePoint(p3) withHeading Linear(-90.0, +90.0)
+        val splineConstantHeading = SplinePoint(p3, 80.0, 135.0) splineTo SplinePoint(p0, 80.0, 135.0) withHeading Constant(135.0)
+        val splineTangentHeading = SplinePoint(p0, 80.0, 45.0) splineTo SplinePoint(p3, 80.0, 45.0)
 
         val fsm = StateMachineBuilder()
-            .state(LINE_CH)
-            .onEnter { follower.follow(lineConstantHeading) }
-            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
-            .state(LINE_TH)
-            .onEnter { follower.follow(lineTangentHeading) }
-            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
-            .state(LINE_LERPH)
-            .onEnter { follower.follow(lineLerpHeading) }
+            .state(LINES)
+            .onEnter { follower.follow(lines) }
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
             .state(SPLINE_C)
             .onEnter { follower.follow(splineConstantHeading) }
@@ -61,8 +59,12 @@ class FollowerTest : LinearOpMode() {
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
             .build()
 
-//        val dashboard = FtcDashboard.getInstance()
-//        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        val dashboard = FtcDashboard.getInstance()
+        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        val packet = TelemetryPacket()
+        packet.fieldOverlay()
+            .drawMovement(splineTangentHeading)
+        dashboard.sendTelemetryPacket(packet)
         waitForStart()
         drivetrain.setPose(Pose2d(p0, 0.0))
         fsm.start()

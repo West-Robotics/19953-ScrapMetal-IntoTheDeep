@@ -9,7 +9,7 @@ class ArmReset : LinearOpMode() {
     override fun runOpMode() {
         val sampler = Sampler(hardwareMap)
         waitForStart()
-        sampler.setState(Sampler.State.DEBUG)
+        sampler.state = Sampler.State.DEBUG
         while (opModeIsActive()) {
             sampler.write()
             sampler.updateProfiled()
