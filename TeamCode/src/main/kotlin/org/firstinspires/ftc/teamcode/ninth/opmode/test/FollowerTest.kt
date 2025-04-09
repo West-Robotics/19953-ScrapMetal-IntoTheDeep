@@ -13,7 +13,9 @@ import com.scrapmetal.util.control.pathing.LinePoint
 import com.scrapmetal.util.control.pathing.Linear
 import com.scrapmetal.util.control.pathing.SplinePoint
 import com.scrapmetal.util.control.pathing.drawMovement
+import com.scrapmetal.util.control.pathing.drawRobot
 import com.scrapmetal.util.control.pathing.drawSubMovement
+import com.scrapmetal.util.control.pathing.drawTrail
 import com.scrapmetal.util.control.pathing.lineTo
 import com.scrapmetal.util.control.pathing.splineTo
 import com.scrapmetal.util.control.pathing.withSpeed
@@ -44,8 +46,8 @@ class FollowerTest : LinearOpMode() {
                 LinePoint(p1) withHeading Constant(45.0) withSpeed 0.4 lineTo
                 LinePoint(p2) withSpeed 0.2 lineTo
                 LinePoint(p3) withHeading Linear(-90.0, +90.0)
-        val splineConstantHeading = SplinePoint(p3, 80.0, 135.0) splineTo SplinePoint(p0, 80.0, 135.0) withHeading Constant(135.0)
-        val splineTangentHeading = SplinePoint(p0, 80.0, 45.0) splineTo SplinePoint(p3, 80.0, 45.0)
+        val splineConstantHeading = SplinePoint(p3, 40.0, 135.0) splineTo SplinePoint(p0, 40.0, 135.0) withHeading Constant(135.0)
+        val splineTangentHeading = SplinePoint(p0, 40.0, 45.0) splineTo SplinePoint(p3, 40.0, 45.0)
 
         val fsm = StateMachineBuilder()
             .state(LINES)
@@ -56,13 +58,14 @@ class FollowerTest : LinearOpMode() {
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
             .state(SPLINE_TH)
             .onEnter { follower.follow(splineTangentHeading) }
-            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
             .build()
 
         val dashboard = FtcDashboard.getInstance()
         telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
         val packet = TelemetryPacket()
         packet.fieldOverlay()
+            .drawMovement(lines)
+            .drawMovement(splineConstantHeading)
             .drawMovement(splineTangentHeading)
         dashboard.sendTelemetryPacket(packet)
         waitForStart()
@@ -74,6 +77,15 @@ class FollowerTest : LinearOpMode() {
             val (pose, velo) = drivetrain.getPoseAndVelo()
             drivetrain.setEffort(follower.update(pose, velo))
             drivetrain.write()
+
+            val packet = TelemetryPacket()
+            packet.fieldOverlay()
+                .drawMovement(lines)
+                .drawMovement(splineConstantHeading)
+                .drawMovement(splineTangentHeading)
+                .drawRobot(pose)
+                .drawTrail(pose.position)
+            dashboard.sendTelemetryPacket(packet)
             telemetry.update()
         }
     }

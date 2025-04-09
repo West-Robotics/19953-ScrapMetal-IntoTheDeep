@@ -2,6 +2,7 @@ package com.scrapmetal.util.control.pathing
 
 import com.scrapmetal.util.control.Rotation2d
 import com.scrapmetal.util.control.Vector2d
+import com.scrapmetal.util.control.toDegrees
 import kotlin.math.atan2
 import kotlin.math.pow
 
@@ -9,7 +10,7 @@ data class Line(
     override val start: Vector2d,
     override val end: Vector2d,
 ) : Curve {
-    override val endTangent = Rotation2d((end - start).let { atan2( it.y, it.x )}) * Vector2d(1.0, 0.0)
+    override val endTangent = Rotation2d((end - start).let { atan2( it.y, it.x ).toDegrees() }) * Vector2d(1.0, 0.0)
 
     override operator fun invoke(t: Double) = start * (1 - t) + end * t
 

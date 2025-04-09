@@ -40,16 +40,15 @@ class Follower(
         // we only scale the tangent component because we want to keep the full corrective power, we
         //   just don't want to travel along the path as quickly
         // however, if we're within the end distance, switch to a PD controller
-        val translationEffort = if (
+        val fieldFrameEffort = if (
             !atEnd(pose.position, endDistance)
         ) {
             mD - mD_tau + mD_tau*closest.derivative.position.norm
         } else {
-            val fieldFrameEffort = pControl(kP, movement.endPoint, pose.position) +
+            pControl(kP, movement.endPoint, pose.position) +
                 pControl(kD, Vector2d(0.0, 0.0), velocity.position)
-            val robotFrameEffort = pose.heading.inverse * fieldFrameEffort
-            robotFrameEffort
         }
+        val translationEffort = pose.heading.inverse * fieldFrameEffort
 
         // PD control on heading
         val rotationEffort = Rotation2d(

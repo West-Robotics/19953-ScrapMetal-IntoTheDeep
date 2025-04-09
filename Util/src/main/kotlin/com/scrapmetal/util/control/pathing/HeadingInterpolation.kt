@@ -1,6 +1,7 @@
 package com.scrapmetal.util.control.pathing
 
 import com.scrapmetal.util.control.Rotation2d
+import com.scrapmetal.util.control.toDegrees
 import kotlin.math.atan2
 
 interface HeadingInterpolation {
@@ -18,7 +19,7 @@ data class Constant(private val heading: Rotation2d) : HeadingInterpolation {
 
 data class Tangent(private val curve: Curve) : HeadingInterpolation {
     override fun invoke(t: Double) = curve.tangentAt(t).let {
-        Rotation2d(atan2(it.y, it.x))
+        Rotation2d(atan2(it.y, it.x).toDegrees())
     }
     override fun derivative(it: Double): Rotation2d {
         TODO("Not yet implemented")
