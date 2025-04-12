@@ -27,7 +27,7 @@ fun pControl(gain: Double, reference: Vector2d, state: Vector2d) = (reference - 
 /**
  * Return feedforward given a lambda [ff] and the current [state]
  */
-fun feedforward(ff: (Double) -> Double, state: Double) = ff(state)
+fun feedforward(state: Double, ff: (Double) -> Double) = ff(state)
 
 /**
  * Linearly constrain the [input] effort between the minimum [min] and the maximum [max] once

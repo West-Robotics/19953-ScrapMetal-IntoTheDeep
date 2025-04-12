@@ -72,6 +72,10 @@ class Sampler(hardwareMap: HardwareMap) {
         PRIME_SAMP      (Prox.EXT,  Dist.EXT,  { rollAng },   OPEN,  Lkg.EXT),
         GRAB_SAMP       (Prox.EXT,  Dist.EXT,  { rollAng },   CLOSE, Lkg.EXT),
         PICKED          (Prox.RET,  Dist.EXT,  { R0.pos },    CLOSE, Lkg.EXT),
+        EXTING_SAMP_S   (Prox.RET,  Dist.EXT,  { R0.pos },    OPEN,  Lkg.SPK),
+        EXT_SAMP_S      (Prox.STOW, Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
+        PRIME_SAMP_S    (Prox.EXT,  Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
+        GRAB_SAMP_S     (Prox.EXT,  Dist.EXT,  { rollAng },   CLOSE, Lkg.SPK),
         HOLD_SAMP       (Prox.STOW, Dist.RET,  { R90.pos },   CLOSE, Lkg.RET),
         MOVE_SCORE_SAMP (Prox.OUT,  Dist.RET,  { R90.pos },   CLOSE, Lkg.RET),
         PREP_SCORE_SAMP (Prox.OUT,  Dist.RET,  { R0.pos },    CLOSE, Lkg.RET),
@@ -85,13 +89,13 @@ class Sampler(hardwareMap: HardwareMap) {
         RAM_SPEC        (Prox.RAM,  Dist.RAM,  { RCW90.pos }, CLOSE, Lkg.RET),
         RELEASE_SPEC    (Prox.RAM,  Dist.RAM,  { RCW90.pos }, OPEN,  Lkg.RET),
 
-        DEBUG           (Prox.VERT, Dist.FLAT, { R0.pos }, OPEN, Lkg.RET),
+        DEBUG           (Prox.VERT, Dist.FLAT, { R0.pos }, OPEN, Lkg.EXT),
     }
 
     enum class Prox(val pos: Double) {
-        EXT  (0.46),
-        FLAT (0.47),
-        STOW (0.50),
+        EXT  (0.44),
+        FLAT (0.46),
+        STOW (0.49),
         RET  (0.56),
         OUT  (0.72),
         RAM  (0.92),
@@ -125,6 +129,7 @@ class Sampler(hardwareMap: HardwareMap) {
 
     enum class Lkg(val pos: Double) {
         RET (0.03),
+        SPK (0.40),
         EXT (0.60),
     }
 

@@ -31,13 +31,13 @@ open class Tele : LinearOpMode() {
         val sampler = Sampler(hardwareMap)
 
         val COLLISION_WAIT = 0.85
-        val PRIME_WAIT = 0.08
-        val GRAB_WAIT = 0.08
+        val PRIME_WAIT = 0.09
+        val GRAB_WAIT = 0.09
         val SCORE_WAIT = 0.2
 
         var manual = false
         // TODO: SET TO LOW FOR POST-AUTO
-        lift.setPreset(BOTTOM)
+        lift.preset = BOTTOM
         var ITSCLIMBINTIME = false
 
         var speedDecrease = 0.0
@@ -49,11 +49,11 @@ open class Tele : LinearOpMode() {
                 speedDecrease = 0.0
                 turnDecrease = 0.0
             }
-            .transition({ driver.lt.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R0) })
-            .transition({ driver.rt.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R90) })
-            .transition({ driver.lb.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R45) })
-            .transition({ driver.rb.rising && lift.getPreset() == BOTTOM }, EXTING_SAMP, { sampler.setRoll(RCW45) })
-            .transition({ driver.a.rising  && lift.getPreset() == BOTTOM }, EXTING_SPEC)
+            .transition({ driver.lt.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R0) })
+            .transition({ driver.rt.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R90) })
+            .transition({ driver.lb.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R45) })
+            .transition({ driver.rb.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(RCW45) })
+            .transition({ driver.a.rising  && lift.preset == BOTTOM }, EXTING_SPEC)
 
             .state(EXTING_SAMP)
             .minimumTransitionTimed(0.6)
@@ -91,9 +91,9 @@ open class Tele : LinearOpMode() {
             .transition({ driver.lt.rising }, MOVE_SCORE_SAMP)
             .transition(
                 {
-                    (lift.getPreset() == Lift.Preset.SAMP_HIGH ||
-                            lift.getPreset() == Lift.Preset.SAMP_LOW) &&
-                        abs(lift.getHeight() - lift.getPreset().height) < 3.0
+                    (lift.preset == Lift.Preset.SAMP_HIGH ||
+                            lift.preset == Lift.Preset.SAMP_LOW) &&
+                        abs(lift.height - lift.preset.height) < 8.0
                 },
                 MOVE_SCORE_SAMP,
             )
@@ -127,11 +127,11 @@ open class Tele : LinearOpMode() {
             .state(GRAB_SPEC)
             .transitionTimed(GRAB_WAIT)
             .state(RAM_SPEC)
-            .onEnter { lift.setPreset(SPEC_HIGH) }
+            .onEnter { lift.preset = SPEC_HIGH }
             .transition({ driver.lt.rising }, RELEASE_SPEC)
             .transition({ operator.x.rising}, STOW)
             .state(RELEASE_SPEC)
-            .transition({ driver.lt.rising }, STOW)
+            .transition({ driver.lt.rising }, STOW, { lift.preset = BOTTOM })
             .transition({ operator.a.rising}, STOW)
 
             .build()
@@ -155,14 +155,14 @@ open class Tele : LinearOpMode() {
 
             // lift
             lift.read()
-            if (operator.a.rising && lift.getPreset() != BOTTOM) {
-                lift.setPreset(BOTTOM)
+            if (operator.a.rising && lift.preset != BOTTOM) {
+                lift.preset = BOTTOM
                 speedDecrease = 0.0
             }
             if (samplerFSM.state == HOLD_SAMP || samplerFSM.state == PREP_SCORE_SAMP) {
-                if (operator.b.rising) { lift.setPreset(SAMP_LOW) }
-                if (operator.y.rising) { lift.setPreset(SAMP_HIGH) }
-                if (lift.getPreset() != BOTTOM) {
+                if (operator.b.rising) { lift.preset = SAMP_LOW }
+                if (operator.y.rising) { lift.preset = SAMP_HIGH }
+                if (lift.preset != BOTTOM) {
                     speedDecrease = 2.0
                 }
             }
@@ -178,12 +178,12 @@ open class Tele : LinearOpMode() {
             // how tf did this work before???
             if (!manual) {
                 if (!ITSCLIMBINTIME) {
-                    lift.updateProfiled(lift.getHeight(), debug = telemetry)
+                    lift.updateProfiled(lift.height, debug = telemetry)
                 } else {
-                    lift.pto2CLIMB(lift.getHeight())
+                    lift.pto2CLIMB(lift.height)
                 }
             } else {
-                lift.setEffort(-operator.lsy.pos + 0.2)
+                lift.effort = -operator.lsy.pos + 0.2
                 if (gamepad2.dpad_down && -operator.rsy.pos < -0.8) {
                     lift.resetEncoder()
                 }
@@ -207,7 +207,7 @@ open class Tele : LinearOpMode() {
             telemetry.addLine("lift reset (in manual) - g2 dpad up + left stick up")
             telemetry.addLine("pitch adjust - g2 both bumpers + dpad up/down")
             telemetry.addLine(" ")
-            telemetry.addData("height", lift.getHeight())
+            telemetry.addData("height", lift.height)
             telemetry.addData("state", samplerFSM.state)
             telemetry.update()
         }

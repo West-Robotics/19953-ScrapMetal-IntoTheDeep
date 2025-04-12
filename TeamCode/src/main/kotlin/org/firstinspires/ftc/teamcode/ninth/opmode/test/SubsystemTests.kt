@@ -1,19 +1,21 @@
 package org.firstinspires.ftc.teamcode.ninth.opmode.test
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.Gamepad
+import com.scrapmetal.util.hardware.SMGamepad
+import org.firstinspires.ftc.teamcode.ninth.NOM_VOLT
+import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 
 @TeleOp(name = "SubsystemTests")
 class SubsystemTests : LinearOpMode() {
     override fun runOpMode() {
-        val previousGamepad1 = Gamepad()
-        val currentGamepad1 = Gamepad()
-
+        val driver = SMGamepad(gamepad1)
         // val drivetrain = Drivetrain(hardwareMap)
         val sampler = Sampler(hardwareMap)
-        // val lift = Lift(hardwareMap)
+        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         var desiredPos = 0.0
         var manual = false
         var extensionAmount = 0.43
@@ -25,27 +27,24 @@ class SubsystemTests : LinearOpMode() {
 //        var pinch = 0.0
 //        var pto_position = 0.5
 
-        // val dashboard = FtcDashboard.getInstance()
-        // telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        val dashboard = FtcDashboard.getInstance()
+        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
         waitForStart()
-        sampler.state = Sampler.State.DEBUG
+        sampler.state = Sampler.State.STOW
         while (opModeIsActive()) {
-            previousGamepad1.copy(currentGamepad1)
-            currentGamepad1.copy(gamepad1)
-
-//            sampler.stow()
-//            sampler.write()
-
-//            lift.read()
-//            if (gamepad1.a && !previousGamepad1.a) {
-//                lift.setPreset(Lift.Preset.BOTTOM)
-//            }
-//            if (gamepad1.b && !previousGamepad1.b) {
-//                lift.setPreset(Lift.Preset.SAMP_HIGH)
-//            }
-//            lift.updateProfiled(lift.getHeight(), telemetry)
-//            lift.write()
-//            telemetry.addData("height", lift.getHeight())
+            driver.update()
+            lift.read()
+            if (driver.a.rising) {
+                lift.preset = Lift.Preset.BOTTOM
+            }
+            if (driver.b.rising) {
+                lift.preset = Lift.Preset.SAMP_LOW
+            }
+            if (driver.y.rising) {
+                lift.preset = Lift.Preset.SAMP_HIGH
+            }
+            lift.updateProfiled(lift.height, telemetry)
+            lift.write()
 //            if (gamepad1.a && !previousGamepad1.a) {
 //                pto_position = 0.75
 //            }

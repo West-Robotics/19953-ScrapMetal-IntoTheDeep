@@ -58,23 +58,11 @@ class AutoIntakeTest : LinearOpMode() {
                 sampler.state = EXTING_SAMP
                 sampler.setRoll(sampAngle)
             }
-            .loop {
-                val (pose, velo) = drivetrain.getPoseAndVelo()
-                drivetrain.setEffort(follower.update(pose, velo))
-            }
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
             .waitState(0.08)
             .onEnter { sampler.state = PRIME_SAMP }
-            .loop {
-                val (pose, velo) = drivetrain.getPoseAndVelo()
-                drivetrain.setEffort(follower.update(pose, velo))
-            }
             .waitState(0.08)
             .onEnter { sampler.state = GRAB_SAMP }
-            .loop {
-                val (pose, velo) = drivetrain.getPoseAndVelo()
-                drivetrain.setEffort(follower.update(pose, velo))
-            }
 
             .state(OUTPUT)
             .onEnter {
@@ -84,24 +72,12 @@ class AutoIntakeTest : LinearOpMode() {
                 )
                 sampler.state = MOVE_SCORE_SAMP
             }
-            .loop {
-                val (pose, velo) = drivetrain.getPoseAndVelo()
-                drivetrain.setEffort(follower.update(pose, velo))
-            }
 
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
             .waitState(0.4)
             .onEnter { sampler.state = PREP_SCORE_SAMP }
-            .loop {
-                val (pose, velo) = drivetrain.getPoseAndVelo()
-                drivetrain.setEffort(follower.update(pose, velo))
-            }
             .waitState(0.2)
             .onEnter { sampler.state = SCORE_SAMP }
-            .loop {
-                val (pose, velo) = drivetrain.getPoseAndVelo()
-                drivetrain.setEffort(follower.update(pose, velo))
-            }
 
             .build()
 
@@ -115,6 +91,8 @@ class AutoIntakeTest : LinearOpMode() {
             drivetrain.read()
 
             fsm.update()
+            val (pose, velo) = drivetrain.getPoseAndVelo()
+            drivetrain.setEffort(follower.update(pose, velo))
 
             drivetrain.write()
             sampler.write()
