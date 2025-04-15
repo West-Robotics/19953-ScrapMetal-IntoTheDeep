@@ -44,3 +44,19 @@ fun Double.constrainEffort(
 } else {
     this * min / deadzone
 }.coerceIn(-max, max)
+
+/**
+ * Linearly constrain the [input] effort between the minimum [min] and the maximum [max] once
+ * outside the [deadzone]. Below [deadzone], effort is 0.
+ */
+fun Double.deadzone(
+    min: Double,
+    max: Double,
+    deadzone: Double,
+) = if (abs(this) > deadzone) {
+    (max - min) / (max - deadzone) *
+            (this - sign(this) * deadzone) +
+            sign(this) * min
+} else {
+    0.0
+}.coerceIn(-max, max)

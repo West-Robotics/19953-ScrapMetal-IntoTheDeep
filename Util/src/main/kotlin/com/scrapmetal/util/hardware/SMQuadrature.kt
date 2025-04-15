@@ -1,5 +1,6 @@
 package com.scrapmetal.util.hardware
 
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -50,5 +51,10 @@ class SMQuadrature(
 
     fun reset(distance: Double = 0.0) {
         tickOffset = motor.currentPosition - (distance/distPerTick).toInt()
+    }
+
+    fun trueReset() {
+        motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
     }
 }

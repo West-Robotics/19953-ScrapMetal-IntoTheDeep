@@ -26,6 +26,15 @@ data class Tangent(private val curve: Curve) : HeadingInterpolation {
     }
 }
 
+data class ReverseTangent(private val curve: Curve) : HeadingInterpolation {
+    override fun invoke(t: Double) = curve.tangentAt(t).let {
+        Rotation2d(180.0)*Rotation2d(atan2(it.y, it.x).toDegrees())
+    }
+    override fun derivative(it: Double): Rotation2d {
+        TODO("Not yet implemented")
+    }
+}
+
 data class Linear(val start: Rotation2d, private val end: Rotation2d) : HeadingInterpolation {
     constructor(theta0: Double, theta1: Double) : this(Rotation2d(theta0), Rotation2d(theta1))
     override fun invoke(t: Double) = Rotation2d((end.theta - start.theta) * t) * start

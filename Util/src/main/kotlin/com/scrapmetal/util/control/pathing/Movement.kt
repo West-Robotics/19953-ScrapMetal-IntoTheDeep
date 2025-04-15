@@ -36,6 +36,19 @@ infix fun SplinePoint.splineTo(p: SplinePoint) = Movement(listOf(SubMovement(
 )))
 
 /**
+ * Create the first [Spline] [SubMovement] in a [Movement] that is followed facing backwards for tangent
+ */
+infix fun SplinePoint.reverseSplineTo(p: SplinePoint) = Movement(listOf(SubMovement(
+    Spline(
+        start = this.position,
+        startTangent = this.tangent,
+        end = p.position,
+        endTangent = p.tangent,
+    ),
+    reversed = true,
+)))
+
+/**
  * Create the first [Line] [SubMovement] in a [Movement]
  */
 infix fun CurvePoint.lineTo(p: CurvePoint) = Movement(listOf(SubMovement(
@@ -60,6 +73,21 @@ infix fun Movement.splineTo(p: SplinePoint) = Movement(
 )
 
 /**
+ * Add a [Spline] [SubMovement] between 2 [SplinePoint]s to a [Movement] that is followed facing backwards for tangent
+ */
+infix fun Movement.reverseSplineTo(p: SplinePoint) = Movement(
+    this.submovements + SubMovement(
+        Spline(
+            this.submovements.last().curve.end,
+            this.submovements.last().curve.endTangent,
+            p.position,
+            p.tangent,
+        ),
+        reversed = true,
+    )
+)
+
+/**
  * Add a [Line] [SubMovement] between 2 [CurvePoint]s to a [Movement]
  */
 infix fun Movement.lineTo(p: CurvePoint) = Movement(
@@ -71,15 +99,17 @@ infix fun Movement.lineTo(p: CurvePoint) = Movement(
 infix fun Movement.withHeading(h: HeadingInterpolation) = Movement(
     this.submovements.subList(0, this.submovements.size - 1) + SubMovement(
         this.submovements.last().curve,
-        h,
-        this.submovements.last().pathSpeed,
+        heading = h,
+        pathSpeed = this.submovements.last().pathSpeed,
+        reversed = this.submovements.last().reversed,
     )
 )
 
 infix fun Movement.withSpeed(e: Double) = Movement(
     this.submovements.subList(0, this.submovements.size - 1) + SubMovement(
         this.submovements.last().curve,
-        this.submovements.last().heading,
-        e,
+        heading = this.submovements.last().heading,
+        pathSpeed = e,
+        reversed = this.submovements.last().reversed,
     )
 )

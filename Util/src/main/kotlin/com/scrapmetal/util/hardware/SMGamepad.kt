@@ -1,6 +1,7 @@
 package com.scrapmetal.util.hardware
 
 import com.qualcomm.robotcore.hardware.Gamepad
+import com.scrapmetal.util.control.deadzone
 import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.reflect.KProperty1
@@ -56,6 +57,7 @@ class SMGamepad(val gamepad: Gamepad) {
         private var state = 0.0
         private var previous = state
 
+        // val pos get() = state.deadzone(min = 0.05, max = 1.0, deadzone = 0.05)
         val pos get() = state
         val sq get() = sign(state) * state.pow(2)
         val rising get() = previous < threshold && threshold <= state

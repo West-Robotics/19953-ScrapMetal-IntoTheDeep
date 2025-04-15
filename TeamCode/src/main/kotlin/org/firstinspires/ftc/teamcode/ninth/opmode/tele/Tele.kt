@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.util.ElapsedTime
 import com.scrapmetal.util.hardware.SMGamepad
 import com.sfdev.assembly.state.StateMachineBuilder
 import org.firstinspires.ftc.teamcode.ninth.NOM_VOLT
@@ -30,9 +31,9 @@ open class Tele : LinearOpMode() {
         val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
         val sampler = Sampler(hardwareMap)
 
-        val COLLISION_WAIT = 0.85
+        val COLLISION_WAIT = 0.6
         val PRIME_WAIT = 0.09
-        val GRAB_WAIT = 0.09
+        val GRAB_WAIT = 0.14
         val SCORE_WAIT = 0.2
 
         var manual = false
@@ -53,7 +54,7 @@ open class Tele : LinearOpMode() {
             .transition({ driver.rt.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R90) })
             .transition({ driver.lb.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R45) })
             .transition({ driver.rb.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(RCW45) })
-            .transition({ driver.a.rising  && lift.preset == BOTTOM }, EXTING_SPEC)
+            .transition({ driver.a.rising  && lift.preset == BOTTOM }, PRIME_SPEC)
 
             .state(EXTING_SAMP)
             .minimumTransitionTimed(0.6)
@@ -80,6 +81,7 @@ open class Tele : LinearOpMode() {
 
             .state(PICKED)
             .onEnter{ speedDecrease = 0.0; turnDecrease = 0.0 }
+            .minimumTransitionTimed(0.1)
             // TODO: add override in case of sensor failure
             .transition({ sampler.color in goodColors }, HOLD_SAMP)
             .transition({ sampler.color in badColors }, EXT_SAMP)
@@ -118,19 +120,17 @@ open class Tele : LinearOpMode() {
 
 
 
-            .state(EXTING_SPEC)
-            .transitionTimed(COLLISION_WAIT)
             .state(PRIME_SPEC)
-            .onEnter { speedDecrease = 0.0; turnDecrease = 1.5 }
             .transition({ driver.lt.rising }, GRAB_SPEC)
             .transition({ operator.x.rising}, STOW)
             .state(GRAB_SPEC)
             .transitionTimed(GRAB_WAIT)
-            .state(RAM_SPEC)
+            .state(PREP_SCORE_SPEC)
             .onEnter { lift.preset = SPEC_HIGH }
-            .transition({ driver.lt.rising }, RELEASE_SPEC)
+            .transition({ driver.lt.rising }, SCORE_SPEC)
             .transition({ operator.x.rising}, STOW)
-            .state(RELEASE_SPEC)
+            .state(SCORE_SPEC)
+            .transitionTimed(0.3, STOW, { lift.preset = BOTTOM })
             .transition({ driver.lt.rising }, STOW, { lift.preset = BOTTOM })
             .transition({ operator.a.rising}, STOW)
 
@@ -141,6 +141,7 @@ open class Tele : LinearOpMode() {
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
         samplerFSM.start()
+        val timer = ElapsedTime()
         while (opModeIsActive()) {
             driver.update()
             operator.update()
@@ -209,6 +210,8 @@ open class Tele : LinearOpMode() {
             telemetry.addLine(" ")
             telemetry.addData("height", lift.height)
             telemetry.addData("state", samplerFSM.state)
+            telemetry.addData("loop time", 1_000_000 * timer.nanoseconds())
+            timer.reset()
             telemetry.update()
         }
     }

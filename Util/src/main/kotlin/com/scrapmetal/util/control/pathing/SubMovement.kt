@@ -6,7 +6,8 @@ import com.scrapmetal.util.control.Vector2d
 
 data class SubMovement(
     val curve: Curve,
-    val heading: HeadingInterpolation = Tangent(curve),
+    val reversed: Boolean = false,
+    val heading: HeadingInterpolation = if (!reversed) Tangent(curve) else ReverseTangent(curve),
     val pathSpeed: Double = 1.0,
 ) {
     /**

@@ -77,6 +77,10 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
         encoder.reset()
     }
 
+    fun trueResetEncoder() {
+        encoder.trueReset()
+    }
+
     fun read() {
         encoder.update()
         height = encoder.dist
@@ -176,8 +180,7 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
         SAMP_HIGH      (43.00 - 7.0 + 0.7-3.0        ),
         RAISE_CLIMB    (32.00                        ),
         PULL_CLIMB     (20.00                        ),
-        SPEC_LOW       (13.00 - 7.0 + 1.5 - 4.0      ),
-        SPEC_HIGH      (26.00 - 7.0 + 1.5 - 4.0      ),
+        SPEC_HIGH      (26.00 - 7.0 + 1.5 - 6.0      ),
     }
 
     enum class PTO(val position: Double) {

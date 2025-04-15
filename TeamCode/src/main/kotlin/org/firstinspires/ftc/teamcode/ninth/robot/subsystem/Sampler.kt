@@ -28,7 +28,7 @@ class Sampler(hardwareMap: HardwareMap) {
     private var mpStart = State.EXT_SAMP.proximal.pos
     private var mpEnd = State.EXT_SAMP.proximal.pos
     private val mpTimer = ElapsedTime()
-    private var pitchOffset = 0.0
+    private var pitchOffset = 0.02
 
     var state: State = State.STOW
         set(value) {
@@ -74,8 +74,8 @@ class Sampler(hardwareMap: HardwareMap) {
         PICKED          (Prox.RET,  Dist.EXT,  { R0.pos },    CLOSE, Lkg.EXT),
         EXTING_SAMP_S   (Prox.RET,  Dist.EXT,  { R0.pos },    OPEN,  Lkg.SPK),
         EXT_SAMP_S      (Prox.STOW, Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
-        PRIME_SAMP_S    (Prox.EXT,  Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
-        GRAB_SAMP_S     (Prox.EXT,  Dist.EXT,  { rollAng },   CLOSE, Lkg.SPK),
+        PRIME_SAMP_S    (Prox.SPK,  Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
+        GRAB_SAMP_S     (Prox.SPK,  Dist.EXT,  { rollAng },   CLOSE, Lkg.SPK),
         HOLD_SAMP       (Prox.STOW, Dist.RET,  { R90.pos },   CLOSE, Lkg.RET),
         MOVE_SCORE_SAMP (Prox.OUT,  Dist.RET,  { R90.pos },   CLOSE, Lkg.RET),
         PREP_SCORE_SAMP (Prox.OUT,  Dist.RET,  { R0.pos },    CLOSE, Lkg.RET),
@@ -83,22 +83,24 @@ class Sampler(hardwareMap: HardwareMap) {
         OBS_EXT_SAMP    (Prox.STOW, Dist.RET,  { R90.pos },   CLOSE, Lkg.EXT),
         OBS_DROP_SAMP   (Prox.STOW, Dist.EXT,  { R0.pos },    OPEN,  Lkg.EXT),
 
-        EXTING_SPEC     (Prox.RET,  Dist.EXT,  { R90.pos },   OPEN,  Lkg.EXT),
-        PRIME_SPEC      (Prox.FLAT, Dist.SPEC, { R90.pos },   OPEN,  Lkg.EXT),
-        GRAB_SPEC       (Prox.FLAT, Dist.SPEC, { R90.pos },   CLOSE, Lkg.EXT),
-        RAM_SPEC        (Prox.RAM,  Dist.RAM,  { RCW90.pos }, CLOSE, Lkg.RET),
-        RELEASE_SPEC    (Prox.RAM,  Dist.RAM,  { RCW90.pos }, OPEN,  Lkg.RET),
+        // EXTING_SPEC     (Prox.RET,  Dist.EXT,  { R90.pos },   OPEN,  Lkg.EXT),
+        PRIME_SPEC      (Prox.VERT, Dist.EXT, { R90.pos },   OPEN,  Lkg.SPEC),
+        GRAB_SPEC       (Prox.VERT, Dist.EXT, { R90.pos },   CLOSE, Lkg.SPEC),
+        PREP_SCORE_SPEC (Prox.HANG,  Dist.RET, { R90.pos },   CLOSE, Lkg.RET),
+        SCORE_SPEC      (Prox.VERT,  Dist.RET, { R90.pos },   CLOSE, Lkg.RET),
 
         DEBUG           (Prox.VERT, Dist.FLAT, { R0.pos }, OPEN, Lkg.EXT),
     }
 
     enum class Prox(val pos: Double) {
-        EXT  (0.44),
+        SPK  (0.43),
+        EXT  (0.45),
         FLAT (0.46),
-        STOW (0.49),
+        STOW (0.50),
         RET  (0.56),
-        OUT  (0.72),
-        RAM  (0.92),
+        SPEC (0.64),
+        OUT  (0.71),
+        HANG (0.74),
 
         VERT (0.67), // debug
     }
@@ -129,8 +131,9 @@ class Sampler(hardwareMap: HardwareMap) {
 
     enum class Lkg(val pos: Double) {
         RET (0.03),
-        SPK (0.40),
-        EXT (0.60),
+        SPEC(0.28),
+        SPK (0.34),
+        EXT (0.61),
     }
 
     // TODO: remove retracting
@@ -140,7 +143,7 @@ class Sampler(hardwareMap: HardwareMap) {
                 start = mpStart,
                 end = mpEnd,
                 accel = 82.0,
-                decel = if (mpEnd == Prox.EXT.pos) 64.0 else 6.0,
+                decel = if (mpEnd == Prox.EXT.pos || mpEnd == Prox.SPK.pos) 64.0 else 2.0,
                 vLimit = 36.0,
             ),
             mpTimer.seconds(),
