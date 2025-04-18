@@ -25,10 +25,13 @@ class Sampler(hardwareMap: HardwareMap) {
     private val color0 = hardwareMap.digitalChannel.get("color0")
     private val color1 = hardwareMap.digitalChannel.get("color1")
 
-    private var mpStart = State.EXT_SAMP.proximal.pos
-    private var mpEnd = State.EXT_SAMP.proximal.pos
+    private var mpStart = State.STOW.proximal.pos
+    private var mpEnd = State.STOW.proximal.pos
     private val mpTimer = ElapsedTime()
-    private var pitchOffset = 0.02
+    private var mpEStart = State.STOW.linkage.pos
+    private var mpEEnd = State.STOW.linkage.pos
+    private val mpETimer = ElapsedTime()
+    private var pitchOffset = 0.00
 
     var state: State = State.STOW
         set(value) {
@@ -39,8 +42,9 @@ class Sampler(hardwareMap: HardwareMap) {
             mpStart = proximal.position
             mpEnd = value.proximal.pos
             mpTimer.reset()
-            extensionOne.position = value.linkage.pos
-            extensionTwo.position = value.linkage.pos
+            mpEStart = extensionOne.position
+            mpEEnd = value.linkage.pos
+            mpETimer.reset()
         }
 
     enum class Color {
@@ -66,41 +70,46 @@ class Sampler(hardwareMap: HardwareMap) {
         val claw: Claw,
         val linkage: Lkg,
     ) {
-        STOW            (Prox.STOW, Dist.RET,  { R0.pos },    OPEN,  Lkg.RET),
-        EXTING_SAMP     (Prox.RET,  Dist.EXT,  { R0.pos },    OPEN,  Lkg.EXT),
-        EXT_SAMP        (Prox.STOW, Dist.EXT,  { rollAng },   OPEN,  Lkg.EXT),
-        PRIME_SAMP      (Prox.EXT,  Dist.EXT,  { rollAng },   OPEN,  Lkg.EXT),
-        GRAB_SAMP       (Prox.EXT,  Dist.EXT,  { rollAng },   CLOSE, Lkg.EXT),
-        PICKED          (Prox.RET,  Dist.EXT,  { R0.pos },    CLOSE, Lkg.EXT),
-        EXTING_SAMP_S   (Prox.RET,  Dist.EXT,  { R0.pos },    OPEN,  Lkg.SPK),
-        EXT_SAMP_S      (Prox.STOW, Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
-        PRIME_SAMP_S    (Prox.SPK,  Dist.EXT,  { rollAng },   OPEN,  Lkg.SPK),
-        GRAB_SAMP_S     (Prox.SPK,  Dist.EXT,  { rollAng },   CLOSE, Lkg.SPK),
-        HOLD_SAMP       (Prox.STOW, Dist.RET,  { R90.pos },   CLOSE, Lkg.RET),
-        MOVE_SCORE_SAMP (Prox.OUT,  Dist.RET,  { R90.pos },   CLOSE, Lkg.RET),
-        PREP_SCORE_SAMP (Prox.OUT,  Dist.RET,  { R0.pos },    CLOSE, Lkg.RET),
-        SCORE_SAMP      (Prox.OUT,  Dist.RET,  { R0.pos },    OPEN,  Lkg.RET),
-        OBS_EXT_SAMP    (Prox.STOW, Dist.RET,  { R90.pos },   CLOSE, Lkg.EXT),
-        OBS_DROP_SAMP   (Prox.STOW, Dist.EXT,  { R0.pos },    OPEN,  Lkg.EXT),
+        STOW            (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
+        EXTING_SAMP     (Prox.RET,  Dist.EXT, { R0.pos },  OPEN,  Lkg.EXT),
+        EXTING_SAMP_UH  (Prox.RET,  Dist.EXT, { rollAng },  OPEN,  Lkg.EXT),
+        EXT_SAMP        (Prox.STOW, Dist.EXT, { rollAng }, OPEN,  Lkg.EXT),
+        PRIME_SAMP      (Prox.EXT,  Dist.EXT, { rollAng }, OPEN,  Lkg.EXT),
+        GRAB_SAMP       (Prox.EXT,  Dist.EXT, { rollAng }, CLOSE, Lkg.EXT),
+        PICKED          (Prox.RET,  Dist.EXT, { R0.pos },  CLOSE, Lkg.RET),
+        EXTING_SAMP_S   (Prox.RET,  Dist.EXT, { rollAng },  OPEN, Lkg.SPK),
+        EXT_SAMP_S      (Prox.STOW, Dist.EXT, { rollAng }, OPEN,  Lkg.SPK),
+        PRIME_SAMP_S    (Prox.SPK,  Dist.EXT, { rollAng }, OPEN,  Lkg.SPK),
+        GRAB_SAMP_S     (Prox.SPK,  Dist.EXT, { rollAng }, CLOSE, Lkg.SPK),
+        HOLD_SAMP       (Prox.STOW, Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
+        MOVE_SCORE_SAMP (Prox.OUT,  Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
+        PREP_SCORE_SAMP (Prox.OUT,  Dist.RET, { R90.pos },  CLOSE, Lkg.RET),
+        SCORE_SAMP      (Prox.OUT,  Dist.RET, { R90.pos },  OPEN,  Lkg.RET),
+        AUTO_SCORE_SAMP (Prox.OUT,  Dist.RET, { R90.pos }, OPEN,  Lkg.RET),
+        OBS_EXT_SAMP    (Prox.STOW, Dist.RET, { R90.pos }, CLOSE, Lkg.EXT),
+        OBS_DROP_SAMP   (Prox.STOW, Dist.EXT, { R0.pos },  OPEN,  Lkg.EXT),
 
         // EXTING_SPEC     (Prox.RET,  Dist.EXT,  { R90.pos },   OPEN,  Lkg.EXT),
-        PRIME_SPEC      (Prox.VERT, Dist.EXT, { R90.pos },   OPEN,  Lkg.SPEC),
-        GRAB_SPEC       (Prox.VERT, Dist.EXT, { R90.pos },   CLOSE, Lkg.SPEC),
-        PREP_SCORE_SPEC (Prox.HANG,  Dist.RET, { R90.pos },   CLOSE, Lkg.RET),
-        SCORE_SPEC      (Prox.VERT,  Dist.RET, { R90.pos },   CLOSE, Lkg.RET),
+        PRIME_SPEC      (Prox.VERT, Dist.EXT, { R90.pos }, OPEN,  Lkg.SPEC),
+        GRAB_SPEC       (Prox.VERT, Dist.EXT, { R90.pos }, CLOSE, Lkg.SPEC),
+        PREP_SCORE_SPEC (Prox.HANG, Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
+        SCORE_SPEC      (Prox.VERT, Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
 
+        RAISE_CLIMB     (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
+        TRIGGER_PTO     (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
+        LOWER_CLIMB     (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
         DEBUG           (Prox.VERT, Dist.FLAT, { R0.pos }, OPEN, Lkg.EXT),
     }
 
     enum class Prox(val pos: Double) {
-        SPK  (0.43),
+        SPK  (0.44),
         EXT  (0.45),
         FLAT (0.46),
         STOW (0.50),
-        RET  (0.56),
+        RET  (0.57),
         SPEC (0.64),
-        OUT  (0.71),
-        HANG (0.74),
+        OUT  (0.73),
+        HANG (0.78),
 
         VERT (0.67), // debug
     }
@@ -109,6 +118,7 @@ class Sampler(hardwareMap: HardwareMap) {
         EXT  (0.64),
         SPEC (0.70),
         RAM  (0.57),
+        HANG (0.90),
         RET  (0.98),
 
         FLAT (0.86),
@@ -131,9 +141,9 @@ class Sampler(hardwareMap: HardwareMap) {
 
     enum class Lkg(val pos: Double) {
         RET (0.03),
-        SPEC(0.28),
+        SPEC(0.24),
         SPK (0.34),
-        EXT (0.61),
+        EXT (0.57),
     }
 
     // TODO: remove retracting
@@ -148,6 +158,19 @@ class Sampler(hardwareMap: HardwareMap) {
             ),
             mpTimer.seconds(),
         ).s + pitchOffset
+        val lkgPos = motionProfile(
+            MPConstraints(
+                start = mpEStart,
+                end = mpEEnd,
+                accel = 60.0,
+                decel = 10.0,
+                // decel = 40.0,
+                vLimit = 90.0,
+            ),
+            mpETimer.seconds(),
+        ).s
+        extensionOne.position = lkgPos
+        extensionTwo.position = lkgPos
     }
 
     companion object {

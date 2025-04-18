@@ -177,15 +177,17 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
         // AUTO_SPIKE     (                             ),
         SAMP_LOW       (25.75 - 7.0 + 1.0-0.0        ), // -4
         INIT_POST_AUTO (25.75 - 7.0 + 0.0            ),
-        SAMP_HIGH      (43.00 - 7.0 + 0.7-3.0        ),
+        SAMP_HIGH      (43.00 - 7.0 + 0.7-0.0        ),
+        HIGH_SAMP_HIGH (43.00 - 7.0 + 0.7-0.0        ),
         RAISE_CLIMB    (32.00                        ),
         PULL_CLIMB     (20.00                        ),
-        SPEC_HIGH      (26.00 - 7.0 + 1.5 - 6.0      ),
+        SPEC_HIGH      (26.00 - 7.0 + 1.5 - 1.5      ),
+        SPEC_HIGH_SCORE(26.00 - 7.0 + 1.5 + 4.0      ),
     }
 
     enum class PTO(val position: Double) {
-        STOW(0.68),
+        STOW(0.58),
 //        ENGAGE(0.71),
-        ENGAGE(0.89),
+        ENGAGE(0.86),
     }
 }

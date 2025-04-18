@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.ninth.opmode.test
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.hardware.limelightvision.Limelight3A
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -35,7 +37,7 @@ class AutoIntakeTest : LinearOpMode() {
         limelight.pipelineSwitch(0)
         var latestResult = limelight.latestResult
 
-        val follower = Follower(kN=0.5, kP=0.5, kD=0.05, kTheta=0.08, kOmega=0.005, endDistance=12.0)
+        val follower = Follower(kN=0.6, kP=0.6, kD=0.05, kTheta=0.09, kOmega=0.005, endDistance=12.0)
         val outPose = Pose2d(0.0, 0.0, 180.0)
         var sampAngle = 0.0
 
@@ -47,9 +49,10 @@ class AutoIntakeTest : LinearOpMode() {
             .state(DETECT)
             // time since last update compensation, timestamp, latency, etc.
             .loop { latestResult = limelight.latestResult }
-            .transitionTimed(0.5) {
+            .minimumTransitionTimed(1.0)
+            .transition({ latestResult != null && !(latestResult.pythonOutput[0] == 10_000.0 && latestResult.pythonOutput[1] == 10_000.0) }) {
                 val pose = drivetrain.getPoseAndVelo().first
-                val sampPos = pose.position - Vector2d(21.5, 0.0) + Rotation2d(180.0) *pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
+                val sampPos = pose.position - Vector2d(21.5, 0.0) + Rotation2d(180.0)*pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
                 follower.follow(
                     LinePoint(outPose.position) lineTo
                         LinePoint(sampPos) withHeading Constant(180.0)
@@ -62,11 +65,11 @@ class AutoIntakeTest : LinearOpMode() {
                 sampler.state = EXTING_SAMP
                 sampler.setRoll(sampAngle)
             }
-            .minimumTransitionTimed(1.5)
+            .minimumTransitionTimed(1.0)
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
-            .waitState(0.30)
+            .waitState(0.40)
             .onEnter { sampler.state = PRIME_SAMP }
-            .waitState(0.14)
+            .waitState(0.24)
             .onEnter { sampler.state = GRAB_SAMP }
 
             .state(OUTPUT)
@@ -77,7 +80,7 @@ class AutoIntakeTest : LinearOpMode() {
                 )
                 sampler.state = MOVE_SCORE_SAMP
             }
-            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.5) }
+            .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) }
             .waitState(0.4)
             .onEnter { sampler.state = PREP_SCORE_SAMP }
             .waitState(0.2)
@@ -91,9 +94,14 @@ class AutoIntakeTest : LinearOpMode() {
 
             .build()
 
-//        val dashboard = FtcDashboard.getInstance()
-//        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
+        val dashboard = FtcDashboard.getInstance()
+        telemetry = MultipleTelemetry(telemetry, dashboard.telemetry)
         limelight.start()
+        telemetry.addData("state", fsm.state)
+        telemetry.addData("x", latestResult.pythonOutput[0])
+        telemetry.addData("y", latestResult.pythonOutput[1])
+        telemetry.addData("ang", latestResult.pythonOutput[2])
+        telemetry.update()
         waitForStart()
         drivetrain.setPose(outPose)
         fsm.start()

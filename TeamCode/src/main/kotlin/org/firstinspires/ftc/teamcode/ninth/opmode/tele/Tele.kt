@@ -28,7 +28,7 @@ open class Tele : LinearOpMode() {
 
         val drivetrain = Drivetrain(hardwareMap)
         // TODO: readd tele
-        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0))
+        val lift = Lift(hardwareMap, (NOM_VOLT / hardwareMap.voltageSensor.iterator().next().voltage).coerceAtLeast(1.0), drivetrain)
         val sampler = Sampler(hardwareMap)
 
         val COLLISION_WAIT = 0.6
@@ -38,7 +38,7 @@ open class Tele : LinearOpMode() {
 
         var manual = false
         // TODO: SET TO LOW FOR POST-AUTO
-        lift.preset = BOTTOM
+        lift.preset = SAMP_LOW
         var ITSCLIMBINTIME = false
 
         var speedDecrease = 0.0
@@ -55,6 +55,7 @@ open class Tele : LinearOpMode() {
             .transition({ driver.lb.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(R45) })
             .transition({ driver.rb.rising && lift.preset == BOTTOM }, EXTING_SAMP, { sampler.setRoll(RCW45) })
             .transition({ driver.a.rising  && lift.preset == BOTTOM }, PRIME_SPEC)
+            .transition({ operator.lt.pos > 0.8 && operator.rt.pos > 0.8 && operator.up.pressed }, Sampler.State.RAISE_CLIMB)
 
             .state(EXTING_SAMP)
             .minimumTransitionTimed(0.6)
@@ -81,7 +82,7 @@ open class Tele : LinearOpMode() {
 
             .state(PICKED)
             .onEnter{ speedDecrease = 0.0; turnDecrease = 0.0 }
-            .minimumTransitionTimed(0.1)
+            .minimumTransitionTimed(0.2)
             // TODO: add override in case of sensor failure
             .transition({ sampler.color in goodColors }, HOLD_SAMP)
             .transition({ sampler.color in badColors }, EXT_SAMP)
@@ -130,9 +131,17 @@ open class Tele : LinearOpMode() {
             .transition({ driver.lt.rising }, SCORE_SPEC)
             .transition({ operator.x.rising}, STOW)
             .state(SCORE_SPEC)
+            .onEnter { lift.preset = SPEC_HIGH_SCORE }
             .transitionTimed(0.3, STOW, { lift.preset = BOTTOM })
             .transition({ driver.lt.rising }, STOW, { lift.preset = BOTTOM })
             .transition({ operator.a.rising}, STOW)
+
+            .state(Sampler.State.RAISE_CLIMB)
+            .onEnter { lift.preset = Lift.Preset.RAISE_CLIMB }
+            .transition({ operator.lt.pos > 0.8 && operator.rt.pos > 0.8 && operator.down.pressed }, LOWER_CLIMB)
+            .state(LOWER_CLIMB)
+            .onEnter { lift.pto1FREEZE(); lift.pto1ENGAGE() }
+            .afterTime(0.3) { ITSCLIMBINTIME = true; }
 
             .build()
 

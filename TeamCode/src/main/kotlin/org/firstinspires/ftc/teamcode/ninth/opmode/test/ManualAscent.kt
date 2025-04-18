@@ -27,7 +27,7 @@ class ManualAscent : LinearOpMode() {
             if (!engaged) {
                 lift.effort = -driver.rsy.pos
             }
-            if (!engaged && driver.lt.rising && driver.rt.rising && driver.lb.rising && driver.rb.rising) {
+            if (!engaged && driver.lt.pos > 0.8 && driver.rt.pos > 0.8 && driver.lb.pressed && driver.rb.pressed) {
                 lift.pto1ENGAGE()
                 engaged = true
             }

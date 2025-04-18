@@ -15,7 +15,6 @@ import com.scrapmetal.util.control.pathing.LinePoint
 import com.scrapmetal.util.control.pathing.Linear
 import com.scrapmetal.util.control.pathing.SplinePoint
 import com.scrapmetal.util.control.pathing.lineTo
-import com.scrapmetal.util.control.pathing.reverseSplineTo
 import com.scrapmetal.util.control.pathing.splineTo
 import com.scrapmetal.util.control.pathing.withHeading
 import com.sfdev.assembly.state.StateMachineBuilder
@@ -28,12 +27,11 @@ import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Lift.Preset.*
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler.State.*
 import org.firstinspires.ftc.teamcode.ninth.robot.subsystem.Sampler.Roll.*
-import org.firstinspires.ftc.teamcode.ninth.opmode.auto.ZeroPlusEight.AutoState.*
-import org.firstinspires.ftc.teamcode.ninth.opmode.test.AutoIntakeTest.State
+import org.firstinspires.ftc.teamcode.ninth.opmode.auto.ZeroPlusSeven.AutoState.*
 import kotlin.math.abs
 
-@Autonomous(name="0+8")
-class ZeroPlusEight : LinearOpMode() {
+@Autonomous(name="0+7")
+class ZeroPlusSeven : LinearOpMode() {
     enum class AutoState {
         PRELOAD,
         SPIKE,
@@ -53,9 +51,8 @@ class ZeroPlusEight : LinearOpMode() {
         limelight.setPollRateHz(80)
         var latestResult = limelight.latestResult
         var sampAngle = 0.0
-        val timer = ElapsedTime()
 
-        val follower = Follower(kN=0.5, kP=0.5, kD=0.05, kTheta=0.09, kOmega=0.005, endDistance=12.0)
+        val follower = Follower(kN=0.6, kP=0.6, kD=0.05, kTheta=0.09, kOmega=0.005, endDistance=12.0)
         val start = Pose2d(48.0 - LENGTH/2, WIDTH/2, 180.0)
         val score = Pose2d(19.0, 19.0, 180.0 + 45.0)
         val intake = listOf(
@@ -65,7 +62,7 @@ class ZeroPlusEight : LinearOpMode() {
         )
         val sub = Pose2d(38.0, 60.0, 180.0)
 
-        var sampCount = 0
+        var sampCount = 2
         val fsm = StateMachineBuilder()
             .state(PRELOAD)
             .onEnter {
@@ -76,8 +73,8 @@ class ZeroPlusEight : LinearOpMode() {
                 lift.preset = SAMP_HIGH
                 sampler.state = HOLD_SAMP
             }
-            //.transition { abs(lift.height - SAMP_HIGH.height) < 10.0 }
-            .transitionTimed(1.2)
+            .transition { abs(lift.height - SAMP_HIGH.height) < 10.0 }
+            // .transitionTimed(1.2)
             .waitState(0.4)
             .onEnter { sampler.state = MOVE_SCORE_SAMP }
             .waitState(0.2)
@@ -96,8 +93,9 @@ class ZeroPlusEight : LinearOpMode() {
                 lift.preset = BOTTOM
                 sampler.setRoll(intake[sampCount-1].second)
             }
-            .transition({ lift.height < 16.0 }, { sampler.state = EXTING_SAMP_S })
+            .transition({ lift.height < 12.0 }, { sampler.state = EXTING_SAMP_S })
             .state(SPIKE_EXT)
+            .minimumTransitionTimed(1.5)
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) && lift.height < 0.3} // OR TIME LIMIT
             .waitState(0.15)
             .onEnter { sampler.state = PRIME_SAMP_S }
@@ -110,13 +108,14 @@ class ZeroPlusEight : LinearOpMode() {
                     SplinePoint(score.position, Rotation2d(180.0)*score.heading*Vector2d(20.0, 0.0)) splineTo
                         SplinePoint(sub.position, Vector2d(30.0, 0.0)) withHeading Linear(score.heading, Rotation2d(180.0))
                 )
+                lift.preset = BOTTOM
             }
             .loop { latestResult = limelight.latestResult }
             .minimumTransitionTimed(2.0)
-            .transition({ follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) && latestResult != null }) {
+            .transition({ follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.2) && latestResult != null }) {
                 val pose = drivetrain.getPoseAndVelo().first
                 // TODO: this rotation compensation is not technically correct
-                val sampPos = pose.position - Vector2d(21.2, 0.0) + Rotation2d(180.0)*pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
+                val sampPos = pose.position - Vector2d(22.0, 0.0) + Rotation2d(180.0)*pose.heading*Vector2d(latestResult.pythonOutput[0], latestResult.pythonOutput[1])
                 follower.follow(
                     LinePoint(pose.position) lineTo
                         LinePoint(sampPos) withHeading Constant(180.0)
@@ -129,7 +128,7 @@ class ZeroPlusEight : LinearOpMode() {
                 sampler.state = EXTING_SAMP
                 sampler.setRoll(sampAngle)
             }
-            .minimumTransitionTimed(0.5)
+            .minimumTransitionTimed(1.0)
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) }
             .waitState(0.40)
             .onEnter { sampler.state = PRIME_SAMP }
@@ -150,8 +149,8 @@ class ZeroPlusEight : LinearOpMode() {
                 lift.preset = SAMP_HIGH
                 sampler.state = HOLD_SAMP
             }
-            // .transition { abs(lift.height - SAMP_HIGH.height) < 10.0 }
-            .transitionTimed(1.2)
+            .transition { abs(lift.height - SAMP_HIGH.height) < 10.0 }
+            // .transitionTimed(1.2)
             .waitState(0.4)
             .onEnter { sampler.state = MOVE_SCORE_SAMP }
             .waitState(0.2)
@@ -190,7 +189,7 @@ class ZeroPlusEight : LinearOpMode() {
             telemetry.addData("heading", pose.heading.theta)
 
             drivetrain.write()
-            // lift.write()
+            lift.write()
             sampler.write()
             telemetry.update()
         }
