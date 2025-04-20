@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.ninth.opmode.auto
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.scrapmetal.util.control.Pose2d
+import com.scrapmetal.util.control.Vector2d
 import com.scrapmetal.util.control.pathing.Constant
 import com.scrapmetal.util.control.pathing.Follower
 import com.scrapmetal.util.control.pathing.LinePoint
+import com.scrapmetal.util.control.pathing.SplinePoint
 import com.scrapmetal.util.control.pathing.lineTo
+import com.scrapmetal.util.control.pathing.splineTo
 import com.scrapmetal.util.control.pathing.withHeading
 import com.scrapmetal.util.control.pathing.withSpeed
 import com.sfdev.assembly.state.StateMachineBuilder
@@ -29,9 +32,12 @@ class FivePlusZero : LinearOpMode() {
         SCORE,
         DECISION,
         LOWER,
+        PRE_INTAKE,
         INTAKE,
         GRAB,
         SWEEP_INTAKE,
+        BACKUP_DECISION,
+        BACKUP,
         SWEEP_OUTPUT,
         SWEEP_DECISION,
     }
@@ -43,12 +49,12 @@ class FivePlusZero : LinearOpMode() {
 
         val follower = Follower(kN=0.5, kP=0.5, kD=0.05, kTheta=0.08, kOmega=0.005, endDistance=12.0)
         val start = Pose2d(0.0, 0.0, 90.0)
-        val score = Pose2d(-2.0, 23.2, 90.0)
+        val score = Pose2d(-2.0, 26.2, 90.0)
         val offset = Pose2d(-1.0, 0.0, 0.0)
-        val intake = Pose2d(36.0, 0.0, 90.0)
-        val sweep = Pose2d(19.0, 18.5, 180 + 40.0)
+        val intake = Pose2d(34.0, 0.5, 90.0)
+        val sweep = Pose2d(19.0, 19.0, 180 + 40.0)
         val sweepOffset = Pose2d(10.5, 0.0, 0.0)
-        val hp = Pose2d(18.0, 08.0, 180 - 40.0)
+        val hp = Pose2d(19.0, 16.0, 180 - 40.0)
 
         val GRAB_WAIT = 0.14
 
@@ -59,11 +65,12 @@ class FivePlusZero : LinearOpMode() {
             .onEnter {
                 follower.follow(
                     LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
-                        LinePoint(score.position + offset.position*(specCount.toDouble())) withHeading Constant(90.0) withSpeed 0.6
+                        LinePoint(score.position + offset.position*(specCount.toDouble())) withSpeed (if (specCount == 0) 0.6 else 1.0) withHeading Constant(90.0)
                 )
                 lift.preset = SPEC_HIGH
                 sampler.state = PREP_SCORE_SPEC
             }
+            .minimumTransitionTimed(1.0)
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) }
 
             .state(SCORE)
@@ -71,7 +78,7 @@ class FivePlusZero : LinearOpMode() {
                 lift.preset = SPEC_HIGH_SCORE
                 specCount++
             }
-            // .transitionTimed(0.6)
+            .transitionTimed(0.4)
 
             .state(DECISION)
             .transition({ specCount == 1 }, LOWER)
@@ -91,7 +98,7 @@ class FivePlusZero : LinearOpMode() {
             .onEnter {
                 follower.follow(
                     LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
-                            LinePoint(sweep.position + sweepOffset.position*(sweepCount.toDouble())) withHeading Constant(sweep.heading)
+                        LinePoint(sweep.position + sweepOffset.position*(sweepCount.toDouble())) withHeading Constant(sweep.heading)
                 )
                 sampler.state = EXTING_SAMP_UH
                 sampler.setRoll(RCW45)
@@ -100,36 +107,64 @@ class FivePlusZero : LinearOpMode() {
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) }
             .waitState(0.3)
             .onEnter { sampler.state = PRIME_SAMP }
-            .waitState(GRAB_WAIT)
+            .waitState(GRAB_WAIT, SWEEP_OUTPUT)
             .onEnter { sampler.state = GRAB_SAMP }
+            .state(BACKUP_DECISION)
+            .transition({ follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) && sweepCount < 2 }, SWEEP_OUTPUT)
+            .transition({ follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) && sweepCount == 2 }, BACKUP)
+
+            .state(BACKUP)
+            .onEnter {
+                follower.follow(
+                    LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
+                            LinePoint(sweep.position + sweepOffset.position*1.5) withHeading Constant(
+                        hp.heading
+                    )
+                )
+            }
+            .transitionTimed(0.6)
+            .waitState(0.3)
+            .onEnter { sampler.state = PRIME_SAMP }
+            .waitState(GRAB_WAIT, SWEEP_OUTPUT)
+            .onEnter { sampler.state = GRAB_SAMP }
+
 
             .state(SWEEP_OUTPUT)
             .onEnter {
                 follower.follow(
                     LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
-                        LinePoint(hp.position + sweepOffset.position*(sweepCount.toDouble())) withHeading Constant(hp.heading)
+                        LinePoint(hp.position + if (sweepCount == 2) Vector2d(-8.0, 0.0) else Vector2d(0.0, 0.0) + sweepOffset.position*(sweepCount.toDouble())) withHeading Constant(hp.heading)
                 )
                 sweepCount++
             }
             .transition({ follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) }, { sampler.state = EXTING_SAMP_UH })
             .state(SWEEP_DECISION)
             .minimumTransitionTimed(0.1)
-            .transition({ sweepCount < 3 }, SWEEP_INTAKE)
-            .transition({ sweepCount == 3 }, INTAKE)
+            .transition({ sweepCount < 2 }, SWEEP_INTAKE)
+            .transition({ sweepCount == 2 }, PRE_INTAKE)
 
             // .transition({ specCount == 1 }, SWEEP_INTAKE)
             // .transition({ specCount > 1 }, )
 
+            .state(PRE_INTAKE)
+            .onEnter {
+                follower.follow(
+                    LinePoint(drivetrain.getPoseAndVelo().first.position) lineTo
+                        LinePoint(intake.position + Vector2d(0.0, 12.0)) withHeading Constant(hp.heading)
+                )
+            }
+            .transitionTimed(1.0)
+
             .state(INTAKE)
             .onEnter {
                 follower.follow(
-                    LinePoint(score.position) lineTo
-                        LinePoint(intake.position) withHeading Constant(90.0)
+                    SplinePoint(score.position, Vector2d(30.0, -30.0)) splineTo
+                        SplinePoint(intake.position, Vector2d(0.0, -60.0)) withHeading Constant(90.0) withSpeed 0.7
                 )
                 lift.preset = BOTTOM
                 sampler.state = PRIME_SPEC
             }
-            .minimumTransitionTimed(2.2)
+            .minimumTransitionTimed(1.8)
             .transition { follower.atEnd(drivetrain.getPoseAndVelo().first.position, 0.3) }
             .state(GRAB)
             .onEnter { sampler.state = GRAB_SPEC }

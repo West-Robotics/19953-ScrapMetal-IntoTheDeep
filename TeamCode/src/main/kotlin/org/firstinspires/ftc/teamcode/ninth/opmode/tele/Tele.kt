@@ -104,11 +104,27 @@ open class Tele : LinearOpMode() {
             .transition({ operator.x.rising }, STOW)
 
             .state(MOVE_SCORE_SAMP)
+            .onEnter {
+                if (lift.preset != BOTTOM) {
+                    speedDecrease = 2.0
+                }
+            }
             .transitionTimed(0.4)
             .state(PREP_SCORE_SAMP)
+            .onEnter { if (lift.preset == HIGH_SAMP_LOW) lift.preset = SAMP_HIGH }
             .transition({ driver.lt.rising }, SCORE_SAMP)
+            .transition({ driver.rt.rising }, PREP_SCORE_SAMPH)
+            .transition({ operator.x.rising }, STOW)
+            .state(PREP_SCORE_SAMPH)
+            .onEnter { if (lift.preset == SAMP_HIGH) lift.preset = HIGH_SAMP_LOW }
+            .transition({ driver.lt.rising }, SCORE_SAMPH)
+            .transition({ driver.rt.rising }, PREP_SCORE_SAMP)
             .transition({ operator.x.rising }, STOW)
             .state(SCORE_SAMP)
+            .onEnter { speedDecrease = 0.0; turnDecrease = 0.0 }
+            .transitionTimed(SCORE_WAIT, STOW)
+            .transition({ operator.x.rising }, STOW)
+            .state(SCORE_SAMPH)
             .onEnter { speedDecrease = 0.0; turnDecrease = 0.0 }
             .transitionTimed(SCORE_WAIT, STOW)
             .transition({ operator.x.rising }, STOW)
@@ -132,9 +148,10 @@ open class Tele : LinearOpMode() {
             .transition({ operator.x.rising}, STOW)
             .state(SCORE_SPEC)
             .onEnter { lift.preset = SPEC_HIGH_SCORE }
-            .transitionTimed(0.3, STOW, { lift.preset = BOTTOM })
-            .transition({ driver.lt.rising }, STOW, { lift.preset = BOTTOM })
-            .transition({ operator.a.rising}, STOW)
+            .transitionTimed(0.3, LOWER_SPEC, { lift.preset = SAMP_LOW })
+            .state(LOWER_SPEC)
+            .transition({ driver.lt.rising}, STOW, { lift.preset = BOTTOM })
+            .transition({ operator.x.rising}, STOW)
 
             .state(Sampler.State.RAISE_CLIMB)
             .onEnter { lift.preset = Lift.Preset.RAISE_CLIMB }
@@ -172,9 +189,6 @@ open class Tele : LinearOpMode() {
             if (samplerFSM.state == HOLD_SAMP || samplerFSM.state == PREP_SCORE_SAMP) {
                 if (operator.b.rising) { lift.preset = SAMP_LOW }
                 if (operator.y.rising) { lift.preset = SAMP_HIGH }
-                if (lift.preset != BOTTOM) {
-                    speedDecrease = 2.0
-                }
             }
 
             if (operator.lb.pressed && operator.rb.pressed && operator.up.rising) {

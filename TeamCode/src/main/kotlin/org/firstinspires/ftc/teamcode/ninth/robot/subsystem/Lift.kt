@@ -177,8 +177,9 @@ class Lift(hardwareMap: HardwareMap, private val voltageMultiplier: Double = 1.0
         // AUTO_SPIKE     (                             ),
         SAMP_LOW       (25.75 - 7.0 + 1.0-0.0        ), // -4
         INIT_POST_AUTO (25.75 - 7.0 + 0.0            ),
-        SAMP_HIGH      (43.00 - 7.0 + 0.7-0.0        ),
+        SAMP_HIGH      (43.00 - 7.0 + 0.7-1.0        ),
         HIGH_SAMP_HIGH (43.00 - 7.0 + 0.7-0.0        ),
+        HIGH_SAMP_LOW  (43.00 - 7.0 + 0.7-2.0        ),
         RAISE_CLIMB    (32.00                        ),
         PULL_CLIMB     (20.00                        ),
         SPEC_HIGH      (26.00 - 7.0 + 1.5 - 1.5      ),

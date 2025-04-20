@@ -85,6 +85,8 @@ class Sampler(hardwareMap: HardwareMap) {
         MOVE_SCORE_SAMP (Prox.OUT,  Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
         PREP_SCORE_SAMP (Prox.OUT,  Dist.RET, { R90.pos },  CLOSE, Lkg.RET),
         SCORE_SAMP      (Prox.OUT,  Dist.RET, { R90.pos },  OPEN,  Lkg.RET),
+        PREP_SCORE_SAMPH(Prox.OUT,  Dist.RET, { R0.pos },  CLOSE, Lkg.RET),
+        SCORE_SAMPH     (Prox.OUT,  Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
         AUTO_SCORE_SAMP (Prox.OUT,  Dist.RET, { R90.pos }, OPEN,  Lkg.RET),
         OBS_EXT_SAMP    (Prox.STOW, Dist.RET, { R90.pos }, CLOSE, Lkg.EXT),
         OBS_DROP_SAMP   (Prox.STOW, Dist.EXT, { R0.pos },  OPEN,  Lkg.EXT),
@@ -94,6 +96,7 @@ class Sampler(hardwareMap: HardwareMap) {
         GRAB_SPEC       (Prox.VERT, Dist.EXT, { R90.pos }, CLOSE, Lkg.SPEC),
         PREP_SCORE_SPEC (Prox.HANG, Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
         SCORE_SPEC      (Prox.VERT, Dist.RET, { R90.pos }, CLOSE, Lkg.RET),
+        LOWER_SPEC      (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
 
         RAISE_CLIMB     (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
         TRIGGER_PTO     (Prox.STOW, Dist.RET, { R0.pos },  OPEN,  Lkg.RET),
@@ -141,6 +144,7 @@ class Sampler(hardwareMap: HardwareMap) {
 
     enum class Lkg(val pos: Double) {
         RET (0.03),
+        SSEC(0.24),
         SPEC(0.24),
         SPK (0.34),
         EXT (0.57),
